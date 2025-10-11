@@ -330,6 +330,19 @@ export const useEquipmentStore = defineStore('equipment', () => {
   }
 
   /**
+   * 更新分类顺序
+   */
+  function updateCategoriesOrder(newOrder) {
+    categories.value = newOrder
+    saveData()
+    
+    const logStore = useOperationLogStore()
+    logStore.log('sort', '重新排序了分类', {
+      categories: newOrder.map(cat => cat.name).join('、')
+    })
+  }
+
+  /**
    * 添加装备项目
    */
   function addItem(categoryId, itemData) {
@@ -579,6 +592,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
     toggleCategoryCollapse,
     reindexCategory, // 暴露重编码方法
     fixDuplicateIds, // 暴露修复重复ID方法
+    updateCategoriesOrder, // 暴露更新分类顺序方法
     addItem,
     deleteItem,
     editItem,

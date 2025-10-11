@@ -436,6 +436,17 @@ function cancelAddItem() {
 .category-dropdown {
   position: relative;
   display: inline-block;
+  
+  /* 扩展hover区域，确保鼠标在按钮和菜单之间移动时不会断开 */
+  &::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    height: 10px; /* 扩展10px的hover区域 */
+    background: transparent;
+  }
 }
 
 .category-menu-btn {
@@ -461,7 +472,7 @@ function cancelAddItem() {
   position: absolute;
   right: 0;
   top: 100%;
-  margin-top: 4px;
+  margin-top: 0; /* 无间隙，直接连接 */
   background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: 8px;
@@ -469,9 +480,11 @@ function cancelAddItem() {
   min-width: 150px;
   z-index: 100;
   overflow: hidden;
+  padding-top: 4px; /* 顶部留一点呼吸空间 */
 }
 
-.category-dropdown:hover .category-menu {
+.category-dropdown:hover .category-menu,
+.category-menu:hover {
   display: block;
   animation: fadeIn 0.2s ease;
 }
@@ -485,20 +498,20 @@ function cancelAddItem() {
   transition: all 0.2s ease;
   font-size: 0.9rem;
   white-space: nowrap;
-}
-
-.category-menu-item:hover {
-  background: var(--bg-hover);
-  color: var(--primary-color);
-}
-
-.category-menu-item.danger {
-  color: var(--danger-color, #dc3545);
-}
-
-.category-menu-item.danger:hover {
-  background: rgba(220, 53, 69, 0.1);
-  color: var(--danger-color, #dc3545);
+  
+  &:hover {
+    background: var(--bg-hover);
+    color: var(--primary-color);
+  }
+  
+  &.danger {
+    color: var(--danger-color, #dc3545);
+    
+    &:hover {
+      background: rgba(220, 53, 69, 0.1);
+      color: var(--danger-color, #dc3545);
+    }
+  }
 }
 
 @keyframes fadeIn {

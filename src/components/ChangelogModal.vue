@@ -73,6 +73,7 @@ const error = ref(null)
 const cooldownTime = ref(0) // 剩余冷却时间（秒）
 const COOLDOWN_DURATION = 30 // 冷却持续时间（秒）
 let cooldownTimer = null
+let scrollPosition = 0
 
 // GitHub仓库配置
 const GITHUB_REPO = 'iskssssss/outdoor-gear-checklist' // 修改为您的GitHub用户名/仓库名
@@ -182,6 +183,11 @@ async function fetchCommitsFromGitHub(isInitialLoad = false) {
  */
 function show() {
   visible.value = true
+  
+  // 锁定页面滚动
+  scrollPosition = window.scrollY
+  document.body.style.top = `-${scrollPosition}px`
+  document.body.classList.add('no-scroll')
 }
 
 /**
@@ -189,6 +195,11 @@ function show() {
  */
 function close() {
   visible.value = false
+  
+  // 解锁页面滚动
+  document.body.classList.remove('no-scroll')
+  document.body.style.top = ''
+  window.scrollTo(0, scrollPosition)
 }
 
 // 组件挂载时尝试从GitHub获取数据（首次加载不启动冷却）

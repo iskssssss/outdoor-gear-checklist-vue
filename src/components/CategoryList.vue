@@ -16,7 +16,18 @@
       >
         {{ allCollapsed ? '📂 展开全部' : '📁 收起全部' }}
       </button>
+      <div class="more-actions-dropdown">
+        <button class="btn btn-secondary btn-sm">
+          ⋯ 更多
+        </button>
+        <div class="more-actions-menu">
+          <a class="menu-item" @click="showSortModal">🔀 排序分类</a>
+        </div>
+      </div>
     </div>
+    
+    <!-- 排序模态框 -->
+    <CategorySortModal ref="categorySortModalRef" />
     
     <!-- 装备分类列表 -->
     <div v-if="equipmentStore.categories.length === 0 && !isAdding" class="empty-state">
@@ -103,13 +114,15 @@
 import { ref, computed, nextTick, watch, onMounted, onUnmounted } from 'vue'
 import { useEquipmentStore } from '../stores/equipment'
 import CategoryItem from './CategoryItem.vue'
-import WaterfallLayout from './WaterfallLayout.vue' // 引入瀑布流布局组件
+import WaterfallLayout from './WaterfallLayout.vue'
+import CategorySortModal from './CategorySortModal.vue'
 
 const equipmentStore = useEquipmentStore()
 const newCategoryName = ref('')
 const isAdding = ref(false)
 const categoryInput = ref(null)
 const layoutMode = ref('grid') // 'grid' 或 'waterfall'
+const categorySortModalRef = ref(null)
 
 /**
  * 计算是否所有分类都已收起
@@ -179,6 +192,13 @@ function toggleAllCategories() {
   })
 }
 
+/**
+ * 显示分类排序模态框
+ */
+function showSortModal() {
+  categorySortModalRef.value?.show()
+}
+
 </script>
 
 <style scoped lang="scss">
@@ -200,6 +220,79 @@ function toggleAllCategories() {
       transform: translateY(-2px);
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
+  }
+}
+
+.more-actions-dropdown {
+  position: relative;
+  display: inline-block;
+  
+  /* 扩展hover区域，确保鼠标在按钮和菜单之间移动时不会断开 */
+  &::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    height: 10px; /* 扩展10px的hover区域 */
+    background: transparent;
+  }
+}
+
+.more-actions-menu {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 100%;
+  margin-top: 0; /* 无间隙，直接连接 */
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  min-width: 160px;
+  z-index: 100;
+  overflow: hidden;
+  padding-top: 4px; /* 顶部留一点呼吸空间 */
+}
+
+.more-actions-dropdown:hover .more-actions-menu,
+.more-actions-menu:hover {
+  display: block;
+  animation: menuFadeIn 0.2s ease;
+}
+
+.more-actions-menu .menu-item {
+  display: block;
+  padding: 12px 16px;
+  color: var(--text-primary);
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  
+  &:hover {
+    background: var(--bg-hover);
+    color: var(--primary-color);
+  }
+  
+  &:first-child {
+    border-radius: 8px 8px 0 0;
+  }
+  
+  &:last-child {
+    border-radius: 0 0 8px 8px;
+  }
+}
+
+@keyframes menuFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 

@@ -316,14 +316,14 @@ function deleteItem() {
     color: white;
   }
 
-  // 确保从按钮到菜单之间没有间隙
-  &::before {
+  // 扩展hover区域，确保鼠标在按钮和菜单之间移动时不会断开
+  &::after {
     content: '';
     position: absolute;
     top: 100%;
     left: 0;
     right: 0;
-    height: 4px; // 与 actions-menu 的 margin-top 相同
+    height: 10px; /* 扩展10px的hover区域 */
     background: transparent;
   }
 }
@@ -357,7 +357,7 @@ function deleteItem() {
   position: absolute;
   right: 0;
   top: 100%;
-  margin-top: 4px;
+  margin-top: 0; /* 无间隙，直接连接 */
   min-width: 120px;
   background: var(--bg-card);
   border: 1px solid var(--border-color);
@@ -365,6 +365,7 @@ function deleteItem() {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   padding: 4px 0;
   z-index: 100;
+  padding-top: 4px; /* 顶部留一点呼吸空间 */
 }
 
 // 菜单项
