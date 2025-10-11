@@ -90,19 +90,21 @@ const commits = ref([])
  * 按日期分组提交记录
  */
 const groupedCommits = computed(() => {
-  // 为每个提交添加序号（从1到n，最早的是1）
-  const commitsWithNumber = commits.value.map((commit, index) => ({
-    ...commit,
-    number: commits.value.length - index // 倒序编号：最新的是最大号
-  }))
-  
   // 按日期分组（保持原顺序，最新的在前）
   const groups = {}
-  commitsWithNumber.forEach(commit => {
+  commits.value.forEach(commit => {
     if (!groups[commit.date]) {
       groups[commit.date] = []
     }
     groups[commit.date].push(commit)
+  })
+  
+  // 为每个日期组内的提交添加序号（每天降序，最新的序号最大）
+  Object.keys(groups).forEach(date => {
+    const groupCommits = groups[date]
+    groupCommits.forEach((commit, index) => {
+      commit.number = groupCommits.length - index // 降序编号
+    })
   })
   
   return groups
@@ -156,7 +158,10 @@ async function fetchCommitsFromGitHub(isInitialLoad = false) {
     const fetchedCommits = data.map(commit => {
       const message = commit.commit.message.split('\n')[0] // 第一行作为message
       const body = commit.commit.message.split('\n').slice(1).join('\n').trim() // 其余作为body
-      const date = new Date(commit.commit.author.date).toISOString().split('T')[0]
+      // 转换为北京时间（UTC+8）
+      const utcDate = new Date(commit.commit.author.date)
+      const beijingDate = new Date(utcDate.getTime() + 8 * 60 * 60 * 1000)
+      const date = beijingDate.toISOString().split('T')[0]
       
       return {
         hash: commit.sha.substring(0, 7),
