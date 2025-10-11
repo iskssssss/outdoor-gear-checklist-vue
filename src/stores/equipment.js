@@ -43,6 +43,23 @@ export const useEquipmentStore = defineStore('equipment', () => {
     return (weightInGrams / 1000).toFixed(2) + 'kg'
   })
 
+  const totalPrice = computed(() => {
+    const priceInYuan = categories.value.reduce((sum, cat) => 
+      sum + cat.items.reduce((itemSum, item) => {
+        let priceInYuan = item.price || 0
+        // 单位转换到人民币
+        switch(item.priceUnit) {
+          case '美元': priceInYuan = (item.price || 0) * 7; break // 简单汇率转换
+          case '英镑': priceInYuan = (item.price || 0) * 9; break
+          case '日元': priceInYuan = (item.price || 0) * 0.05; break
+          default: priceInYuan = item.price || 0 // 人民币
+        }
+        return itemSum + (priceInYuan * item.quantity)
+      }, 0), 0
+    )
+    return priceInYuan.toFixed(2) + '人民币'
+  })
+
   // Actions
   /**
    * 从localStorage加载数据
@@ -55,14 +72,22 @@ export const useEquipmentStore = defineStore('equipment', () => {
         
         let needsReindex = false
         
-        // 确保导入时 icon 属性存在，并检查序号
+        // 确保导入时 icon 属性存在，并检查序号，补充默认价格单位
         categories.value = categories.value.map(cat => {
           const items = cat.items.map((item, index) => {
+            const updatedItem = { ...item }
             if (!item.index) {
               needsReindex = true
-              return { ...item, index: index + 1 }
+              updatedItem.index = index + 1
             }
-            return item
+            // 确保价格字段存在默认值
+            if (updatedItem.price === undefined) {
+              updatedItem.price = 0
+            }
+            if (!updatedItem.priceUnit) {
+              updatedItem.priceUnit = '人民币'
+            }
+            return updatedItem
           })
           
           return {
@@ -369,7 +394,9 @@ export const useEquipmentStore = defineStore('equipment', () => {
       quantity: itemData.quantity || 1,
       quantityUnit: itemData.quantityUnit || '个',
       weight: itemData.weight || 0,
-      weightUnit: itemData.weightUnit || 'g'
+      weightUnit: itemData.weightUnit || 'g',
+      price: itemData.price || 0,
+      priceUnit: itemData.priceUnit || '人民币'
     }
 
     category.items.push(newItem)
@@ -381,7 +408,8 @@ export const useEquipmentStore = defineStore('equipment', () => {
       item: newItem.name,
       index: newItem.index,
       quantity: `${newItem.quantity}${newItem.quantityUnit}`,
-      weight: `${newItem.weight}${newItem.weightUnit}`
+      weight: `${newItem.weight}${newItem.weightUnit}`,
+      price: `${newItem.price}${newItem.priceUnit}`
     })
 
     return true
@@ -437,12 +465,15 @@ export const useEquipmentStore = defineStore('equipment', () => {
     const oldName = item.name
     const oldQuantity = `${item.quantity}${item.quantityUnit}`
     const oldWeight = `${item.weight}${item.weightUnit}`
+    const oldPrice = `${item.price || 0}${item.priceUnit || '人民币'}`
 
     item.name = itemData.name.trim()
     item.quantity = itemData.quantity || 1
     item.quantityUnit = itemData.quantityUnit || '个'
     item.weight = itemData.weight || 0
     item.weightUnit = itemData.weightUnit || 'g'
+    item.price = itemData.price || 0
+    item.priceUnit = itemData.priceUnit || '人民币'
 
     saveData()
 
@@ -452,7 +483,8 @@ export const useEquipmentStore = defineStore('equipment', () => {
       oldName: oldName,
       newName: item.name,
       quantity: `${oldQuantity} → ${item.quantity}${item.quantityUnit}`,
-      weight: `${oldWeight} → ${item.weight}${item.weightUnit}`
+      weight: `${oldWeight} → ${item.weight}${item.weightUnit}`,
+      price: `${oldPrice} → ${item.price}${item.priceUnit}`
     })
 
     return true
@@ -499,7 +531,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
     if (confirm('导入数据将覆盖当前清单，确定要继续吗？')) {
       const oldCount = categories.value.length
       
-      // 导入数据并为每个装备分配序号和唯一ID
+      // 导入数据并为每个装备分配序号和唯一ID，补充默认值
       categories.value = data.map(cat => {
         const categoryData = {
           ...cat,
@@ -508,7 +540,9 @@ export const useEquipmentStore = defineStore('equipment', () => {
             ...item,
             // 如果没有ID或ID不是数字，生成新的唯一ID
             id: (item.id && typeof item.id === 'number') ? item.id : Date.now() + Math.random() * 10000 + index,
-            index: item.index || (index + 1) // 如果没有序号就分配一个
+            index: item.index || (index + 1), // 如果没有序号就分配一个
+            price: item.price !== undefined ? item.price : 0, // 确保价格字段存在
+            priceUnit: item.priceUnit || '人民币' // 确保价格单位存在
           }))
         }
         return categoryData
@@ -580,6 +614,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
     completedItems,
     remainingItems,
     totalWeight,
+    totalPrice,
     // Actions
     loadData,
     initializeCategories: initializeDefaultCategories, // 暴露初始化分类方法

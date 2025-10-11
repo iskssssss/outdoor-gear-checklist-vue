@@ -22,6 +22,11 @@
         <div class="stat-number">{{ equipmentStore.totalWeight }}</div>
         <div class="stat-label">总重量</div>
       </div>
+      <div class="stat-item stat-price">
+        <div class="stat-icon">💰</div>
+        <div class="stat-number">{{ formatPrice(equipmentStore.totalPrice) }}</div>
+        <div class="stat-label">总价格</div>
+      </div>
     </div>
   </div>
 </template>
@@ -30,6 +35,24 @@
 import { useEquipmentStore } from '../stores/equipment'
 
 const equipmentStore = useEquipmentStore()
+
+/**
+ * 格式化价格显示
+ */
+function formatPrice(priceString) {
+  // 从字符串中提取数字和单位，如 "1234.56人民币"
+  const match = priceString.match(/([\d.]+)(.*)/)
+  if (!match) return priceString
+  
+  const num = parseFloat(match[1])
+  const unit = match[2]
+  
+  if (isNaN(num)) return priceString
+  
+  // 添加千位分隔符
+  const formatted = num.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+  return formatted + unit
+}
 </script>
 
 <style scoped lang="scss">
@@ -73,6 +96,21 @@ const equipmentStore = useEquipmentStore()
 .stat-label {
   font-size: 0.9rem;
   opacity: 0.9;
+}
+
+.stat-icon {
+  font-size: 1.5rem;
+  margin-bottom: 8px;
+}
+
+.stat-price {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(255, 140, 0, 0.1) 100%);
+  border: 2px solid rgba(255, 215, 0, 0.3);
+}
+
+.stat-price .stat-number {
+  color: var(--primary-color);
+  font-weight: 700;
 }
 
 @media (max-width: 768px) {

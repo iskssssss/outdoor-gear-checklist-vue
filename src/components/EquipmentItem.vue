@@ -15,8 +15,27 @@
       </span>
       <span class="item-details">
         <template v-if="item">
-          {{ item.quantity }}{{ item.quantityUnit }} · {{ item.weight }}{{ item.weightUnit }}
-          <span v-if="totalWeight > 0">总重量: {{ totalWeight.toFixed(1) }}{{ item.weightUnit }}</span>
+          <span class="detail-row item-quantity">
+            <span class="detail-icon">📦</span>
+            <span class="detail-label">数量:</span>
+            <span class="detail-value">{{ formatNumber(item.quantity) }}{{ item.quantityUnit }}</span>
+          </span>
+          <span class="detail-row item-weight">
+            <span class="detail-icon">⚖️</span>
+            <span class="detail-label">重量:</span>
+            <span class="detail-value">
+              {{ formatNumber(item.weight) }}{{ item.weightUnit }}
+              <span v-if="totalWeight > 0" class="total-weight">（总重: {{ formatNumber(totalWeight, 1) }}{{ item.weightUnit }}）</span>
+            </span>
+          </span>
+          <span v-if="item.price > 0" class="detail-row item-price">
+            <span class="detail-icon">💰</span>
+            <span class="detail-label">价格:</span>
+            <span class="detail-value">
+              {{ formatPrice(item.price) }}{{ item.priceUnit }}
+              <span v-if="totalPrice > 0" class="total-price">（总价: {{ formatPrice(totalPrice) }}{{ item.priceUnit }}）</span>
+            </span>
+          </span>
         </template>
       </span>
     </div>
@@ -60,6 +79,16 @@
             <option value="双">双</option>
             <option value="套">套</option>
             <option value="瓶">瓶</option>
+          </select>
+        </div>
+        <div class="add-item-field">
+          <label>价格:</label>
+          <input type="number" v-model.number="editingData.price" min="0" step="0.01">
+          <select v-model="editingData.priceUnit">
+            <option value="人民币">人民币</option>
+            <option value="美元">美元</option>
+            <option value="英镑">英镑</option>
+            <option value="日元">日元</option>
           </select>
         </div>
       </div>
@@ -109,8 +138,14 @@ const editingData = ref(props.isAdding ? {
   quantity: 1,
   quantityUnit: '个',
   weight: 0,
-  weightUnit: 'g'
-} : { ...props.item });
+  weightUnit: 'g',
+  price: 0,
+  priceUnit: '人民币'
+} : { 
+  ...props.item,
+  price: props.item?.price || 0,
+  priceUnit: props.item?.priceUnit || '人民币'
+});
 const editNameInput = ref(null)
 
 const totalWeight = computed(() => {
@@ -122,6 +157,34 @@ const totalWeight = computed(() => {
   }
   return weight * quantity
 })
+
+const totalPrice = computed(() => {
+  const item = props.isAdding ? editingData.value : props.item;
+  const price = parseFloat(item.price || 0)
+  const quantity = parseFloat(item.quantity)
+  if (isNaN(price) || isNaN(quantity)) {
+    return 0
+  }
+  return price * quantity
+})
+
+/**
+ * 格式化数字显示（添加千位分隔符）
+ */
+function formatNumber(value, decimals = 0) {
+  const num = parseFloat(value)
+  if (isNaN(num)) return '0'
+  return num.toFixed(decimals).replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+}
+
+/**
+ * 格式化价格显示（添加千位分隔符）
+ */
+function formatPrice(price) {
+  const num = parseFloat(price)
+  if (isNaN(num)) return '0.00'
+  return num.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+}
 
 /**
  * 切换装备完成状态
@@ -155,7 +218,9 @@ function handleSave() {
         quantity: 1,
         quantityUnit: '个',
         weight: 0,
-        weightUnit: 'g'
+        weightUnit: 'g',
+        price: 0,
+        priceUnit: '人民币'
       }
     }
     isEditingForm.value = false;
@@ -174,10 +239,15 @@ function handleCancel() {
       quantity: 1,
       quantityUnit: '个',
       weight: 0,
-      weightUnit: 'g'
+      weightUnit: 'g',
+      price: 0,
+      priceUnit: '人民币'
     }
   } else {
-    editingData.value = { ...props.item };
+    editingData.value = { 
+      ...props.item,
+      priceUnit: props.item?.priceUnit || '人民币'
+    };
   }
 }
 
@@ -417,6 +487,60 @@ body.theme-minimal .item:hover .item-index {
   word-break: break-word; /* 防止长单词溢出 */
   display: flex; /* 启用Flexbox布局 */
   flex-direction: column; /* 子元素垂直堆叠 */
+  gap: 4px; /* 行之间的间距 */
+}
+
+.detail-row {
+  display: flex;
+  align-items: baseline;
+  line-height: 1.6;
+  gap: 4px;
+  flex-wrap: wrap; /* 允许换行，但尽量避免 */
+}
+
+.detail-icon {
+  flex-shrink: 0; /* 图标不收缩 */
+  font-size: 1em;
+}
+
+.detail-label {
+  flex-shrink: 0; /* 标签不收缩 */
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.detail-value {
+  flex: 1;
+  min-width: 0; /* 允许收缩 */
+  color: var(--text-primary);
+  font-weight: 500;
+  word-break: break-word; /* 长文本可以断行 */
+}
+
+.item-quantity {
+  color: var(--text-primary);
+}
+
+.item-weight {
+  color: var(--text-primary);
+}
+
+.total-weight {
+  color: var(--text-secondary);
+  font-weight: 400;
+  font-size: 0.9em;
+  white-space: nowrap; /* 总重尽量不换行 */
+}
+
+.item-price {
+  color: var(--text-primary);
+}
+
+.total-price {
+  color: var(--text-secondary);
+  font-weight: 400;
+  font-size: 0.9em;
+  white-space: nowrap; /* 总价尽量不换行 */
 }
 
 .item-actions {
