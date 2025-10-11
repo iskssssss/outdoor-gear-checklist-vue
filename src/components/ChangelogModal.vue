@@ -3,7 +3,19 @@
     <div class="modal-content changelog-modal">
       <div class="modal-header">
         <h2>📝 更新日志</h2>
-        <button class="close-btn" @click="close">✕</button>
+        <div class="header-actions">
+          <button 
+            class="refresh-btn" 
+            @click="fetchCommitsFromGitHub(false)"
+            :disabled="loading || cooldownTime > 0"
+            :title="loading ? '加载中...' : cooldownTime > 0 ? `请等待 ${cooldownTime} 秒后再刷新` : '刷新更新记录'"
+          >
+            <span :class="{ 'spinning': loading }">
+              {{ cooldownTime > 0 ? cooldownTime : '🔄' }}
+            </span>
+          </button>
+          <button class="close-btn" @click="close">✕</button>
+        </div>
       </div>
       
       <div class="modal-body">
@@ -51,11 +63,16 @@
 </template>
 
 <script setup>
-import { ref, computed, defineExpose, onMounted } from 'vue'
+import { ref, computed, defineExpose, onMounted, onUnmounted } from 'vue'
 
 const visible = ref(false)
 const loading = ref(false)
 const error = ref(null)
+
+// 刷新冷却时间相关
+const cooldownTime = ref(0) // 剩余冷却时间（秒）
+const COOLDOWN_DURATION = 30 // 冷却持续时间（秒）
+let cooldownTimer = null
 
 // GitHub仓库配置
 const GITHUB_REPO = 'iskssssss/outdoor-gear-checklist' // 修改为您的GitHub用户名/仓库名
@@ -89,7 +106,36 @@ const groupedCommits = computed(() => {
 /**
  * 从GitHub API获取提交记录
  */
-async function fetchCommitsFromGitHub() {
+function startCooldown() {
+  cooldownTime.value = COOLDOWN_DURATION
+  console.log(`🔒 开始冷却倒计时: ${COOLDOWN_DURATION} 秒`)
+  
+  // 清除之前的定时器
+  if (cooldownTimer) {
+    clearInterval(cooldownTimer)
+  }
+  
+  // 开始倒计时
+  cooldownTimer = setInterval(() => {
+    cooldownTime.value--
+    console.log(`⏱️ 冷却中: ${cooldownTime.value} 秒`)
+    if (cooldownTime.value <= 0) {
+      clearInterval(cooldownTimer)
+      cooldownTimer = null
+      console.log(`✅ 冷却结束，可以再次刷新`)
+    }
+  }, 1000)
+}
+
+async function fetchCommitsFromGitHub(isInitialLoad = false) {
+  console.log(`🔍 fetchCommitsFromGitHub 调用 - isInitialLoad: ${isInitialLoad}, cooldownTime: ${cooldownTime.value}`)
+  
+  // 检查是否在冷却时间内（首次加载除外）
+  if (!isInitialLoad && cooldownTime.value > 0) {
+    console.warn(`⏱️ 刷新冷却中，请等待 ${cooldownTime.value} 秒`)
+    return
+  }
+  
   loading.value = true
   error.value = null
   
@@ -123,6 +169,14 @@ async function fetchCommitsFromGitHub() {
     
     commits.value = fetchedCommits
     console.log('✅ 成功从GitHub获取提交记录:', fetchedCommits.length, '条')
+    
+    // 只有非首次加载才启动冷却倒计时
+    if (!isInitialLoad) {
+      console.log('🚀 准备启动冷却倒计时...')
+      startCooldown()
+    } else {
+      console.log('⏭️ 首次加载，跳过冷却')
+    }
   } catch (err) {
     console.warn('⚠️ 从GitHub获取提交记录失败，使用本地数据:', err.message)
     error.value = err.message
@@ -146,9 +200,18 @@ function close() {
   visible.value = false
 }
 
-// 组件挂载时尝试从GitHub获取数据
+// 组件挂载时尝试从GitHub获取数据（首次加载不启动冷却）
 onMounted(() => {
-  fetchCommitsFromGitHub()
+  fetchCommitsFromGitHub(true)
+})
+
+// 组件卸载时清理定时器
+onUnmounted(() => {
+  if (cooldownTimer) {
+    clearInterval(cooldownTimer)
+    cooldownTimer = null
+    console.log('🧹 清理冷却定时器')
+  }
 })
 
 /**
@@ -241,6 +304,38 @@ defineExpose({
     margin: 0;
     font-size: 24px;
     color: var(--text-primary);
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .refresh-btn {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    
+    &:hover:not(:disabled) {
+      background: var(--bg-hover);
+      color: var(--primary-color);
+    }
+    
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .spinning {
+      display: inline-block;
+      animation: spin 1s linear infinite;
+    }
   }
 
   .close-btn {
