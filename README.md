@@ -173,7 +173,7 @@ npm run preview
 ## 📁 项目结构
 
 ```
-hiking-checklist-vue/
+outdoor-gear-checklist/
 ├── src/
 │   ├── assets/                 # 静态资源
 │   │   ├── main.scss          # 全局样式
@@ -235,16 +235,17 @@ hiking-checklist-vue/
 
 | 键名 | 说明 | 数据格式 |
 |------|------|----------|
-| `hikingChecklist` | 装备清单数据 | JSON 数组 |
-| `hikingApiSettings` | 模型配置 | JSON 对象 |
-| `hikingRecommendationPreferences` | 推荐偏好 | JSON 对象 |
-| `hikingOperationLogs` | 操作日志 | JSON 数组 |
+| `outdoorChecklist` | 装备清单数据 | JSON 数组 |
+| `outdoorApiSettings` | 模型配置 | JSON 对象 |
+| `outdoorRecommendationPreferences` | 推荐偏好 | JSON 对象 |
+| `outdoorOperationLogs` | 操作日志 | JSON 数组 |
+| `outdoorCustomRecommendationOptions` | 自定义推荐选项 | JSON 对象 |
 | `appTheme` | 当前主题 | 字符串 |
 
 ### 数据结构示例
 
 ```javascript
-// hikingChecklist
+// outdoorChecklist
 [
   {
     id: 1699999999999,

@@ -46,10 +46,10 @@ export const defaultCategories = [
  * 用于持久化存储各种配置和数据
  */
 export const localStorageKeys = {
-  modelSettings: 'hikingApiSettings',
-  recommendationPreferences: 'hikingRecommendationPreferences',
-  equipmentChecklist: 'hikingChecklist',
-  customRecommendationOptions: 'hikingCustomRecommendationOptions'
+  modelSettings: 'outdoorApiSettings',
+  recommendationPreferences: 'outdoorRecommendationPreferences',
+  equipmentChecklist: 'outdoorChecklist',
+  customRecommendationOptions: 'outdoorCustomRecommendationOptions'
 };
 
 /**
