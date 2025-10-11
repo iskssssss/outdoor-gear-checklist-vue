@@ -1,9 +1,18 @@
 <template>
-    <div v-if="isVisible" class="modal" @click="close">
-      <div class="modal-content" @click.stop>
+    <div v-if="isVisible" class="modal" @click="handleModalClick">
+      <div class="modal-content" @click.stop :class="{ importing: isImporting }">
+        <!-- 导入中遮罩 -->
+        <div v-if="isImporting" class="importing-overlay">
+          <div class="importing-spinner">
+            <div class="spinner"></div>
+            <p>正在导入商品到清单...</p>
+            <p class="warning-text">⚠️ 请勿关闭此窗口</p>
+          </div>
+        </div>
+        
         <div class="modal-header">
           <h3>🛒 导入购物车商品</h3>
-          <span class="close" @click="close">&times;</span>
+          <span class="close" @click="handleClose" :class="{ disabled: isImporting }">&times;</span>
         </div>
         <div class="modal-body scroll-area">
           <div class="import-section">
@@ -21,10 +30,10 @@
               rows="10"
             ></textarea>
             <div class="action-buttons">
-              <button class="btn btn-primary" @click="parseLink" :disabled="!cartShareLink.trim() || isLoading">
+              <button class="btn btn-primary" @click="parseLink" :disabled="!cartShareLink.trim() || isLoading || isImporting">
                 {{ isLoading ? '正在处理...' : '解析商品' }}
               </button>
-              <button class="btn btn-secondary" @click="clearLink">清空</button>
+              <button class="btn btn-secondary" @click="clearLink" :disabled="isImporting">清空</button>
             </div>
           </div>
   
@@ -80,6 +89,33 @@
     document.body.classList.add('no-scroll');
   }
   
+  /**
+   * 处理关闭模态框（带导入中检查）
+   */
+  function handleClose() {
+    if (isImporting.value) {
+      // 如果正在导入，提示用户
+      if (!confirm('正在导入商品，确定要取消吗？这可能导致导入不完整。')) {
+        return;
+      }
+    }
+    close();
+  }
+
+  /**
+   * 处理点击模态框背景（带导入中检查）
+   */
+  function handleModalClick() {
+    if (isImporting.value) {
+      // 正在导入时不允许点击背景关闭
+      return;
+    }
+    close();
+  }
+
+  /**
+   * 关闭模态框
+   */
   function close() {
     isVisible.value = false;
     cartShareLink.value = '';
@@ -93,6 +129,9 @@
   }
   
   function clearLink() {
+    if (isImporting.value) {
+      return; // 导入中不允许清空
+    }
     cartShareLink.value = '';
     parsedItems.value = [];
     message.value = '';
@@ -372,6 +411,71 @@
     animation: slideIn 0.3s ease;
     overflow: hidden;
     color: var(--text-primary);
+    position: relative; // 为遮罩层定位
+    
+    &.importing {
+      pointer-events: auto; // 保持遮罩层可交互
+    }
+  }
+
+  // 导入中遮罩层
+  .importing-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(4px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
+  }
+
+  .importing-spinner {
+    text-align: center;
+    color: white;
+    
+    p {
+      margin: 15px 0 5px 0;
+      font-size: 1.1rem;
+      font-weight: 500;
+    }
+    
+    .warning-text {
+      font-size: 0.95rem;
+      color: #ffc107;
+      margin-top: 10px;
+      font-weight: 600;
+    }
+  }
+
+  // 旋转加载动画
+  .spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-top-color: var(--primary-color, #667eea);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
   }
   
   @keyframes slideIn {
@@ -407,6 +511,12 @@
     transition: opacity 0.3s;
     &:hover {
       opacity: 1;
+    }
+    
+    &.disabled {
+      cursor: not-allowed;
+      opacity: 0.3;
+      pointer-events: none;
     }
   }
   
