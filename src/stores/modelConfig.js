@@ -18,6 +18,7 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
     difficulty: [],
     budget: []
   })
+  const lastRecommendations = ref([]) // 新增：保存上次的推荐结果
 
   // Actions
   /**
@@ -51,6 +52,16 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
         Object.assign(customRecommendationOptions.value, JSON.parse(customOptions))
       } catch (e) {
         console.error('加载自定义推荐选项失败:', e)
+      }
+    }
+
+    // 加载上次的推荐结果
+    const storedRecommendations = localStorage.getItem(localStorageKeys.lastRecommendations)
+    if (storedRecommendations) {
+      try {
+        lastRecommendations.value = JSON.parse(storedRecommendations)
+      } catch (e) {
+        console.error('加载上次推荐结果失败:', e)
       }
     }
   }
@@ -123,6 +134,21 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
         customRecommendationOptions.value[categoryName].splice(index, 1)
         savePreferences()
       }
+    }
+  }
+
+  /**
+   * 保存推荐结果
+   * @param {Array} recs - 推荐结果数组
+   * （UI状态操作，不记录日志）
+   */
+  function saveRecommendations(recs) {
+    try {
+      lastRecommendations.value = recs;
+      localStorage.setItem(localStorageKeys.lastRecommendations, JSON.stringify(recs));
+      console.log('✅ 推荐结果已保存');
+    } catch (e) {
+      console.error('❌ 推荐结果保存失败:', e);
     }
   }
 
@@ -291,6 +317,7 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
     settings,
     recommendationPreferences,
     customRecommendationOptions,
+    lastRecommendations, // 暴露 lastRecommendations
     // Actions
     loadSettings,
     saveSettings,
@@ -298,7 +325,8 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
     addCustomOption,
     removeCustomOption,
     buildApiUrl,
-    testConnection
+    testConnection,
+    saveRecommendations // 暴露保存推荐结果的方法
   }
 })
 

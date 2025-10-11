@@ -419,13 +419,16 @@ export const useEquipmentStore = defineStore('equipment', () => {
       id: uniqueId,
       index: maxIndex + 1,  // 固定序号
       name: itemData.name.trim(),
-      completed: false,
+      completed: itemData.completed || false,
       quantity: itemData.quantity || 1,
       quantityUnit: itemData.quantityUnit || '个',
       weight: itemData.weight || 0,
       weightUnit: itemData.weightUnit || 'g',
       price: itemData.price || 0,
-      priceUnit: itemData.priceUnit || '人民币'
+      priceUnit: itemData.priceUnit || '人民币',
+      isRecommended: itemData.isRecommended || false, // 新增字段，标记为推荐装备
+      notes: itemData.description || itemData.notes || '', // 支持 description 或 notes
+      priority: itemData.priority || 'medium' // 支持优先级
     }
 
     // 保存操作前的状态
@@ -736,6 +739,30 @@ export const useEquipmentStore = defineStore('equipment', () => {
     return logStore.getLatestUndoableLog()
   }
 
+  /**
+   * 根据名称获取分类ID，如果不存在则创建
+   */
+  function getOrCreateCategory(categoryName, icon = '✨') {
+    let category = categories.value.find(cat => cat.name === categoryName);
+    if (!category) {
+      // 如果分类不存在，则创建新分类
+      const uniqueId = Date.now() + Math.floor(Math.random() * 10000);
+      const newCategory = {
+        id: uniqueId,
+        name: categoryName,
+        icon: icon,
+        items: [],
+        collapsed: false
+      };
+      categories.value.push(newCategory);
+      saveData();
+      const logStore = useOperationLogStore();
+      logStore.log('add', `自动创建了分类：${categoryName}`, { category: categoryName });
+      return newCategory.id;
+    }
+    return category.id;
+  }
+
   return {
     // 状态
     categories,
@@ -769,7 +796,8 @@ export const useEquipmentStore = defineStore('equipment', () => {
     clearAllData,
     undoOperation, // 撤销指定操作
     quickUndo, // 快速撤销最近操作
-    getLatestUndoableLog // 暴露获取最新可撤销日志方法
+    getLatestUndoableLog, // 暴露获取最新可撤销日志方法
+    getOrCreateCategory // 暴露获取或创建分类方法
   }
 })
 

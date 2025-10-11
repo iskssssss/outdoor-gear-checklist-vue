@@ -90,6 +90,11 @@
             您的装备清单已经很完善了！
           </div>
           <div v-else class="recommendation-content">
+            <!-- <div class="recommendation-actions add-to-list-actions">
+              <button class="btn btn-primary" @click="addRecommendationsToEquipment">
+                添加到清单
+              </button>
+            </div> -->
             <div
               v-for="(rec, index) in recommendations"
               :key="index"
@@ -196,8 +201,13 @@ const priorityConfig = computed(() => {
 })
 
 function show() {
-  showResults.value = false
   error.value = ''
+  if (modelConfigStore.lastRecommendations.length > 0) {
+    recommendations.value = modelConfigStore.lastRecommendations;
+    showResults.value = true;
+  } else {
+    showResults.value = false;
+  }
   modalRef.value?.show()
 }
 
@@ -236,6 +246,9 @@ async function getRecommendations() {
       // 在线模式
       recommendations.value = await getOnlineRecommendations()
     }
+
+    // 保存推荐结果
+    modelConfigStore.saveRecommendations(recommendations.value);
 
     // AI推荐是查询操作，不记录日志
   } catch (err) {
@@ -424,6 +437,46 @@ function getPriorityLabel(priority) {
 const debouncedGetRecommendations = debounce(getRecommendations, 500); // Longer debounce for API calls
 const debouncedClose = debounce(close, 300);
 
+async function addRecommendationsToEquipment() {
+  if (recommendations.value.length === 0) {
+    return;
+  }
+
+  // 尝试为每个推荐项找到或创建分类并添加
+  for (const rec of recommendations.value) {
+    let targetCategoryName = '智能推荐'; // 默认分类名称
+
+    // 尝试根据推荐标题或描述智能匹配现有分类
+    // 注意：这里需要遍历现有分类，判断名称是否包含推荐标题或描述
+    // 由于我们不能直接访问 equipmentStore.categories，所以我们先找到匹配的名称
+    // 并在调用 addItem 之前通过 getOrCreateCategory 确保分类存在。
+    const matchedCategory = equipmentStore.categories.find(cat => 
+      rec.title.includes(cat.name) || rec.description.includes(cat.name)
+    );
+    if (matchedCategory) {
+      targetCategoryName = matchedCategory.name;
+    }
+
+    // 获取或创建分类ID
+    const categoryId = equipmentStore.getOrCreateCategory(targetCategoryName, '🤖'); // 使用机器人图标作为默认图标
+
+    // 添加装备到 store，并标记为推荐
+    equipmentStore.addItem(categoryId, {
+      name: rec.title,
+      description: rec.description,
+      prepared: false,
+      quantity: 1,
+      weight: 0,
+      weightUnit: 'g',
+      isRecommended: true, // 新增标记
+      priority: rec.priority, // 可以保留优先级信息
+    });
+  }
+
+  // 添加成功后可以关闭模态框
+  close();
+}
+
 defineExpose({ show, close })
 </script>
 
@@ -540,6 +593,10 @@ defineExpose({ show, close })
   display: flex;
   flex-direction: column;
   gap: 15px;
+}
+
+.add-to-list-actions {
+  margin-bottom: 20px;
 }
 
 .recommendation-item {

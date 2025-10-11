@@ -12,6 +12,7 @@
       <span class="item-name">
         <span class="item-index" v-if="itemIndex">{{ itemIndex }}</span>
         {{ item?.name }}
+        <span v-if="item?.isRecommended" class="recommended-badge">🤖推荐</span>
       </span>
       <span class="item-details">
         <template v-if="item">
@@ -832,6 +833,19 @@ body.theme-minimal .item:hover .item-index {
     width: 100%;
     justify-content: flex-end;
   }
+}
+
+.recommended-badge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 8px;
+  background-color: var(--info-color, #17a2b8); /* 使用信息蓝色或默认蓝色 */
+  color: white;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  vertical-align: middle;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 </style>
 
