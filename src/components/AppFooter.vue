@@ -12,7 +12,7 @@
       <div class="footer-section">
         <h4 class="footer-title">快速链接</h4>
         <ul class="footer-links">
-          <li><a href="#" @click.prevent="$emit('show-changelog')">使用指南</a></li>
+          <li><a href="#" @click.prevent="$emit('show-doc')">使用指南</a></li>
         </ul>
       </div>
 
@@ -42,7 +42,7 @@
 import { computed } from 'vue'
 
 // 定义事件
-defineEmits(['show-changelog'])
+defineEmits(['show-changelog', 'show-doc'])
 
 const currentYear = computed(() => new Date().getFullYear())
 </script>

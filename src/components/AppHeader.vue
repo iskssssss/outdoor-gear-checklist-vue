@@ -55,6 +55,11 @@
             </div>
           </div>
 
+          <!-- 使用指南（一级菜单） -->
+          <a class="nav-link" @click="showDoc">
+            📚 使用指南
+          </a>
+
           <!-- 其他 -->
           <div class="nav-dropdown">
             <a class="nav-link dropdown-toggle">
@@ -63,7 +68,6 @@
             <div class="dropdown-menu">
               <a class="dropdown-item" @click="showOperationLog">📋 操作日志</a>
               <a class="dropdown-item" @click="showChangelog">📝 更新日志</a>
-              <a class="dropdown-item disabled">📚 使用文档（开发中）</a>
               <a class="dropdown-item disabled">📧 联系我们（开发中）</a>
             </div>
           </div>
@@ -113,7 +117,7 @@ import { imageExportConfig } from '../config/appConfig'
 const equipmentStore = useEquipmentStore()
 
 // 事件定义
-const emit = defineEmits(['show-recommendation', 'show-model-config', 'show-operation-log', 'show-changelog'])
+const emit = defineEmits(['show-recommendation', 'show-model-config', 'show-operation-log', 'show-changelog', 'show-doc'])
 
 // 图片预览相关状态
 const previewModalRef = ref(null)
@@ -313,6 +317,13 @@ function showOperationLog() {
  */
 function showChangelog() {
   emit('show-changelog')
+}
+
+/**
+ * 显示使用文档模态框
+ */
+function showDoc() {
+  emit('show-doc')
 }
 </script>
 

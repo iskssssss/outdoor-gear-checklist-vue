@@ -1,5 +1,9 @@
 <template>
-  <div class="app-container" @click="handleClickOutside">
+  <!-- 使用指南页面 -->
+  <DocPage v-if="showDocPage" @close="closeDocPage" />
+  
+  <!-- 主页面 -->
+  <div v-else class="app-container" @click="handleClickOutside">
     <!-- 固定在右上角的主题切换器 -->
     <div class="theme-switcher-fixed" :class="{ expanded: themeSwitcherExpanded }">
       <button 
@@ -29,6 +33,7 @@
       @show-model-config="showModelConfig"
       @show-operation-log="showOperationLog"
       @show-changelog="showChangelog"
+      @show-doc="openDocPage"
     />
     <div class="main-content">
       <StatsPanel />
@@ -37,6 +42,7 @@
 
     <AppFooter 
       @show-changelog="showChangelog"
+      @show-doc="openDocPage"
     />
 
     <!-- 主题选择按钮已移除 -->
@@ -59,6 +65,7 @@ import RecommendationModal from './components/RecommendationModal.vue'
 import ModelConfigModal from './components/ModelConfigModal.vue'
 import OperationLogModal from './components/OperationLogModal.vue'
 import ChangelogModal from './components/ChangelogModal.vue'
+import DocPage from './components/DocPage.vue'
 import { useEquipmentStore } from './stores/equipment'
 import { useModelConfigStore } from './stores/modelConfig'
 import { useThemeStore } from './stores/themeStore'
@@ -73,6 +80,9 @@ const recommendationModalRef = ref(null)
 const modelConfigModalRef = ref(null)
 const operationLogModalRef = ref(null)
 const changelogModalRef = ref(null)
+
+// 使用指南页面状态
+const showDocPage = ref(false)
 
 // 主题切换器状态
 const themeSwitcherExpanded = ref(false)
@@ -164,6 +174,14 @@ function showOperationLog() {
 
 function showChangelog() {
   changelogModalRef.value?.show()
+}
+
+function openDocPage() {
+  showDocPage.value = true
+}
+
+function closeDocPage() {
+  showDocPage.value = false
 }
 </script>
 

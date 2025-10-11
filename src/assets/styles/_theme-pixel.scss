@@ -19,6 +19,7 @@ body.theme-pixel {
   --info-light: #80ffff;
   
   --bg-gradient: linear-gradient(135deg, #404040 0%, #202020 100%); /* 暗色渐变背景 */
+  --bg-main: #303030; /* 主背景色 */
   --bg-card: #c0c0c0; /* 银色/灰色，模拟老式屏幕 */
   --bg-header: #808080; /* 中灰色 */
   --bg-input: #f0f0f0; /* 浅灰色 */
@@ -36,6 +37,10 @@ body.theme-pixel {
   
   --shadow-card: 4px 4px #404040; /* 像素化阴影 */
   --shadow-hover: 6px 6px #606060; /* 像素化悬停阴影 */
+  --shadow-sm: 2px 2px #303030;
+  --shadow-md: 4px 4px #404040;
+  --shadow-lg: 6px 6px #505050;
+  --shadow-xl: 8px 8px #606060;
   
   --btn-success: #00a000;
   --btn-primary: #008080;
@@ -70,6 +75,235 @@ body.theme-pixel {
   /* 差异化样式 */
   .app-container {
     background: var(--bg-gradient);
+  }
+  
+  /* 使用指南页面特殊处理 - 覆盖所有变量 */
+  .doc-page {
+    // 覆盖CSS变量，确保浅色文字
+    --text-primary: #f0f0f0;
+    --text-secondary: #c0c0c0;
+    --text-muted: #a0a0a0;
+    --bg-card: #505050;
+    --bg-input: #303030;
+    --bg-hover: #606060;
+    --border-color: #606060;
+    
+    background: #404040 !important; /* 深灰色背景 */
+    
+    .doc-header {
+      background: #606060 !important; /* 中灰色头部 */
+      border-bottom: var(--pixel-size) solid #202020;
+    }
+    
+    .doc-page-title {
+      color: #f0f0f0 !important;
+    }
+    
+    .back-btn {
+      background: var(--primary-color) !important;
+      color: #ffffff !important;
+      border: var(--pixel-size) solid #005f5f;
+    }
+    
+    .refresh-btn {
+      background: var(--primary-color) !important;
+      color: #ffffff !important;
+      border: var(--pixel-size) solid #005f5f;
+    }
+    
+    .doc-main {
+      background: #404040;
+    }
+    
+    .doc-container {
+      background: transparent;
+    }
+    
+    .doc-content-wrapper {
+      background: transparent;
+    }
+    
+    .doc-toc {
+      background: #505050 !important; /* 深灰色目录背景 */
+      border: var(--pixel-size) solid #202020 !important;
+      
+      .toc-header h3 {
+        color: #f0f0f0 !important;
+        border-bottom-color: #303030;
+      }
+      
+      .toc-item a {
+        color: #d0d0d0 !important;
+        
+        &:hover {
+          color: #ffffff !important;
+          background: #606060 !important;
+        }
+      }
+      
+      .toc-item.active a {
+        color: #ffffff !important;
+        background: var(--primary-color) !important;
+      }
+    }
+    
+    .markdown-body {
+      // 通过覆盖变量，所有使用 var(--text-primary) 的元素都会自动变成浅色
+      // 不需要单独设置每个元素的颜色
+      
+      
+      // 行内代码 - 经典DOS终端绿色
+      :deep(code) {
+        background: #202020 !important;
+        color: #00ff00 !important;
+        border-color: #404040 !important;
+      }
+      
+      // 代码块 - 经典DOS终端绿色
+      :deep(pre) {
+        background: #202020 !important;
+        border: var(--pixel-size) solid #404040 !important;
+        
+        code {
+          background: transparent !important;
+          color: #00ff00 !important;
+        }
+      }
+      
+      // 链接 - 经典青色
+      :deep(a) {
+        color: #00ffff !important;
+        border-bottom-color: #00ffff !important;
+        
+        &:hover {
+          color: #000000 !important;
+          background: #00ffff !important;
+          border-bottom-color: #00ffff !important;
+        }
+      }
+      
+      // 引用块
+      :deep(blockquote) {
+        background: #505050 !important;
+        border-left-color: var(--primary-color) !important;
+        
+        &::before {
+          color: var(--primary-color) !important;
+        }
+      }
+      
+      // 表格
+      :deep(table) {
+        background: #303030 !important;
+        border: var(--pixel-size) solid #202020 !important;
+        
+        th {
+          background: #606060 !important;
+          color: #ffffff !important;
+          border-color: #404040 !important;
+        }
+        
+        td {
+          background: #404040 !important;
+          color: #d0d0d0 !important;
+          border-color: #505050 !important;
+        }
+        
+        tr:nth-child(even) td {
+          background: #4a4a4a !important;
+        }
+        
+        tr:hover td {
+          background: #555555 !important;
+          color: #ffffff !important;
+        }
+      }
+      
+      // 水平线
+      :deep(hr) {
+        background: linear-gradient(to right, transparent, #808080, transparent) !important;
+      }
+      
+      // 加粗
+      :deep(strong) {
+        color: #ffffff !important;
+        
+        &::after {
+          background: #00ffff !important;
+          opacity: 0.3;
+        }
+      }
+      
+      // 斜体
+      :deep(em) {
+        color: #c0c0c0 !important;
+      }
+      
+      // 删除线
+      :deep(del) {
+        color: #808080 !important;
+      }
+      
+      // 图片边框
+      :deep(img:not([src*="shields.io"]):not([src*="badge"])) {
+        border-color: #606060 !important;
+        box-shadow: 4px 4px #303030 !important;
+        
+        &:hover {
+          box-shadow: 6px 6px #404040 !important;
+        }
+      }
+      
+      // 徽章行
+      :deep(p.badge-row) {
+        img {
+          filter: brightness(1.1);
+        }
+      }
+    }
+    
+    // 加载和错误状态
+    .loading-state {
+      color: #d0d0d0 !important;
+      
+      p {
+        color: #d0d0d0 !important;
+      }
+    }
+    
+    .loading-spinner {
+      border-color: #505050 !important;
+      border-top-color: var(--primary-color) !important;
+    }
+    
+    .error-state {
+      color: #d0d0d0 !important;
+      
+      p {
+        color: #d0d0d0 !important;
+      }
+      
+      .error-message {
+        color: #ff8080 !important;
+      }
+      
+      .fallback-hint {
+        color: #a0a0a0 !important;
+      }
+    }
+    
+    // 回到顶部按钮
+    .back-to-top {
+      background: var(--primary-color) !important;
+      color: #ffffff !important;
+      border: var(--pixel-size) solid #005f5f;
+      box-shadow: 4px 4px #303030 !important;
+      
+      &:hover {
+        background: #00a0a0 !important;
+        box-shadow: 6px 6px #404040 !important;
+      }
+    }
   }
   
   .header {
