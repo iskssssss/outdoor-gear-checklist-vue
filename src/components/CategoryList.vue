@@ -544,14 +544,24 @@ async function initializeCategories() {
 async function clearAllData() {
   const confirmed = await showConfirm({
     title: '清空所有数据',
-    message: '确定要清空所有数据吗？',
+    message: '确定要清空所有装备数据吗？此操作不可恢复！',
     confirmButtonText: '清空',
     showDangerWarning: true
   })
 
   if (confirmed) {
-    equipmentStore.clearAllData()
-    toast?.success('所有数据已清空')
+    // 二次确认
+    const confirmed2 = await showConfirm({
+      title: '再次确认',
+      message: '真的要删除所有装备分类和项目吗？',
+      confirmButtonText: '确认删除',
+      showDangerWarning: true
+    })
+    
+    if (confirmed2) {
+      equipmentStore.clearAllData()
+      toast?.success('所有数据已清空')
+    }
   }
 }
 

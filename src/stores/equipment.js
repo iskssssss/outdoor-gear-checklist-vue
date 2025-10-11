@@ -632,27 +632,23 @@ export const useEquipmentStore = defineStore('equipment', () => {
 
   /**
    * 清空所有数据
+   * 注意：确认对话框应该由调用方处理
    */
   function clearAllData() {
-    if (confirm('确定要清空所有装备数据吗？此操作不可恢复！')) {
-      if (confirm('再次确认：真的要删除所有装备分类和项目吗？')) {
-        const oldCategories = categories.value.length
-        const oldItems = totalItems.value
+    const oldCategories = categories.value.length
+    const oldItems = totalItems.value
 
-        categories.value = []
-        saveData()
+    categories.value = []
+    saveData()
 
-        const logStore = useOperationLogStore()
-        logStore.log('clear', '清空了所有装备数据', {
-          deletedCategories: oldCategories,
-          deletedItems: oldItems
-        })
+    const logStore = useOperationLogStore()
+    logStore.log('clear', '清空了所有装备数据', {
+      deletedCategories: oldCategories,
+      deletedItems: oldItems
+    })
 
-        // toast 通知已在 CategoryList 中处理
-        return true
-      }
-    }
-    return false
+    // toast 通知已在 CategoryList 中处理
+    return true
   }
 
   /**

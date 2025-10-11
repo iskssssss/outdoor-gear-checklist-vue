@@ -5,6 +5,7 @@
     width="800px"
     max-height="90vh"
     :close-on-overlay-click="!isImporting"
+    :disable-body-scroll="isImporting"
     @close="handleClose"
   >
     <div class="import-cart-wrapper" :class="{ importing: isImporting }">
@@ -59,7 +60,7 @@
 </template>
   
   <script setup>
-  import { ref } from 'vue';
+  import { ref, inject } from 'vue';
   import { useEquipmentStore } from '../stores/equipment';
   import { useModelConfigStore } from '../stores/modelConfig';
   import { useOperationLogStore } from '../stores/operationLog';
@@ -69,6 +70,7 @@
   const equipmentStore = useEquipmentStore();
   const modelConfigStore = useModelConfigStore();
   const logStore = useOperationLogStore();
+  const showConfirm = inject('showConfirm');
   
   const modalRef = ref(null);
   const cartShareLink = ref('');
@@ -88,10 +90,16 @@
   /**
    * 处理关闭模态框（带导入中检查）
    */
-  function handleClose() {
+  async function handleClose() {
     if (isImporting.value) {
       // 如果正在导入，提示用户
-      if (!confirm('正在导入商品，确定要取消吗？这可能导致导入不完整。')) {
+      const confirmed = await showConfirm({
+        title: '取消导入',
+        message: '正在导入商品，确定要取消吗？这可能导致导入不完整。',
+        confirmButtonText: '确定取消',
+        showDangerWarning: true
+      });
+      if (!confirmed) {
         return;
       }
     }
@@ -367,6 +375,9 @@
   <style scoped lang="scss">
   .import-cart-wrapper {
     position: relative;
+    display: flex; /* 新增：使用Flexbox布局 */
+    flex-direction: column; /* 新增：垂直堆叠子元素 */
+    gap: 20px; /* 新增：子元素之间的间距 */
   }
 
   // 导入中遮罩层
@@ -532,7 +543,26 @@
     padding: 10px;
     background: var(--bg-card);
   }
-  
+
+  /* 美化滚动条 */
+  .item-list::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .item-list::-webkit-scrollbar-track {
+    background: var(--bg-input);
+    border-radius: 4px;
+  }
+
+  .item-list::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+  }
+
+  .item-list::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+  }
+
   .parsed-item {
     display: flex;
     justify-content: space-between;
@@ -540,7 +570,12 @@
     background: var(--bg-main);
     border-radius: 6px;
     border: 1px solid var(--border-color);
+    /* margin-bottom: 8px; 显式添加底部边距 */
   }
+  
+  /* .parsed-item:last-child {
+    margin-bottom: 0; 最后一个不加底部边距 */
+  /* } */
   
   .item-name {
     font-weight: 500;

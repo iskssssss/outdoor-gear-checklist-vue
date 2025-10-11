@@ -101,8 +101,17 @@ function handleClose() {
   // 额外的关闭逻辑（如果需要）
 }
 
-function clearLogs() {
-  logStore.clearLogs()
+async function clearLogs() {
+  const confirmed = await showConfirm({
+    title: '清空操作日志',
+    message: '确定要清空所有操作日志吗？',
+    confirmButtonText: '清空',
+    showDangerWarning: true
+  })
+  
+  if (confirmed) {
+    logStore.clearLogs()
+  }
 }
 
 function exportLogs() {

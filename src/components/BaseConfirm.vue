@@ -90,7 +90,7 @@ defineExpose({
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 2000; /* 确保在 BaseModal (z-index: 1000) 之上 */
 }
 
 .modal-container {

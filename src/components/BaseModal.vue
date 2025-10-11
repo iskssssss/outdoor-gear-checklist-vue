@@ -30,7 +30,7 @@
             <!-- 主体区域 -->
             <div 
               class="base-modal-body"
-              :class="bodyClass"
+              :class="[bodyClass, { 'no-inner-scroll': disableBodyScroll }]"
             >
               <slot></slot>
             </div>
@@ -83,6 +83,11 @@ const props = defineProps({
   closeOnOverlayClick: {
     type: Boolean,
     default: true
+  },
+  // 是否禁止模态框主体滚动
+  disableBodyScroll: {
+    type: Boolean,
+    default: false
   },
   // 关闭按钮文本
   closeButtonText: {
@@ -251,6 +256,13 @@ defineExpose({
   overflow-y: auto;
   flex: 1;
   min-height: 0;
+  display: flex; /* 新增：使用Flexbox布局 */
+  flex-direction: column; /* 新增：垂直堆叠子元素 */
+  gap: 20px; /* 新增：子元素之间的间距 */
+}
+
+.base-modal-body.no-inner-scroll {
+  overflow: hidden;
 }
 
 /* 美化滚动条 */

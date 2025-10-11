@@ -90,15 +90,13 @@ export const useOperationLogStore = defineStore('operationLog', () => {
 
   /**
    * 清空操作日志
+   * 注意：确认对话框应该由调用方处理
    * （日志管理操作，不记录日志）
    */
   function clearLogs() {
-    if (confirm('确定要清空所有操作日志吗？')) {
-      logs.value = []
-      localStorage.removeItem(localStorageKeys.operationLogs)
-      return true
-    }
-    return false
+    logs.value = []
+    localStorage.removeItem(localStorageKeys.operationLogs)
+    return true
   }
 
   /**

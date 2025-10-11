@@ -607,6 +607,11 @@ defineExpose({ show, close })
   background: var(--bg-input);
   border: 1px solid var(--border-color);
   backdrop-filter: blur(10px);
+  margin-bottom: 15px; /* 显式添加底部边距 */
+}
+
+.recommendation-item:last-child {
+  margin-bottom: 0; /* 最后一个不加底部边距，避免多余空间 */
 }
 
 .recommendation-item:hover {
