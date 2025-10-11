@@ -3,13 +3,6 @@
     <!-- 全局操作按钮 -->
     <div class="global-actions" v-if="equipmentStore.categories.length > 0 || isAdding">
       <button 
-        class="btn btn-primary btn-sm" 
-        @click="toggleLayout"
-        :title="layoutMode === 'grid' ? '切换到瀑布流模式' : '切换到网格模式'"
-      >
-        {{ layoutMode === 'grid' ? '💧 瀑布流' : '🔲 网格' }}
-      </button>
-      <button 
         class="btn btn-secondary btn-sm" 
         @click="toggleAllCategories"
         :title="allCollapsed ? '展开全部分类' : '收起全部分类'"
@@ -21,7 +14,13 @@
           ⋯ 更多
         </button>
         <div class="more-actions-menu">
-          <a class="menu-item" @click="showSortModal">🔀 排序分类</a>
+          <a class="menu-item" @click.prevent="toggleLayout">
+            {{ layoutMode === 'grid' ? '💧 切换到瀑布流' : '🔲 切换到网格' }}
+          </a>
+          <a class="menu-item" @click.prevent="showSortModal">🔀 排序分类</a>
+          <a class="menu-item" @click.prevent="toggleGroupByStatus">
+            {{ equipmentStore.groupByStatus ? '📊 取消状态分栏' : '📋 启用状态分栏' }}
+          </a>
         </div>
       </div>
     </div>
@@ -197,6 +196,13 @@ function toggleAllCategories() {
  */
 function showSortModal() {
   categorySortModalRef.value?.show()
+}
+
+/**
+ * 切换装备分栏显示模式
+ */
+function toggleGroupByStatus() {
+  equipmentStore.toggleGroupByStatus()
 }
 
 </script>

@@ -10,6 +10,7 @@ import { defaultCategories, localStorageKeys } from '../config/appConfig'
 export const useEquipmentStore = defineStore('equipment', () => {
   // 状态
   const categories = ref([])
+  const groupByStatus = ref(true) // 是否按准备状态分栏显示
 
   // Getters - 统计信息
   const totalCategories = computed(() => categories.value.length)
@@ -605,9 +606,22 @@ export const useEquipmentStore = defineStore('equipment', () => {
     return false
   }
 
+  /**
+   * 切换装备分栏显示模式
+   */
+  function toggleGroupByStatus() {
+    groupByStatus.value = !groupByStatus.value
+    
+    const logStore = useOperationLogStore()
+    logStore.log('toggle', `${groupByStatus.value ? '启用' : '禁用'}了准备状态分栏`, {
+      groupByStatus: groupByStatus.value
+    })
+  }
+
   return {
     // 状态
     categories,
+    groupByStatus,
     // Getters
     totalCategories,
     totalItems,
@@ -632,6 +646,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
     deleteItem,
     editItem,
     toggleItem,
+    toggleGroupByStatus, // 暴露切换分栏显示方法
     importData,
     clearAllData
   }

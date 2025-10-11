@@ -74,36 +74,56 @@
     <div class="category-content">
       <div class="items-list">
         <template v-if="category.items.length > 0">
-          <!-- 待准备装备区域 -->
-          <div v-if="pendingItems.length > 0" class="items-section">
-            <div class="section-title">📋 待准备</div>
-            <div class="items-container">
-              <EquipmentItem
-                v-for="item in pendingItems"
-                :key="item.id"
-                :item="item"
-                :category-id="category.id"
-                :item-index="item.index"
-                @save="handleEditItem"
-              />
+          <!-- 启用分栏显示 -->
+          <template v-if="equipmentStore.groupByStatus">
+            <!-- 待准备装备区域 -->
+            <div v-if="pendingItems.length > 0" class="items-section">
+              <div class="section-title">📋 待准备</div>
+              <div class="items-container">
+                <EquipmentItem
+                  v-for="item in pendingItems"
+                  :key="item.id"
+                  :item="item"
+                  :category-id="category.id"
+                  :item-index="item.index"
+                  @save="handleEditItem"
+                />
+              </div>
             </div>
-          </div>
 
-          <!-- 已准备装备区域 -->
-          <div v-if="completedItems.length > 0" class="items-section">
-            <div class="section-title">✅ 已准备</div>
-            <div class="items-container">
-              <EquipmentItem
-                v-for="item in completedItems"
-                :key="item.id"
-                :item="item"
-                :category-id="category.id"
-                :item-index="item.index"
-                completed
-                @save="handleEditItem"
-              />
+            <!-- 已准备装备区域 -->
+            <div v-if="completedItems.length > 0" class="items-section">
+              <div class="section-title">✅ 已准备</div>
+              <div class="items-container">
+                <EquipmentItem
+                  v-for="item in completedItems"
+                  :key="item.id"
+                  :item="item"
+                  :category-id="category.id"
+                  :item-index="item.index"
+                  completed
+                  @save="handleEditItem"
+                />
+              </div>
             </div>
-          </div>
+          </template>
+
+          <!-- 不分栏显示 - 显示所有装备 -->
+          <template v-else>
+            <div class="items-section">
+              <div class="items-container">
+                <EquipmentItem
+                  v-for="item in category.items"
+                  :key="item.id"
+                  :item="item"
+                  :category-id="category.id"
+                  :item-index="item.index"
+                  :completed="item.completed"
+                  @save="handleEditItem"
+                />
+              </div>
+            </div>
+          </template>
         </template>
 
         <!-- 添加装备区域 -->
