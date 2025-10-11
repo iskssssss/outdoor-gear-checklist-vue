@@ -412,8 +412,9 @@ p {
   position: relative;
   display: inline-block;
   
-  // hover 时显示下拉菜单
-  &:hover .dropdown-menu {
+  // hover 时显示下拉菜单（包括菜单本身的 hover）
+  &:hover .dropdown-menu,
+  .dropdown-menu:hover {
     display: block;
     animation: dropdownFadeIn 0.2s ease;
   }
@@ -421,6 +422,17 @@ p {
   // hover 时箭头旋转
   &:hover .dropdown-toggle::after {
     transform: translateY(-50%) rotate(180deg);
+  }
+  
+  // 确保从一级菜单到二级菜单之间没有间隙
+  &::before {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    height: 8px; // 与 dropdown-menu 的 margin-top 相同
+    background: transparent;
   }
 }
 
