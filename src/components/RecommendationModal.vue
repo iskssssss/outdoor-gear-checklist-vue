@@ -1,11 +1,11 @@
 <template>
-  <div v-if="isVisible" class="modal" @click="close">
-    <div class="modal-content" @click.stop>
-      <div class="modal-header">
-        <h3>🤖 智能装备推荐</h3>
-        <span class="close" @click="close">&times;</span>
-      </div>
-      <div class="modal-body scroll-area">
+  <BaseModal
+    ref="modalRef"
+    title="🤖 智能装备推荐"
+    width="800px"
+    max-height="90vh"
+    @close="handleClose"
+  >
         <div class="recommendation-settings">
           <h4>推荐设置</h4>
           <div class="setting-group">
@@ -107,9 +107,7 @@
             </div>
           </div>
         </div>
-      </div>
-    </div>
-  </div>
+  </BaseModal>
 </template>
 
 <script setup>
@@ -119,14 +117,13 @@ import { useEquipmentStore } from '../stores/equipment'
 import { useOperationLogStore } from '../stores/operationLog'
 import { activityTypeOptions, seasonOptions, weatherOptions, difficultyOptions, budgetOptions } from '../config/appConfig'
 import InputSelect from './InputSelect.vue'
+import BaseModal from './BaseModal.vue'
 
 const modelConfigStore = useModelConfigStore()
 const equipmentStore = useEquipmentStore()
 const logStore = useOperationLogStore()
 
-const isVisible = ref(false)
-let openCount = 0
-let scrollPosition = 0
+const modalRef = ref(null)
 const showResults = ref(false)
 const isLoading = ref(false)
 const error = ref('')
@@ -200,25 +197,17 @@ const priorityConfig = computed(() => {
 })
 
 function show() {
-  isVisible.value = true
-  openCount++
-  if (openCount === 1) {
-    scrollPosition = window.scrollY
-    document.body.style.top = `-${scrollPosition}px`
-    document.body.classList.add('no-scroll')
-  }
   showResults.value = false
   error.value = ''
+  modalRef.value?.show()
 }
 
 function close() {
-  isVisible.value = false
-  openCount = Math.max(0, openCount - 1)
-  if (openCount === 0) {
-    document.body.classList.remove('no-scroll')
-    document.body.style.top = ''
-    window.scrollTo(0, scrollPosition)
-  }
+  modalRef.value?.close()
+}
+
+function handleClose() {
+  // 额外的关闭逻辑（如果需要）
 }
 
 function savePreferences() {
@@ -441,104 +430,10 @@ function getPriorityLabel(priority) {
   return priorityConfig.value[priority]?.label || '建议'
 }
 
-defineExpose({ show })
+defineExpose({ show, close })
 </script>
 
 <style scoped lang="scss">
-.modal {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: fixed;
-  z-index: 1000;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background-color: var(--modal-overlay-bg, rgba(0,0,0,0.5));
-  animation: fadeIn 0.3s ease;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.modal-content {
-  background: var(--bg-card);
-  border-radius: 12px;
-  width: 90%;
-  max-width: 800px;
-  max-height: 90vh;
-  display: flex;
-  flex-direction: column;
-  animation: slideIn 0.3s ease;
-  overflow: hidden;
-}
-
-@keyframes slideIn {
-  from { transform: translateY(-50px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 25px 30px;
-  border-bottom: 2px solid var(--border-color);
-  border-radius: 12px 12px 0 0;
-  flex-shrink: 0;
-  background: var(--bg-card);
-  position: sticky;
-  top: 0;
-  z-index: 1;
-}
-
-.modal-header h3 {
-  margin: 0;
-  font-size: 1.5rem;
-}
-
-.close {
-  font-size: 2rem;
-  font-weight: 300;
-  cursor: pointer;
-  color: var(--text-white, white);
-  opacity: 0.8;
-  transition: opacity 0.3s;
-}
-
-.close:hover {
-  opacity: 1;
-}
-
-.modal-body {
-  padding: 30px;
-  overflow-y: auto;
-  flex: 1;
-  min-height: 0;
-}
-
-/* 美化滚动条 */
-.modal-body::-webkit-scrollbar {
-  width: 8px;
-}
-
-.modal-body::-webkit-scrollbar-track {
-  background: var(--bg-input);
-  border-radius: 4px;
-}
-
-.modal-body::-webkit-scrollbar-thumb {
-  background: var(--border-color);
-  border-radius: 4px;
-}
-
-.modal-body::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted);
-}
-
 .recommendation-settings {
   background: var(--bg-input);
   border-radius: 10px;
@@ -782,16 +677,6 @@ defineExpose({ show })
 }
 
 @media (max-width: 768px) {
-  .modal-content {
-    width: 95%;
-    max-height: 95vh;
-  }
-  
-  .modal-header,
-  .modal-body {
-    padding: 20px;
-  }
-  
   .setting-group {
     flex-direction: column;
     align-items: flex-start;

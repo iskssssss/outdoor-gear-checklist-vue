@@ -73,21 +73,23 @@
   </div>
 
   <!-- 图片预览模态框 -->
-  <div v-if="showPreviewModal" class="modal" @click="closePreview">
-    <div class="modal-content preview-modal" @click.stop>
-      <div class="modal-header">
-        <h3>🖼️ 图片预览</h3>
-        <span class="close" @click="closePreview">&times;</span>
-      </div>
-      <div class="modal-body preview-body">
-        <img v-if="previewImageUrl" :src="previewImageUrl" alt="预览图片" class="preview-image">
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-primary" @click="confirmDownload">📥 下载图片</button>
-        <button class="btn btn-secondary" @click="closePreview">✕ 取消</button>
-      </div>
+  <BaseModal
+    ref="previewModalRef"
+    title="🖼️ 图片预览"
+    width="900px"
+    max-height="90vh"
+    :show-footer="true"
+    @close="closePreview"
+  >
+    <div class="preview-body">
+      <img v-if="previewImageUrl" :src="previewImageUrl" alt="预览图片" class="preview-image">
     </div>
-  </div>
+    
+    <template #footer>
+      <button class="btn btn-primary" @click="confirmDownload">📥 下载图片</button>
+      <button class="btn btn-secondary" @click="closePreview">✕ 取消</button>
+    </template>
+  </BaseModal>
 
   <!-- 隐藏的导出容器 -->
   <div class="hidden-export-container">
@@ -105,6 +107,7 @@ import { useEquipmentStore } from '../stores/equipment'
 import html2canvas from 'html2canvas'
 import ExportPreview from './ExportPreview.vue'
 import ImportCartModal from './ImportCartModal.vue' // 导入新的模态框组件
+import BaseModal from './BaseModal.vue'
 import { imageExportConfig } from '../config/appConfig'
 
 const equipmentStore = useEquipmentStore()
@@ -113,7 +116,7 @@ const equipmentStore = useEquipmentStore()
 const emit = defineEmits(['show-recommendation', 'show-model-config', 'show-operation-log', 'show-changelog'])
 
 // 图片预览相关状态
-const showPreviewModal = ref(false)
+const previewModalRef = ref(null)
 const previewImageUrl = ref('')
 const previewBlob = ref(null)
 const isGeneratingImage = ref(false)
@@ -230,7 +233,7 @@ async function exportToImage() {
       }
       previewBlob.value = blob
       previewImageUrl.value = URL.createObjectURL(blob)
-      showPreviewModal.value = true
+      previewModalRef.value?.show()
       // 隐藏导出组件
       isGeneratingImage.value = false
     }, imageExportConfig.format, imageExportConfig.quality)
@@ -245,7 +248,7 @@ async function exportToImage() {
  * 关闭预览
  */
 function closePreview() {
-  showPreviewModal.value = false
+  previewModalRef.value?.close()
   if (previewImageUrl.value) {
     URL.revokeObjectURL(previewImageUrl.value)
     previewImageUrl.value = ''
@@ -542,14 +545,6 @@ p {
 }
 
 // ==================== 图片预览模态框样式 ====================
-.preview-modal {
-  width: 90vw !important;
-  max-width: 1600px !important;
-  max-height: 90vh;
-  display: flex;
-  flex-direction: column;
-}
-
 .preview-body {
   flex: 1;
   overflow: auto;
@@ -662,18 +657,8 @@ p {
     min-width: 160px;
   }
 
-  .preview-modal {
-    width: 95vw;
-    max-width: 95vw;
-    max-height: 95vh;
-  }
-
   .preview-image {
     width: 100%;
-  }
-
-  .modal-footer {
-    flex-direction: column;
   }
 
   .btn {

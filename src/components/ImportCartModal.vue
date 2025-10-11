@@ -1,20 +1,21 @@
 <template>
-    <div v-if="isVisible" class="modal" @click="handleModalClick">
-      <div class="modal-content" @click.stop :class="{ importing: isImporting }">
-        <!-- 导入中遮罩 -->
-        <div v-if="isImporting" class="importing-overlay">
-          <div class="importing-spinner">
-            <div class="spinner"></div>
-            <p>正在导入商品到清单...</p>
-            <p class="warning-text">⚠️ 请勿关闭此窗口</p>
-          </div>
+  <BaseModal
+    ref="modalRef"
+    title="🛒 导入购物车商品"
+    width="800px"
+    max-height="90vh"
+    :close-on-overlay-click="!isImporting"
+    @close="handleClose"
+  >
+    <div class="import-cart-wrapper" :class="{ importing: isImporting }">
+      <!-- 导入中遮罩 -->
+      <div v-if="isImporting" class="importing-overlay">
+        <div class="importing-spinner">
+          <div class="spinner"></div>
+          <p>正在导入商品到清单...</p>
+          <p class="warning-text">⚠️ 请勿关闭此窗口</p>
         </div>
-        
-        <div class="modal-header">
-          <h3>🛒 导入购物车商品</h3>
-          <span class="close" @click="handleClose" :class="{ disabled: isImporting }">&times;</span>
-        </div>
-        <div class="modal-body scroll-area">
+      </div>
           <div class="import-section">
             <h4>粘贴京东购物车分享信息</h4>
             <p class="help-text">
@@ -52,23 +53,23 @@
             </div>
           </div>
   
-          <div v-if="message" :class="['info-message', messageType]">{{ message }}</div>
-        </div>
-      </div>
+        <div v-if="message" :class="['info-message', messageType]">{{ message }}</div>
     </div>
-  </template>
+  </BaseModal>
+</template>
   
   <script setup>
   import { ref } from 'vue';
   import { useEquipmentStore } from '../stores/equipment';
   import { useModelConfigStore } from '../stores/modelConfig';
   import { useOperationLogStore } from '../stores/operationLog';
+  import BaseModal from './BaseModal.vue';
   
   const equipmentStore = useEquipmentStore();
   const modelConfigStore = useModelConfigStore();
   const logStore = useOperationLogStore();
   
-  const isVisible = ref(false);
+  const modalRef = ref(null);
   const cartShareLink = ref('');
   const parsedItems = ref([]);
   const isImporting = ref(false);
@@ -76,17 +77,11 @@
   const message = ref('');
   const messageType = ref(''); // 'success', 'error', 'info'
   
-  let scrollPosition = 0; // 用于模态框打开时锁定页面滚动
-  
   function show() {
-    isVisible.value = true;
     message.value = '';
     messageType.value = '';
-    parsedItems.value = [];
-    // 锁定页面滚动
-    scrollPosition = window.scrollY;
-    document.body.style.top = `-${scrollPosition}px`;
-    document.body.classList.add('no-scroll');
+    parsedItems.value = '';
+    modalRef.value?.show();
   }
   
   /**
@@ -103,29 +98,14 @@
   }
 
   /**
-   * 处理点击模态框背景（带导入中检查）
-   */
-  function handleModalClick() {
-    if (isImporting.value) {
-      // 正在导入时不允许点击背景关闭
-      return;
-    }
-    close();
-  }
-
-  /**
    * 关闭模态框
    */
   function close() {
-    isVisible.value = false;
     cartShareLink.value = '';
     parsedItems.value = [];
     message.value = '';
     messageType.value = '';
-    // 解锁页面滚动
-    document.body.classList.remove('no-scroll');
-    document.body.style.top = '';
-    window.scrollTo(0, scrollPosition);
+    modalRef.value?.close();
   }
   
   function clearLink() {
@@ -377,45 +357,12 @@
     }
   }
   
-  defineExpose({ show });
+  defineExpose({ show, close });
   </script>
   
   <style scoped lang="scss">
-  .modal {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: var(--modal-overlay-bg, rgba(0,0,0,0.5));
-    animation: fadeIn 0.3s ease;
-  }
-  
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-  
-  .modal-content {
-    background: var(--bg-card);
-    border-radius: 12px;
-    width: 90%;
-    max-width: 700px; // 调整最大宽度
-    max-height: 90vh;
-    display: flex;
-    flex-direction: column;
-    animation: slideIn 0.3s ease;
-    overflow: hidden;
-    color: var(--text-primary);
-    position: relative; // 为遮罩层定位
-    
-    &.importing {
-      pointer-events: auto; // 保持遮罩层可交互
-    }
+  .import-cart-wrapper {
+    position: relative;
   }
 
   // 导入中遮罩层
@@ -469,86 +416,6 @@
     }
   }
 
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
-  
-  @keyframes slideIn {
-    from { transform: translateY(-50px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-  }
-  
-  .modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 25px 30px;
-    border-bottom: 2px solid var(--border-color);
-    border-radius: 12px 12px 0 0;
-    flex-shrink: 0;
-    background: var(--bg-card);
-    position: sticky;
-    top: 0;
-    z-index: 1;
-  }
-  
-  .modal-header h3 {
-    margin: 0;
-    font-size: 1.5rem;
-  }
-  
-  .close {
-    font-size: 2rem;
-    font-weight: 300;
-    cursor: pointer;
-    color: var(--text-primary); // 使用主题色
-    opacity: 0.8;
-    transition: opacity 0.3s;
-    &:hover {
-      opacity: 1;
-    }
-    
-    &.disabled {
-      cursor: not-allowed;
-      opacity: 0.3;
-      pointer-events: none;
-    }
-  }
-  
-  .modal-body {
-    padding: 30px;
-    overflow-y: auto;
-    flex: 1;
-    min-height: 0; // 允许 flex item 缩小到其内容高度
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-  
-  /* 美化滚动条 */
-  .modal-body::-webkit-scrollbar {
-    width: 8px;
-  }
-  
-  .modal-body::-webkit-scrollbar-track {
-    background: var(--bg-input);
-    border-radius: 4px;
-  }
-  
-  .modal-body::-webkit-scrollbar-thumb {
-    background: var(--border-color);
-    border-radius: 4px;
-  }
-  
-  .modal-body::-webkit-scrollbar-thumb:hover {
-    background: var(--text-muted);
-  }
-  
   .import-section {
     background: var(--bg-input);
     border-radius: 10px;
@@ -717,16 +584,6 @@
   }
   
   @media (max-width: 768px) {
-    .modal-content {
-      width: 95%;
-      max-width: 95vw;
-      max-height: 95vh;
-    }
-  
-    .modal-header,
-    .modal-body {
-      padding: 20px;
-    }
   
     .action-buttons {
       flex-direction: column;

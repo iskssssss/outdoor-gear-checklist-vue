@@ -1,24 +1,29 @@
 <template>
-  <div class="modal-overlay" v-if="visible" @click.self="close">
-    <div class="modal-content changelog-modal">
-      <div class="modal-header">
-        <h2>📝 更新日志</h2>
-        <div class="header-actions">
-          <button 
-            class="refresh-btn" 
-            @click="fetchCommitsFromGitHub(false)"
-            :disabled="loading || cooldownTime > 0"
-            :title="loading ? '加载中...' : cooldownTime > 0 ? `请等待 ${cooldownTime} 秒后再刷新` : '刷新更新记录'"
-          >
-            <span :class="{ 'spinning': loading }">
-              {{ cooldownTime > 0 ? cooldownTime : '🔄' }}
-            </span>
-          </button>
-          <button class="close-btn" @click="close">✕</button>
-        </div>
+  <BaseModal
+    ref="modalRef"
+    title-tag="h2"
+    width="800px"
+    max-height="80vh"
+    @close="handleClose"
+  >
+    <template #header>
+      <h2 class="changelog-title">📝 更新日志</h2>
+      <div class="header-actions">
+        <button 
+          class="refresh-btn" 
+          @click="fetchCommitsFromGitHub(false)"
+          :disabled="loading || cooldownTime > 0"
+          :title="loading ? '加载中...' : cooldownTime > 0 ? `请等待 ${cooldownTime} 秒后再刷新` : '刷新更新记录'"
+        >
+          <span :class="{ 'spinning': loading }">
+            {{ cooldownTime > 0 ? cooldownTime : '🔄' }}
+          </span>
+        </button>
+        <button class="close-btn" @click="close">✕</button>
       </div>
-      
-      <div class="modal-body">
+    </template>
+
+    <template #default>
         <!-- 加载状态 -->
         <div v-if="loading" class="loading-state">
           <div class="loading-spinner"></div>
@@ -57,15 +62,15 @@
             </div>
           </div>
         </div>
-      </div>
-    </div>
-  </div>
+    </template>
+  </BaseModal>
 </template>
 
 <script setup>
 import { ref, computed, defineExpose, onMounted, onUnmounted } from 'vue'
+import BaseModal from './BaseModal.vue'
 
-const visible = ref(false)
+const modalRef = ref(null)
 const loading = ref(false)
 const error = ref(null)
 
@@ -73,7 +78,6 @@ const error = ref(null)
 const cooldownTime = ref(0) // 剩余冷却时间（秒）
 const COOLDOWN_DURATION = 30 // 冷却持续时间（秒）
 let cooldownTimer = null
-let scrollPosition = 0
 
 // GitHub仓库配置
 const GITHUB_REPO = 'iskssssss/outdoor-gear-checklist' // 修改为您的GitHub用户名/仓库名
@@ -182,24 +186,18 @@ async function fetchCommitsFromGitHub(isInitialLoad = false) {
  * 显示模态框
  */
 function show() {
-  visible.value = true
-  
-  // 锁定页面滚动
-  scrollPosition = window.scrollY
-  document.body.style.top = `-${scrollPosition}px`
-  document.body.classList.add('no-scroll')
+  modalRef.value?.show()
 }
 
 /**
  * 关闭模态框
  */
 function close() {
-  visible.value = false
-  
-  // 解锁页面滚动
-  document.body.classList.remove('no-scroll')
-  document.body.style.top = ''
-  window.scrollTo(0, scrollPosition)
+  modalRef.value?.close()
+}
+
+function handleClose() {
+  // 额外的关闭逻辑（如果需要）
 }
 
 // 组件挂载时尝试从GitHub获取数据（首次加载不启动冷却）
@@ -269,51 +267,19 @@ defineExpose({
 </script>
 
 <style scoped lang="scss">
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  backdrop-filter: blur(4px);
+.changelog-title {
+  margin: 0;
+  font-size: 1.5rem;
+  color: var(--text-primary);
 }
 
-.changelog-modal {
-  width: 90%;
-  max-width: 800px;
-  max-height: 80vh;
-  background: var(--bg-card);
-  border-radius: 16px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+.header-actions {
   display: flex;
-  flex-direction: column;
+  gap: 8px;
+  align-items: center;
 }
 
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 24px 28px;
-  border-bottom: 1px solid var(--border-color);
-
-  h2 {
-    margin: 0;
-    font-size: 24px;
-    color: var(--text-primary);
-  }
-
-  .header-actions {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-  }
-
-  .refresh-btn {
+.refresh-btn {
     background: none;
     border: none;
     font-size: 20px;
@@ -339,27 +305,20 @@ defineExpose({
     }
   }
 
-  .close-btn {
-    background: none;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
-    color: var(--text-secondary);
-    padding: 4px 8px;
-    border-radius: 6px;
-    transition: all 0.2s ease;
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
 
-    &:hover {
-      background: var(--bg-hover);
-      color: var(--text-primary);
-    }
+  &:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
   }
-}
-
-.modal-body {
-  flex: 1;
-  overflow-y: auto;
-  padding: 20px 28px;
 }
 
 .changelog-list {
@@ -559,21 +518,8 @@ defineExpose({
 
 /* 响应式设计 */
 @media (max-width: 768px) {
-  .changelog-modal {
-    width: 95%;
-    max-height: 85vh;
-  }
-
-  .modal-header {
-    padding: 20px;
-    
-    h2 {
-      font-size: 20px;
-    }
-  }
-
-  .modal-body {
-    padding: 16px 20px;
+  .changelog-title {
+    font-size: 1.25rem;
   }
 
   .changelog-item {

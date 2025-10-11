@@ -1,11 +1,11 @@
 <template>
-  <div v-if="isVisible" class="modal" @click="close">
-    <div class="modal-content" @click.stop>
-      <div class="modal-header">
-        <h3>⚙️ 大模型配置</h3>
-        <span class="close" @click="close">&times;</span>
-      </div>
-      <div class="modal-body scroll-area">
+  <BaseModal
+    ref="modalRef"
+    title="⚙️ 大模型配置"
+    width="800px"
+    max-height="90vh"
+    @close="handleClose"
+  >
         <div class="config-tabs">
           <button 
             class="tab-btn" 
@@ -165,21 +165,18 @@
           <button class="btn btn-secondary" @click="resetConfig">重置配置</button>
           <button class="btn btn-secondary" @click="close">取消</button>
         </div>
-      </div>
-    </div>
-  </div>
+  </BaseModal>
 </template>
 
 <script setup>
 import { ref, reactive } from 'vue'
 import { useModelConfigStore } from '../stores/modelConfig'
 import { defaultTestPrompt } from '../config/appConfig'
+import BaseModal from './BaseModal.vue'
 
 const modelConfigStore = useModelConfigStore()
 
-const isVisible = ref(false)
-let openCount = 0
-let scrollPosition = 0
+const modalRef = ref(null)
 const activeTab = ref('basic')
 const settings = reactive({ ...modelConfigStore.settings })
 
@@ -189,25 +186,17 @@ const testResult = ref('')
 const testResultType = ref('')
 
 function show() {
-  isVisible.value = true
-  openCount++
-  if (openCount === 1) {
-    scrollPosition = window.scrollY
-    document.body.style.top = `-${scrollPosition}px`
-    document.body.classList.add('no-scroll')
-  }
   // 重新加载最新配置
   Object.assign(settings, modelConfigStore.settings)
+  modalRef.value?.show()
 }
 
 function close() {
-  isVisible.value = false
-  openCount = Math.max(0, openCount - 1)
-  if (openCount === 0) {
-    document.body.classList.remove('no-scroll')
-    document.body.style.top = ''
-    window.scrollTo(0, scrollPosition)
-  }
+  modalRef.value?.close()
+}
+
+function handleClose() {
+  // 额外的关闭逻辑（如果需要）
 }
 
 function saveConfig() {
@@ -268,93 +257,10 @@ async function testConnection() {
   }
 }
 
-defineExpose({ show })
+defineExpose({ show, close })
 </script>
 
 <style scoped lang="scss">
-.modal {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: fixed;
-  z-index: 1000;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background-color: var(--modal-overlay-bg, rgba(0,0,0,0.5));
-  animation: fadeIn 0.3s ease;
-}
-
-.modal-content {
-  background: var(--bg-card);
-  border-radius: 12px;
-  width: 90%;
-  max-width: 800px;
-  max-height: 90vh;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 25px 30px;
-  border-bottom: 2px solid var(--border-color);
-  border-radius: 12px 12px 0 0;
-  flex-shrink: 0;
-  background: var(--bg-card);
-  position: sticky;
-  top: 0;
-  z-index: 1;
-}
-
-.modal-header h3 {
-  margin: 0;
-  font-size: 1.5rem;
-}
-
-.close {
-  font-size: 2rem;
-  font-weight: 300;
-  cursor: pointer;
-  color: var(--text-white, white);
-  opacity: 0.8;
-  transition: opacity 0.3s;
-}
-
-.close:hover {
-  opacity: 1;
-}
-
-.modal-body {
-  padding: 30px;
-  overflow-y: auto;
-  flex: 1;
-  min-height: 0;
-}
-
-/* 美化滚动条 */
-.modal-body::-webkit-scrollbar {
-  width: 8px;
-}
-
-.modal-body::-webkit-scrollbar-track {
-  background: var(--bg-input);
-  border-radius: 4px;
-}
-
-.modal-body::-webkit-scrollbar-thumb {
-  background: var(--border-color);
-  border-radius: 4px;
-}
-
-.modal-body::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted);
-}
-
 .config-tabs {
   display: flex;
   gap: 10px;
@@ -530,16 +436,6 @@ defineExpose({ show })
 }
 
 @media (max-width: 768px) {
-  .modal-content {
-    width: 95%;
-    max-height: 95vh;
-  }
-  
-  .modal-header,
-  .modal-body {
-    padding: 20px;
-  }
-  
   .config-tabs {
     flex-wrap: wrap;
   }
