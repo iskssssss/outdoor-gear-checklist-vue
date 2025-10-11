@@ -108,7 +108,6 @@ const groupedCommits = computed(() => {
  */
 function startCooldown() {
   cooldownTime.value = COOLDOWN_DURATION
-  console.log(`🔒 开始冷却倒计时: ${COOLDOWN_DURATION} 秒`)
   
   // 清除之前的定时器
   if (cooldownTimer) {
@@ -118,18 +117,14 @@ function startCooldown() {
   // 开始倒计时
   cooldownTimer = setInterval(() => {
     cooldownTime.value--
-    console.log(`⏱️ 冷却中: ${cooldownTime.value} 秒`)
     if (cooldownTime.value <= 0) {
       clearInterval(cooldownTimer)
       cooldownTimer = null
-      console.log(`✅ 冷却结束，可以再次刷新`)
     }
   }, 1000)
 }
 
 async function fetchCommitsFromGitHub(isInitialLoad = false) {
-  console.log(`🔍 fetchCommitsFromGitHub 调用 - isInitialLoad: ${isInitialLoad}, cooldownTime: ${cooldownTime.value}`)
-  
   // 检查是否在冷却时间内（首次加载除外）
   if (!isInitialLoad && cooldownTime.value > 0) {
     console.warn(`⏱️ 刷新冷却中，请等待 ${cooldownTime.value} 秒`)
@@ -172,15 +167,11 @@ async function fetchCommitsFromGitHub(isInitialLoad = false) {
     
     // 只有非首次加载才启动冷却倒计时
     if (!isInitialLoad) {
-      console.log('🚀 准备启动冷却倒计时...')
       startCooldown()
-    } else {
-      console.log('⏭️ 首次加载，跳过冷却')
     }
   } catch (err) {
-    console.warn('⚠️ 从GitHub获取提交记录失败，使用本地数据:', err.message)
+    console.warn('⚠️ 从GitHub获取提交记录失败:', err.message)
     error.value = err.message
-    // 保持使用本地默认数据
   } finally {
     loading.value = false
   }
@@ -210,7 +201,6 @@ onUnmounted(() => {
   if (cooldownTimer) {
     clearInterval(cooldownTimer)
     cooldownTimer = null
-    console.log('🧹 清理冷却定时器')
   }
 })
 

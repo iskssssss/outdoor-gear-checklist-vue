@@ -53,9 +53,21 @@
         >
       </div>
       
-      <div class="category-actions">
-        <button v-if="!isEditingName && !isEditingIcon" class="btn btn-warning btn-sm" @click="startEditName">编辑</button>
-        <button class="btn btn-danger btn-sm" @click="deleteCategory">删除</button>
+      <div class="category-actions" v-if="!isEditingName && !isEditingIcon">
+        <div class="category-dropdown">
+          <button class="category-menu-btn">⋯</button>
+          <div class="category-menu">
+            <a class="category-menu-item" @click="startEditName">✏️ 编辑名称</a>
+            <a 
+              v-if="category.items.length > 0" 
+              class="category-menu-item" 
+              @click="reindexItems"
+            >
+              🔢 重新编码
+            </a>
+            <a class="category-menu-item danger" @click="deleteCategory">🗑️ 删除分类</a>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -71,6 +83,7 @@
                 :key="item.id"
                 :item="item"
                 :category-id="category.id"
+                :item-index="item.index"
                 @save="handleEditItem"
               />
             </div>
@@ -85,6 +98,7 @@
                 :key="item.id"
                 :item="item"
                 :category-id="category.id"
+                :item-index="item.index"
                 completed
                 @save="handleEditItem"
               />
@@ -111,7 +125,7 @@
 </template>
 
 <script setup>
-import { ref, computed, nextTick } from 'vue'
+import { ref, computed, nextTick, watch } from 'vue'
 import { useEquipmentStore } from '../stores/equipment'
 import EquipmentItem from './EquipmentItem.vue'
 
@@ -127,6 +141,17 @@ const props = defineProps({
 })
 
 const equipmentStore = useEquipmentStore()
+
+// 监听分类数据变化，检查数据完整性
+watch(() => props.category.items, (newItems) => {
+  // 检查是否有重复的ID（重要：防止操作错误的装备）
+  const ids = newItems.map(i => i.id)
+  const uniqueIds = new Set(ids)
+  if (ids.length !== uniqueIds.size) {
+    console.error(`❌ 分类"${props.category.name}"发现重复的装备ID!`, 
+      '请点击"重编码"按钮修复。', ids)
+  }
+}, { deep: true })
 
 // 分类名称编辑
 const isEditingName = ref(false)
@@ -197,6 +222,26 @@ function cancelEditName() {
  */
 function deleteCategory() {
   equipmentStore.deleteCategory(props.category.id)
+}
+
+/**
+ * 重新编码装备序号
+ */
+function reindexItems() {
+  if (confirm(`确定要重新编码"${props.category.name}"分类的所有装备序号吗？\n\n序号将按照当前顺序重新编码为 1, 2, 3...`)) {
+    // 先修复重复ID（如果有）
+    const fixedCount = equipmentStore.fixDuplicateIds(props.category.id)
+    
+    // 再重新编码序号
+    equipmentStore.reindexCategory(props.category.id)
+    equipmentStore.saveData()
+    
+    if (fixedCount > 0) {
+      alert(`重编码完成！\n同时修复了 ${fixedCount} 个重复的装备ID。`)
+    } else {
+      alert('重编码完成！')
+    }
+  }
 }
 
 /**
@@ -384,44 +429,87 @@ function cancelAddItem() {
 }
 
 .category-actions {
-  flex-shrink: 0; /* 确保按钮区域不收缩 */
-  display: flex;
-  gap: 8px;
+  flex-shrink: 0;
+  position: relative;
 }
 
-.btn {
-  padding: 8px 16px;
+.category-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.category-menu-btn {
+  background: var(--bg-input);
   border: none;
-  border-radius: 6px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.btn-sm {
   padding: 6px 12px;
-  font-size: 0.85rem;
+  border-radius: 6px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  line-height: 1;
 }
 
-.btn-warning {
-  background: var(--warning-color, #ffc107);
+.category-menu-btn:hover {
+  background: var(--bg-hover);
+  color: var(--primary-color);
+}
+
+.category-menu {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 100%;
+  margin-top: 4px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  min-width: 150px;
+  z-index: 100;
+  overflow: hidden;
+}
+
+.category-dropdown:hover .category-menu {
+  display: block;
+  animation: fadeIn 0.2s ease;
+}
+
+.category-menu-item {
+  display: block;
+  padding: 10px 16px;
   color: var(--text-primary);
-  
-  /* 暗黑主题下使用深色文字以提高对比度 */
-  body.theme-dark & {
-    color: #1a1d29;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.category-menu-item:hover {
+  background: var(--bg-hover);
+  color: var(--primary-color);
+}
+
+.category-menu-item.danger {
+  color: var(--danger-color, #dc3545);
+}
+
+.category-menu-item.danger:hover {
+  background: rgba(220, 53, 69, 0.1);
+  color: var(--danger-color, #dc3545);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
   }
-}
-
-.btn-danger {
-  background: var(--danger-color, #dc3545);
-  color: var(--text-white, white);
-}
-
-.btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .category-content {

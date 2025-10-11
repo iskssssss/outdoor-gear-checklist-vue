@@ -5,6 +5,7 @@
     :class="{ completed: completed }"
     @click="toggleItem"
   >
+    <div class="item-index" v-if="itemIndex">{{ itemIndex }}</div>
     <div class="item-status">
       {{ completed ? '✅' : '⭕' }}
     </div>
@@ -88,6 +89,10 @@ const props = defineProps({
   isAdding: {
     type: Boolean,
     default: false
+  },
+  itemIndex: {
+    type: Number,
+    required: false
   }
 })
 
@@ -194,6 +199,38 @@ function deleteItem() {
   transition: all 0.3s ease;
   border: 2px solid transparent;
   width: 100%;
+  position: relative; /* 为序号定位做准备 */
+}
+
+.item-index {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  min-width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--primary-color);
+  background: rgba(var(--primary-color-rgb, 74, 144, 226), 0.15);
+  border-radius: 4px;
+  padding: 2px 6px;
+  opacity: 0.9;
+  transition: all 0.2s ease;
+  pointer-events: none; /* 不阻挡点击事件 */
+  z-index: 1;
+  border: 1px solid rgba(var(--primary-color-rgb, 74, 144, 226), 0.3);
+}
+
+.item:hover .item-index {
+  opacity: 1;
+  color: #fff;
+  background: var(--primary-color);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  border-color: var(--primary-color);
+  transform: scale(1.05);
 }
 
 .item:hover {

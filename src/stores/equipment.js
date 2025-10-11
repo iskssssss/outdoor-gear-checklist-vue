@@ -52,11 +52,46 @@ export const useEquipmentStore = defineStore('equipment', () => {
     if (data) {
       try {
         categories.value = JSON.parse(data)
-        // 确保导入时 icon 属性存在
-        categories.value = categories.value.map(cat => ({
-          ...cat,
-          icon: cat.icon || '✨'
-        }))
+        
+        let needsReindex = false
+        
+        // 确保导入时 icon 属性存在，并检查序号
+        categories.value = categories.value.map(cat => {
+          const items = cat.items.map((item, index) => {
+            if (!item.index) {
+              needsReindex = true
+              return { ...item, index: index + 1 }
+            }
+            return item
+          })
+          
+          return {
+            ...cat,
+            icon: cat.icon || '✨',
+            items
+          }
+        })
+        
+        // 如果有装备没有序号，重新编码并保存
+        if (needsReindex) {
+          console.log('🔢 检测到装备缺少序号，正在重新编码...')
+          categories.value.forEach(cat => {
+            reindexCategory(cat.id)
+          })
+          saveData()
+        }
+        
+        // 检查并修复重复的装备ID
+        let totalFixed = 0
+        categories.value.forEach(cat => {
+          const fixed = fixDuplicateIds(cat.id)
+          totalFixed += fixed
+        })
+        
+        if (totalFixed > 0) {
+          console.warn(`⚠️ 总共修复了 ${totalFixed} 个重复的装备ID`)
+        }
+        
         console.log('✅ 数据已从缓存加载', {
           分类数: categories.value.length,
           装备总数: totalItems.value,
@@ -134,8 +169,11 @@ export const useEquipmentStore = defineStore('equipment', () => {
       return false
     }
 
+    // 生成唯一ID：时间戳 + 随机数，避免快速连续添加时ID重复
+    const uniqueId = Date.now() + Math.floor(Math.random() * 10000)
+
     const newCategory = {
-      id: Date.now(),
+      id: uniqueId,
       name: name.trim(),
       icon: icon,
       items: [],
@@ -246,6 +284,52 @@ export const useEquipmentStore = defineStore('equipment', () => {
   }
 
   /**
+   * 重新编码分类中的所有装备序号
+   */
+  function reindexCategory(categoryId) {
+    const category = categories.value.find(cat => cat.id === categoryId)
+    if (!category) return
+
+    // 按照当前顺序重新编号（从1开始）
+    category.items.forEach((item, index) => {
+      item.index = index + 1
+    })
+    
+    console.log(`🔢 重新编码分类 "${category.name}"，共 ${category.items.length} 个装备`)
+  }
+
+  /**
+   * 修复分类中重复的装备ID
+   */
+  function fixDuplicateIds(categoryId) {
+    const category = categories.value.find(cat => cat.id === categoryId)
+    if (!category) return 0
+
+    const idSet = new Set()
+    let fixedCount = 0
+
+    category.items.forEach((item, index) => {
+      if (idSet.has(item.id)) {
+        // 发现重复ID，生成新的唯一ID
+        const oldId = item.id
+        // 使用更可靠的方式生成唯一ID：时间戳 + 随机数 + 索引
+        item.id = Date.now() + Math.floor(Math.random() * 10000) + index
+        console.warn(`⚠️ 修复重复ID: ${oldId} → ${item.id} (装备: ${item.name})`)
+        fixedCount++
+      } else {
+        idSet.add(item.id)
+      }
+    })
+
+    if (fixedCount > 0) {
+      console.log(`✅ 修复了 ${fixedCount} 个重复的装备ID`)
+      saveData()
+    }
+    
+    return fixedCount
+  }
+
+  /**
    * 添加装备项目
    */
   function addItem(categoryId, itemData) {
@@ -257,8 +341,16 @@ export const useEquipmentStore = defineStore('equipment', () => {
       return false
     }
 
+    // 计算新装备的序号（最大序号+1）
+    const maxIndex = category.items.reduce((max, item) => 
+      Math.max(max, item.index || 0), 0)
+
+    // 生成唯一ID：时间戳 + 随机数，避免快速连续添加时ID重复
+    const uniqueId = Date.now() + Math.floor(Math.random() * 10000)
+
     const newItem = {
-      id: Date.now(),
+      id: uniqueId,
+      index: maxIndex + 1,  // 固定序号
       name: itemData.name.trim(),
       completed: false,
       quantity: itemData.quantity || 1,
@@ -271,9 +363,10 @@ export const useEquipmentStore = defineStore('equipment', () => {
     saveData()
 
     const logStore = useOperationLogStore()
-    logStore.log('add', `添加了装备：${newItem.name}`, {
+    logStore.log('add', `添加了装备 #${newItem.index}：${newItem.name}`, {
       category: category.name,
       item: newItem.name,
+      index: newItem.index,
       quantity: `${newItem.quantity}${newItem.quantityUnit}`,
       weight: `${newItem.weight}${newItem.weightUnit}`
     })
@@ -292,15 +385,20 @@ export const useEquipmentStore = defineStore('equipment', () => {
     if (!item) return false
 
     const itemName = item.name
+    const itemIndex = item.index
 
-    if (confirm(`确定要删除"${itemName}"吗？`)) {
+    if (confirm(`确定要删除 #${itemIndex} "${itemName}"吗？`)) {
       category.items = category.items.filter(item => item.id !== itemId)
+      
+      // 删除后重新编码
+      reindexCategory(categoryId)
       saveData()
 
       const logStore = useOperationLogStore()
-      logStore.log('delete', `删除了装备：${itemName}`, {
+      logStore.log('delete', `删除了装备 #${itemIndex}：${itemName}`, {
         category: category.name,
-        item: itemName
+        item: itemName,
+        index: itemIndex
       })
 
       return true
@@ -352,10 +450,16 @@ export const useEquipmentStore = defineStore('equipment', () => {
    */
   function toggleItem(categoryId, itemId) {
     const category = categories.value.find(cat => cat.id === categoryId)
-    if (!category) return false
+    if (!category) {
+      console.error('❌ 未找到分类:', categoryId)
+      return false
+    }
 
     const item = category.items.find(i => i.id === itemId)
-    if (!item) return false
+    if (!item) {
+      console.error('❌ 未找到装备:', itemId, '在分类:', category.name)
+      return false
+    }
 
     item.completed = !item.completed
     saveData()
@@ -381,10 +485,38 @@ export const useEquipmentStore = defineStore('equipment', () => {
 
     if (confirm('导入数据将覆盖当前清单，确定要继续吗？')) {
       const oldCount = categories.value.length
-      categories.value = data.map(cat => ({
-        ...cat,
-        icon: cat.icon || '✨' // 确保导入时 icon 属性存在
-      }))
+      
+      // 导入数据并为每个装备分配序号和唯一ID
+      categories.value = data.map(cat => {
+        const categoryData = {
+          ...cat,
+          icon: cat.icon || '✨', // 确保导入时 icon 属性存在
+          items: cat.items.map((item, index) => ({
+            ...item,
+            // 如果没有ID或ID不是数字，生成新的唯一ID
+            id: (item.id && typeof item.id === 'number') ? item.id : Date.now() + Math.random() * 10000 + index,
+            index: item.index || (index + 1) // 如果没有序号就分配一个
+          }))
+        }
+        return categoryData
+      })
+      
+      // 重新编码所有分类（确保序号连续）
+      categories.value.forEach(cat => {
+        reindexCategory(cat.id)
+      })
+      
+      // 修复所有重复的ID
+      let totalFixed = 0
+      categories.value.forEach(cat => {
+        const fixed = fixDuplicateIds(cat.id)
+        totalFixed += fixed
+      })
+      
+      if (totalFixed > 0) {
+        console.warn(`⚠️ 导入数据时修复了 ${totalFixed} 个重复的装备ID`)
+      }
+      
       saveData()
 
       const logStore = useOperationLogStore()
@@ -394,6 +526,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
         totalItems: totalItems.value
       })
 
+      console.log('✅ 数据导入完成，已为所有装备分配序号')
       alert('数据导入成功！')
       return true
     }
@@ -444,6 +577,8 @@ export const useEquipmentStore = defineStore('equipment', () => {
     editCategoryName,
     editCategoryIcon, // 暴露 editCategoryIcon 方法
     toggleCategoryCollapse,
+    reindexCategory, // 暴露重编码方法
+    fixDuplicateIds, // 暴露修复重复ID方法
     addItem,
     deleteItem,
     editItem,
