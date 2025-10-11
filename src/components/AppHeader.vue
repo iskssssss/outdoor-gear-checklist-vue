@@ -173,7 +173,7 @@ function exportData() {
 
   const link = document.createElement('a')
   link.href = url
-  link.download = `hiking-checklist-${new Date().toISOString().split('T')[0]}.json`
+  link.download = `outdoor-gear-checklist-${new Date().toISOString().split('T')[0]}.json`
   link.click()
 
   URL.revokeObjectURL(url)
@@ -260,7 +260,7 @@ function confirmDownload() {
     const url = URL.createObjectURL(previewBlob.value)
     const link = document.createElement('a')
     link.href = url
-    link.download = `hiking-checklist-${new Date().toISOString().split('T')[0]}.png`
+    link.download = `outdoor-gear-checklist-${new Date().toISOString().split('T')[0]}.png`
     link.click()
     URL.revokeObjectURL(url)
   }

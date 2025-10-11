@@ -4,6 +4,7 @@
  */
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import { localStorageKeys } from '../config/appConfig'
 
 export const useOperationLogStore = defineStore('operationLog', () => {
   // 状态
@@ -34,7 +35,7 @@ export const useOperationLogStore = defineStore('operationLog', () => {
 
     // 保存到localStorage
     try {
-      localStorage.setItem('hikingOperationLogs', JSON.stringify(logs.value))
+      localStorage.setItem(localStorageKeys.operationLogs, JSON.stringify(logs.value))
       console.log('📝 操作日志已保存', {
         操作类型: type,
         描述: action,
@@ -49,7 +50,7 @@ export const useOperationLogStore = defineStore('operationLog', () => {
    * 加载操作日志
    */
   function loadLogs() {
-    const saved = localStorage.getItem('hikingOperationLogs')
+    const saved = localStorage.getItem(localStorageKeys.operationLogs)
     if (saved) {
       try {
         logs.value = JSON.parse(saved)
@@ -73,7 +74,7 @@ export const useOperationLogStore = defineStore('operationLog', () => {
   function clearLogs() {
     if (confirm('确定要清空所有操作日志吗？')) {
       logs.value = []
-      localStorage.removeItem('hikingOperationLogs')
+      localStorage.removeItem(localStorageKeys.operationLogs)
       log('clear', '清空了所有操作日志')
       return true
     }
