@@ -268,7 +268,8 @@ function deleteItem() {
   position: relative;
   display: inline-block;
 
-  &:hover .actions-menu {
+  &:hover .actions-menu,
+  .actions-menu:hover {
     display: block;
     animation: dropdownFadeIn 0.2s ease;
   }
@@ -276,6 +277,17 @@ function deleteItem() {
   &:hover .actions-menu-btn {
     background: var(--primary-color);
     color: white;
+  }
+
+  // 确保从按钮到菜单之间没有间隙
+  &::before {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    height: 4px; // 与 actions-menu 的 margin-top 相同
+    background: transparent;
   }
 }
 
