@@ -28,6 +28,7 @@
       @show-recommendation="showRecommendation"
       @show-model-config="showModelConfig"
       @show-operation-log="showOperationLog"
+      @show-changelog="showChangelog"
     />
     <div class="main-content">
       <CategoryList />
@@ -41,6 +42,7 @@
   <RecommendationModal ref="recommendationModalRef" />
   <ModelConfigModal ref="modelConfigModalRef" />
   <OperationLogModal ref="operationLogModalRef" />
+  <ChangelogModal ref="changelogModalRef" />
 </template>
 
 <script setup>
@@ -51,6 +53,7 @@ import StatsPanel from './components/StatsPanel.vue'
 import RecommendationModal from './components/RecommendationModal.vue'
 import ModelConfigModal from './components/ModelConfigModal.vue'
 import OperationLogModal from './components/OperationLogModal.vue'
+import ChangelogModal from './components/ChangelogModal.vue'
 import { useEquipmentStore } from './stores/equipment'
 import { useModelConfigStore } from './stores/modelConfig'
 import { useThemeStore } from './stores/themeStore'
@@ -64,6 +67,7 @@ const themeStore = useThemeStore()
 const recommendationModalRef = ref(null)
 const modelConfigModalRef = ref(null)
 const operationLogModalRef = ref(null)
+const changelogModalRef = ref(null)
 
 // 主题切换器状态
 const themeSwitcherExpanded = ref(false)
@@ -121,6 +125,10 @@ function showModelConfig() {
 
 function showOperationLog() {
   operationLogModalRef.value?.show()
+}
+
+function showChangelog() {
+  changelogModalRef.value?.show()
 }
 </script>
 

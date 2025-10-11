@@ -62,6 +62,7 @@
             </a>
             <div class="dropdown-menu">
               <a class="dropdown-item" @click="showOperationLog">📋 操作日志</a>
+              <a class="dropdown-item" @click="showChangelog">📝 更新日志</a>
               <a class="dropdown-item disabled">📚 使用文档（开发中）</a>
               <a class="dropdown-item disabled">📧 联系我们（开发中）</a>
             </div>
@@ -109,7 +110,7 @@ import { imageExportConfig } from '../config/appConfig'
 const equipmentStore = useEquipmentStore()
 
 // 事件定义
-const emit = defineEmits(['show-recommendation', 'show-model-config', 'show-operation-log'])
+const emit = defineEmits(['show-recommendation', 'show-model-config', 'show-operation-log', 'show-changelog'])
 
 // 图片预览相关状态
 const showPreviewModal = ref(false)
@@ -302,6 +303,13 @@ function showModelConfig() {
  */
 function showOperationLog() {
   emit('show-operation-log')
+}
+
+/**
+ * 显示更新日志模态框
+ */
+function showChangelog() {
+  emit('show-changelog')
 }
 </script>
 
