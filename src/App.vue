@@ -31,8 +31,8 @@
       @show-changelog="showChangelog"
     />
     <div class="main-content">
-      <CategoryList />
       <StatsPanel />
+      <CategoryList />
     </div>
 
     <!-- 主题选择按钮已移除 -->
@@ -145,6 +145,9 @@ function showChangelog() {
   max-width: 1400px;
   margin: 0 auto;
   padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 /* ===== 固定主题切换器 ===== */
