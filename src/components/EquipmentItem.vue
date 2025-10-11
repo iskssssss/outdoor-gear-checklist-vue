@@ -18,8 +18,13 @@
       </span>
     </div>
     <div v-if="!completed && !isAdding" class="item-actions" @click.stop>
-      <button class="btn btn-warning btn-sm" @click="startEdit">修改</button>
-      <button class="btn btn-danger btn-sm" @click="deleteItem">删除</button>
+      <div class="actions-dropdown">
+        <button class="actions-menu-btn">⋯</button>
+        <div class="actions-menu">
+          <a class="actions-menu-item" @click="startEdit">✏️ 修改</a>
+          <a class="actions-menu-item danger" @click="deleteItem">🗑️ 删除</a>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -256,6 +261,97 @@ function deleteItem() {
   display: flex;
   gap: 8px;
   flex-shrink: 0;
+}
+
+// 下拉菜单容器
+.actions-dropdown {
+  position: relative;
+  display: inline-block;
+
+  &:hover .actions-menu {
+    display: block;
+    animation: dropdownFadeIn 0.2s ease;
+  }
+
+  &:hover .actions-menu-btn {
+    background: var(--primary-color);
+    color: white;
+  }
+}
+
+// 三个点按钮
+.actions-menu-btn {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 6px;
+  background: var(--bg-input);
+  color: var(--text-primary);
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+
+  &:hover {
+    background: var(--primary-color);
+    color: white;
+  }
+}
+
+// 下拉菜单
+.actions-menu {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 100%;
+  margin-top: 4px;
+  min-width: 120px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 4px 0;
+  z-index: 100;
+}
+
+// 菜单项
+.actions-menu-item {
+  display: block;
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+
+  &:hover {
+    background: var(--bg-hover, rgba(102, 126, 234, 0.1));
+    color: var(--primary-color);
+  }
+
+  &.danger {
+    color: var(--danger-color, #dc3545);
+
+    &:hover {
+      background: rgba(220, 53, 69, 0.1);
+    }
+  }
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .btn {
