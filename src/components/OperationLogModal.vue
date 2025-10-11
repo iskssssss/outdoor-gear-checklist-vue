@@ -9,7 +9,13 @@
     <div class="log-controls">
       <button class="btn btn-danger btn-sm" @click="clearLogs">清空日志</button>
       <button class="btn btn-primary btn-sm" @click="exportLogs">导出日志</button>
-      <span class="log-count">共 <span>{{ logStore.logCount }}</span> 条记录</span>
+      <button class="btn btn-success btn-sm" @click="quickUndo" :disabled="logStore.undoableCount === 0">
+        ⟲ 快速撤销
+      </button>
+      <span class="log-count">
+        共 <span>{{ logStore.logCount }}</span> 条记录 | 
+        可撤销 <span class="undoable-count">{{ logStore.undoableCount }}</span> 条
+      </span>
     </div>
     
     <div class="log-content">
@@ -21,14 +27,32 @@
         v-for="log in logStore.logs" 
         :key="log.id"
         class="log-item"
-        :class="getLogClass(log.type)"
+        :class="[getLogClass(log.type), { 'log-undone': log.undone }]"
       >
         <div class="log-header">
           <span class="log-type">
             <span class="log-icon">{{ getLogIcon(log.type) }}</span>
             {{ getLogLabel(log.type) }}
+            <span v-if="log.undone" class="undone-badge">已撤销</span>
           </span>
-          <span class="log-time">{{ logStore.formatTime(log.timestamp) }}</span>
+          <div class="log-actions">
+            <span class="log-time">{{ logStore.formatTime(log.timestamp) }}</span>
+            <button 
+              v-if="log.undoable && !log.undone && log.beforeState && log.beforeState.categories"
+              class="btn-undo"
+              @click="handleUndo(log.id)"
+              title="撤销此操作"
+            >
+              ⟲ 撤销
+            </button>
+            <span 
+              v-else-if="log.undoable && !log.undone && !log.beforeState"
+              class="old-log-tag"
+              title="旧版本操作记录，不支持撤销"
+            >
+              旧记录
+            </span>
+          </div>
         </div>
         <div class="log-description">{{ log.action }}</div>
         <div v-if="log.details" class="log-details">
@@ -42,9 +66,11 @@
 <script setup>
 import { ref } from 'vue'
 import { useOperationLogStore } from '../stores/operationLog'
+import { useEquipmentStore } from '../stores/equipment'
 import BaseModal from './BaseModal.vue'
 
 const logStore = useOperationLogStore()
+const equipmentStore = useEquipmentStore()
 const modalRef = ref(null)
 
 // 日志类型配置
@@ -57,7 +83,8 @@ const typeConfig = {
   'import': { icon: '📥', label: '导入', class: 'log-import' },
   'clear': { icon: '🗑️', label: '清空', class: 'log-delete' },
   'config': { icon: '⚙️', label: '配置', class: 'log-config' },
-  'recommend': { icon: '🤖', label: 'AI推荐', class: 'log-config' }
+  'recommend': { icon: '🤖', label: 'AI推荐', class: 'log-config' },
+  'undo': { icon: '⟲', label: '撤销', class: 'log-undo' }
 }
 
 function show() {
@@ -78,6 +105,14 @@ function clearLogs() {
 
 function exportLogs() {
   logStore.exportLogs()
+}
+
+function quickUndo() {
+  equipmentStore.quickUndo()
+}
+
+function handleUndo(logId) {
+  equipmentStore.undoOperation(logId)
 }
 
 function getLogIcon(type) {
@@ -116,6 +151,10 @@ defineExpose({ show, close })
   font-weight: 700;
 }
 
+.log-count .undoable-count {
+  color: var(--success-color, #28a745);
+}
+
 .btn {
   padding: 8px 16px;
   border: none;
@@ -141,9 +180,19 @@ defineExpose({ show, close })
   color: var(--text-white, white);
 }
 
-.btn:hover {
+.btn-success {
+  background: var(--success-color, #28a745);
+  color: var(--text-white, white);
+}
+
+.btn:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .log-content {
@@ -197,6 +246,28 @@ defineExpose({ show, close })
   background: var(--bg-input, #e2e3e5);
 }
 
+.log-item.log-undo {
+  border-left-color: var(--warning-color);
+  background: var(--warning-light, #fff8e1);
+}
+
+.log-item.log-undone {
+  opacity: 0.6;
+  position: relative;
+}
+
+.log-item.log-undone::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--text-muted);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
 .log-header {
   display: flex;
   justify-content: space-between;
@@ -216,9 +287,54 @@ defineExpose({ show, close })
   font-size: 1.2rem;
 }
 
+.undone-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  margin-left: 8px;
+  background: var(--text-muted);
+  color: white;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.log-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .log-time {
   font-size: 0.85rem;
   color: var(--text-secondary);
+}
+
+.btn-undo {
+  padding: 4px 10px;
+  font-size: 0.8rem;
+  background: var(--success-color, #28a745);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.btn-undo:hover {
+  background: var(--success-dark, #218838);
+  transform: scale(1.05);
+}
+
+.old-log-tag {
+  display: inline-block;
+  padding: 3px 8px;
+  background: var(--text-muted);
+  color: white;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  opacity: 0.7;
 }
 
 .log-description {

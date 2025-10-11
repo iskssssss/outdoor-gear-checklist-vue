@@ -114,14 +114,12 @@
 import { ref, computed } from 'vue'
 import { useModelConfigStore } from '../stores/modelConfig'
 import { useEquipmentStore } from '../stores/equipment'
-import { useOperationLogStore } from '../stores/operationLog'
 import { activityTypeOptions, seasonOptions, weatherOptions, difficultyOptions, budgetOptions } from '../config/appConfig'
 import InputSelect from './InputSelect.vue'
 import BaseModal from './BaseModal.vue'
 
 const modelConfigStore = useModelConfigStore()
 const equipmentStore = useEquipmentStore()
-const logStore = useOperationLogStore()
 
 const modalRef = ref(null)
 const showResults = ref(false)
@@ -238,15 +236,7 @@ async function getRecommendations() {
       recommendations.value = await getOnlineRecommendations()
     }
 
-    // 记录日志
-    logStore.log('recommend', '获取了AI装备推荐', {
-      activityType: prefs.value.activityType,
-      season: prefs.value.season,
-      weather: prefs.value.weather,
-      difficulty: prefs.value.difficulty,
-      budget: prefs.value.budget,
-      recommendationCount: recommendations.value.length
-    })
+    // AI推荐是查询操作，不记录日志
   } catch (err) {
     error.value = err.message || '获取推荐失败'
     console.error('获取推荐失败:', err)

@@ -206,11 +206,17 @@ export const useEquipmentStore = defineStore('equipment', () => {
       collapsed: false
     }
 
+    // 保存操作前的状态
+    const beforeState = {
+      action: 'addCategory',
+      categories: JSON.parse(JSON.stringify(categories.value))
+    }
+
     categories.value.push(newCategory)
     saveData()
 
     const logStore = useOperationLogStore()
-    logStore.log('add', `添加了分类：${name}`, { category: name })
+    logStore.log('add', `添加了分类：${name}`, { category: name }, beforeState)
     
     return true
   }
@@ -226,15 +232,22 @@ export const useEquipmentStore = defineStore('equipment', () => {
       return false
     }
 
+    // 保存操作前的状态
+    const beforeState = {
+      action: 'editCategoryIcon',
+      categories: JSON.parse(JSON.stringify(categories.value))
+    }
+
+    const oldIcon = category.icon
     category.icon = newIcon.trim()
     saveData()
 
     const logStore = useOperationLogStore()
     logStore.log('edit', `修改了分类图标：${category.name}`, { 
       category: category.name,
-      oldIcon: category.icon,
+      oldIcon: oldIcon,
       newIcon: newIcon
-    })
+    }, beforeState)
     return true
   }
 
@@ -249,6 +262,12 @@ export const useEquipmentStore = defineStore('equipment', () => {
     const itemCount = category.items.length
 
     if (confirm(`确定要删除"${categoryName}"及其所有装备吗？`)) {
+      // 保存操作前的状态
+      const beforeState = {
+        action: 'deleteCategory',
+        categories: JSON.parse(JSON.stringify(categories.value))
+      }
+
       categories.value = categories.value.filter(cat => cat.id !== categoryId)
       saveData()
 
@@ -256,7 +275,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
       logStore.log('delete', `删除了分类：${categoryName}`, { 
         category: categoryName, 
         itemCount: itemCount 
-      })
+      }, beforeState)
       
       return true
     }
@@ -280,6 +299,12 @@ export const useEquipmentStore = defineStore('equipment', () => {
       return false
     }
 
+    // 保存操作前的状态
+    const beforeState = {
+      action: 'editCategoryName',
+      categories: JSON.parse(JSON.stringify(categories.value))
+    }
+
     category.name = newName.trim()
     saveData()
 
@@ -287,13 +312,14 @@ export const useEquipmentStore = defineStore('equipment', () => {
     logStore.log('edit', `修改了分类名称：${oldName} → ${newName}`, {
       oldName: oldName,
       newName: newName
-    })
+    }, beforeState)
 
     return true
   }
 
   /**
    * 切换分类折叠状态
+   * （UI状态操作，不记录日志）
    */
   function toggleCategoryCollapse(categoryId) {
     const category = categories.value.find(cat => cat.id === categoryId)
@@ -301,12 +327,8 @@ export const useEquipmentStore = defineStore('equipment', () => {
 
     category.collapsed = !category.collapsed
     saveData()
-
-    const logStore = useOperationLogStore()
-    logStore.log('toggle', `${category.collapsed ? '收起' : '展开'}了分类：${category.name}`, {
-      category: category.name,
-      action: category.collapsed ? '收起' : '展开'
-    })
+    
+    // UI状态操作不记录日志
   }
 
   /**
@@ -359,13 +381,19 @@ export const useEquipmentStore = defineStore('equipment', () => {
    * 更新分类顺序
    */
   function updateCategoriesOrder(newOrder) {
+    // 保存操作前的状态
+    const beforeState = {
+      action: 'updateCategoriesOrder',
+      categories: JSON.parse(JSON.stringify(categories.value))
+    }
+
     categories.value = newOrder
     saveData()
     
     const logStore = useOperationLogStore()
     logStore.log('sort', '重新排序了分类', {
       categories: newOrder.map(cat => cat.name).join('、')
-    })
+    }, beforeState)
   }
 
   /**
@@ -400,6 +428,12 @@ export const useEquipmentStore = defineStore('equipment', () => {
       priceUnit: itemData.priceUnit || '人民币'
     }
 
+    // 保存操作前的状态
+    const beforeState = {
+      action: 'addItem',
+      categories: JSON.parse(JSON.stringify(categories.value))
+    }
+
     category.items.push(newItem)
     saveData()
 
@@ -411,7 +445,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
       quantity: `${newItem.quantity}${newItem.quantityUnit}`,
       weight: `${newItem.weight}${newItem.weightUnit}`,
       price: `${newItem.price}${newItem.priceUnit}`
-    })
+    }, beforeState)
 
     return true
   }
@@ -430,6 +464,12 @@ export const useEquipmentStore = defineStore('equipment', () => {
     const itemIndex = item.index
 
     if (confirm(`确定要删除 #${itemIndex} "${itemName}"吗？`)) {
+      // 保存操作前的状态
+      const beforeState = {
+        action: 'deleteItem',
+        categories: JSON.parse(JSON.stringify(categories.value))
+      }
+
       category.items = category.items.filter(item => item.id !== itemId)
       
       // 删除后重新编码
@@ -441,7 +481,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
         category: category.name,
         item: itemName,
         index: itemIndex
-      })
+      }, beforeState)
 
       return true
     }
@@ -468,6 +508,12 @@ export const useEquipmentStore = defineStore('equipment', () => {
     const oldWeight = `${item.weight}${item.weightUnit}`
     const oldPrice = `${item.price || 0}${item.priceUnit || '人民币'}`
 
+    // 保存操作前的状态
+    const beforeState = {
+      action: 'editItem',
+      categories: JSON.parse(JSON.stringify(categories.value))
+    }
+
     item.name = itemData.name.trim()
     item.quantity = itemData.quantity || 1
     item.quantityUnit = itemData.quantityUnit || '个'
@@ -486,7 +532,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
       quantity: `${oldQuantity} → ${item.quantity}${item.quantityUnit}`,
       weight: `${oldWeight} → ${item.weight}${item.weightUnit}`,
       price: `${oldPrice} → ${item.price}${item.priceUnit}`
-    })
+    }, beforeState)
 
     return true
   }
@@ -507,6 +553,12 @@ export const useEquipmentStore = defineStore('equipment', () => {
       return false
     }
 
+    // 保存操作前的状态
+    const beforeState = {
+      action: 'toggleItem',
+      categories: JSON.parse(JSON.stringify(categories.value))
+    }
+
     item.completed = !item.completed
     saveData()
 
@@ -515,7 +567,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
       category: category.name,
       item: item.name,
       status: item.completed ? '已准备' : '待准备'
-    })
+    }, beforeState)
 
     return true
   }
@@ -608,14 +660,85 @@ export const useEquipmentStore = defineStore('equipment', () => {
 
   /**
    * 切换装备分栏显示模式
+   * （UI状态操作，不记录日志）
    */
   function toggleGroupByStatus() {
     groupByStatus.value = !groupByStatus.value
     
+    // UI状态操作不记录日志
+  }
+
+  /**
+   * 撤销操作
+   */
+  function undoOperation(logId) {
     const logStore = useOperationLogStore()
-    logStore.log('toggle', `${groupByStatus.value ? '启用' : '禁用'}了准备状态分栏`, {
-      groupByStatus: groupByStatus.value
-    })
+    const targetLog = logStore.logs.find(log => log.id === logId)
+    
+    if (!targetLog) {
+      alert('未找到要撤销的操作')
+      return false
+    }
+
+    if (!targetLog.undoable) {
+      alert('此操作不支持撤销')
+      return false
+    }
+
+    if (targetLog.undone) {
+      alert('此操作已经被撤销过了')
+      return false
+    }
+
+    if (!targetLog.beforeState || !targetLog.beforeState.categories) {
+      alert('无法撤销：此操作记录于旧版本，缺少状态数据。\n\n提示：只有本次更新后的新操作才支持撤销功能。')
+      console.warn('⚠️ 尝试撤销旧版本操作', {
+        操作: targetLog.action,
+        时间: targetLog.timestamp,
+        有beforeState: !!targetLog.beforeState
+      })
+      return false
+    }
+
+    if (confirm(`确定要撤销操作"${targetLog.action}"吗？`)) {
+      // 恢复到操作前的状态
+      categories.value = JSON.parse(JSON.stringify(targetLog.beforeState.categories))
+      saveData()
+
+      // 标记为已撤销
+      logStore.markAsUndone(logId)
+
+      // 记录撤销操作
+      logStore.log('undo', `撤销了操作：${targetLog.action}`, {
+        originalAction: targetLog.action,
+        originalType: targetLog.type
+      }, null, false) // 撤销操作本身不可再撤销
+
+      console.log('✅ 操作已撤销', {
+        操作: targetLog.action,
+        类型: targetLog.type
+      })
+
+      alert('操作已成功撤销！')
+      return true
+    }
+
+    return false
+  }
+
+  /**
+   * 快速撤销最近的操作
+   */
+  function quickUndo() {
+    const logStore = useOperationLogStore()
+    const latestLog = logStore.getLatestUndoableLog()
+    
+    if (!latestLog) {
+      alert('没有可以撤销的操作')
+      return false
+    }
+
+    return undoOperation(latestLog.id)
   }
 
   return {
@@ -648,7 +771,9 @@ export const useEquipmentStore = defineStore('equipment', () => {
     toggleItem,
     toggleGroupByStatus, // 暴露切换分栏显示方法
     importData,
-    clearAllData
+    clearAllData,
+    undoOperation, // 撤销指定操作
+    quickUndo // 快速撤销最近操作
   }
 })
 

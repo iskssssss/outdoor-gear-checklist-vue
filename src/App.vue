@@ -50,7 +50,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import AppHeader from './components/AppHeader.vue'
 import CategoryList from './components/CategoryList.vue'
 import StatsPanel from './components/StatsPanel.vue'
@@ -103,12 +103,42 @@ function handleClickOutside(event) {
   }
 }
 
-// 页面加载时加载数据
+// 键盘快捷键处理
+function handleKeyboardShortcut(event) {
+  // Ctrl+Z 或 Cmd+Z (Mac) - 撤销操作
+  if ((event.ctrlKey || event.metaKey) && event.key === 'z' && !event.shiftKey) {
+    // 防止默认行为（浏览器的撤销）
+    event.preventDefault()
+    
+    // 检查是否在输入框中
+    const activeElement = document.activeElement
+    const isInputting = activeElement.tagName === 'INPUT' || 
+                       activeElement.tagName === 'TEXTAREA' || 
+                       activeElement.isContentEditable
+    
+    // 如果不在输入状态，执行撤销操作
+    if (!isInputting) {
+      equipmentStore.quickUndo()
+    }
+  }
+}
+
+// 页面加载时加载数据并绑定快捷键
 onMounted(() => {
   equipmentStore.loadData()
   modelConfigStore.loadSettings()
   themeStore.loadTheme() // 加载主题设置
+  
+  // 添加键盘快捷键监听
+  window.addEventListener('keydown', handleKeyboardShortcut)
+  
   console.log('🚀 户外装备清单系统已初始化 (Vue 3版本)')
+  console.log('💡 提示: 按 Ctrl+Z (或 Cmd+Z) 可以撤销最近的操作')
+})
+
+// 组件卸载时移除事件监听
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleKeyboardShortcut)
 })
 
 // 监听页面可见性变化,实现多标签页同步

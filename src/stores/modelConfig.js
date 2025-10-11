@@ -4,7 +4,6 @@
  */
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { useOperationLogStore } from './operationLog'
 import { defaultModelSettings, defaultRecommendationPreferences, localStorageKeys } from '../config/appConfig'
 
 export const useModelConfigStore = defineStore('modelConfig', () => {
@@ -57,16 +56,11 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
 
   /**
    * 保存模型配置
+   * （系统配置操作，不记录日志）
    */
   function saveSettings() {
     try {
       localStorage.setItem(localStorageKeys.modelSettings, JSON.stringify(settings.value))
-      
-      const logStore = useOperationLogStore()
-      logStore.log('config', '保存了模型配置', {
-        apiUrl: settings.value.apiUrl,
-        modelName: settings.value.modelName
-      })
       
       console.log('✅ 模型配置已保存')
       return true

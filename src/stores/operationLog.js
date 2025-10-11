@@ -12,18 +12,26 @@ export const useOperationLogStore = defineStore('operationLog', () => {
 
   // Getters
   const logCount = computed(() => logs.value.length)
+  
+  // 计算可撤销的操作数量（只计算有状态数据的）
+  const undoableCount = computed(() => 
+    logs.value.filter(log => log.undoable && !log.undone && log.beforeState && log.beforeState.categories).length
+  )
 
   // Actions
   /**
    * 记录操作日志
    */
-  function log(type, action, details = null) {
+  function log(type, action, details = null, beforeState = null, undoable = true) {
     const logEntry = {
       id: Date.now(),
       timestamp: new Date().toISOString(),
       type: type,
       action: action,
-      details: details
+      details: details,
+      beforeState: beforeState, // 操作前的状态快照
+      undoable: undoable, // 是否可以撤销
+      undone: false // 是否已撤销
     }
 
     logs.value.unshift(logEntry) // 新日志放在最前面
@@ -39,6 +47,7 @@ export const useOperationLogStore = defineStore('operationLog', () => {
       console.log('📝 操作日志已保存', {
         操作类型: type,
         描述: action,
+        可撤销: undoable,
         日志总数: logs.value.length
       })
     } catch (e) {
@@ -53,9 +62,19 @@ export const useOperationLogStore = defineStore('operationLog', () => {
     const saved = localStorage.getItem(localStorageKeys.operationLogs)
     if (saved) {
       try {
-        logs.value = JSON.parse(saved)
+        const loadedLogs = JSON.parse(saved)
+        
+        // 处理旧版本日志数据，确保新字段存在
+        logs.value = loadedLogs.map(log => ({
+          ...log,
+          beforeState: log.beforeState || null,
+          undoable: log.undoable !== undefined ? log.undoable : (log.beforeState ? true : false),
+          undone: log.undone || false
+        }))
+        
         console.log('📋 操作日志已加载', {
           日志总数: logs.value.length,
+          可撤销: logs.value.filter(l => l.undoable && !l.undone && l.beforeState).length,
           最新操作: logs.value.length > 0 ? logs.value[0].action : '无'
         })
       } catch (e) {
@@ -70,12 +89,12 @@ export const useOperationLogStore = defineStore('operationLog', () => {
 
   /**
    * 清空操作日志
+   * （日志管理操作，不记录日志）
    */
   function clearLogs() {
     if (confirm('确定要清空所有操作日志吗？')) {
       logs.value = []
       localStorage.removeItem(localStorageKeys.operationLogs)
-      log('clear', '清空了所有操作日志')
       return true
     }
     return false
@@ -130,6 +149,29 @@ export const useOperationLogStore = defineStore('operationLog', () => {
     return `${time.getMonth()+1}/${time.getDate()} ${time.getHours()}:${String(time.getMinutes()).padStart(2, '0')}:${String(time.getSeconds()).padStart(2, '0')}`
   }
 
+  /**
+   * 标记日志为已撤销
+   */
+  function markAsUndone(logId) {
+    const log = logs.value.find(l => l.id === logId)
+    if (log) {
+      log.undone = true
+      try {
+        localStorage.setItem(localStorageKeys.operationLogs, JSON.stringify(logs.value))
+        console.log('✅ 操作已标记为撤销', { logId, action: log.action })
+      } catch (e) {
+        console.warn('❌ 撤销标记保存失败:', e)
+      }
+    }
+  }
+
+  /**
+   * 获取最近的可撤销操作（必须有状态数据）
+   */
+  function getLatestUndoableLog() {
+    return logs.value.find(log => log.undoable && !log.undone && log.beforeState && log.beforeState.categories)
+  }
+
   // 页面加载时自动加载日志
   loadLogs()
 
@@ -138,13 +180,16 @@ export const useOperationLogStore = defineStore('operationLog', () => {
     logs,
     // Getters
     logCount,
+    undoableCount,
     // Actions
     log,
     loadLogs,
     clearLogs,
     exportLogs,
     formatDetails,
-    formatTime
+    formatTime,
+    markAsUndone,
+    getLatestUndoableLog
   }
 })
 

@@ -2,6 +2,18 @@
   <div class="categories-section">
     <!-- 全局操作按钮 -->
     <div class="global-actions" v-if="equipmentStore.categories.length > 0 || isAdding">
+      <!-- 快捷撤销按钮 -->
+      <button 
+        class="btn btn-undo" 
+        @click="quickUndo" 
+        :disabled="!canUndo"
+        :title="`撤销最近的操作 (Ctrl+Z)${undoableCount > 0 ? ` - 共${undoableCount}条可撤销` : ''}`"
+      >
+        <span class="undo-icon">⟲</span>
+        <span class="undo-text">撤销</span>
+        <span v-if="undoableCount > 0" class="undo-count">{{ undoableCount }}</span>
+      </button>
+      
       <button 
         class="btn btn-secondary btn-sm" 
         @click="toggleAllCategories"
@@ -112,16 +124,22 @@
 <script setup>
 import { ref, computed, nextTick, watch, onMounted, onUnmounted } from 'vue'
 import { useEquipmentStore } from '../stores/equipment'
+import { useOperationLogStore } from '../stores/operationLog'
 import CategoryItem from './CategoryItem.vue'
 import WaterfallLayout from './WaterfallLayout.vue'
 import CategorySortModal from './CategorySortModal.vue'
 
 const equipmentStore = useEquipmentStore()
+const logStore = useOperationLogStore()
 const newCategoryName = ref('')
 const isAdding = ref(false)
 const categoryInput = ref(null)
 const layoutMode = ref('grid') // 'grid' 或 'waterfall'
 const categorySortModalRef = ref(null)
+
+// 撤销相关
+const undoableCount = computed(() => logStore.undoableCount)
+const canUndo = computed(() => undoableCount.value > 0)
 
 /**
  * 计算是否所有分类都已收起
@@ -199,6 +217,13 @@ function showSortModal() {
 }
 
 /**
+ * 快速撤销最近的操作
+ */
+function quickUndo() {
+  equipmentStore.quickUndo()
+}
+
+/**
  * 切换装备分栏显示模式
  */
 function toggleGroupByStatus() {
@@ -222,9 +247,64 @@ function toggleGroupByStatus() {
     transition: all 0.3s ease;
     font-size: 0.9rem;
     
-    &:hover {
+    &:hover:not(:disabled) {
       transform: translateY(-2px);
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+  }
+  
+  // 撤销按钮样式
+  .btn-undo {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: var(--success-color, #28a745);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(40, 167, 69, 0.3);
+    
+    &:hover:not(:disabled) {
+      background: var(--success-dark, #218838);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+    }
+    
+    &:active:not(:disabled) {
+      transform: translateY(0);
+      box-shadow: 0 2px 6px rgba(40, 167, 69, 0.3);
+    }
+    
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      background: var(--text-secondary, #999);
+      box-shadow: none;
+    }
+    
+    .undo-icon {
+      font-size: 1.1rem;
+      line-height: 1;
+    }
+    
+    .undo-text {
+      font-weight: 600;
+    }
+    
+    .undo-count {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 18px;
+      height: 18px;
+      padding: 0 5px;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 9px;
+      font-size: 0.7rem;
+      font-weight: 700;
     }
   }
 }
@@ -457,6 +537,30 @@ function toggleGroupByStatus() {
 @media (max-width: 768px) {
   .categories-container {
     grid-template-columns: 1fr;
+  }
+  
+  .global-actions {
+    flex-wrap: wrap;
+    
+    .btn-undo {
+      padding: 6px 12px;
+      font-size: 0.85rem;
+      
+      .undo-icon {
+        font-size: 1rem;
+      }
+      
+      .undo-text {
+        font-size: 0.85rem;
+      }
+      
+      .undo-count {
+        min-width: 16px;
+        height: 16px;
+        padding: 0 4px;
+        font-size: 0.65rem;
+      }
+    }
   }
 }
 </style>
