@@ -1,0 +1,251 @@
+/**
+ * 柔和主题 - 马卡龙配色
+ * 只定义差异化样式，通用样式在 _base.scss 中
+ */
+
+body.theme-soft {
+  /* ===== CSS 变量定义 ===== */
+  --primary-color: #ff9ecd;
+  --primary-dark: #e685b5;
+  --secondary-color: #c4b0ff;
+  --success-color: #90d9c5;
+  --success-light: #e8faf5;
+  --warning-color: #ffd280;
+  --warning-light: #fff8e1;
+  --danger-color: #ff9999;
+  --danger-light: #ffe8ec;
+  --info-color: #9ed4ff;
+  --info-light: #e8f4ff;
+  
+  --bg-main: #ffeef8;
+  --bg-card: #ffffff;
+  --bg-header: #ffffff;
+  --bg-input: #f9f6ff;
+  --bg-button-group: #fff5fb;
+  --bg-gradient: linear-gradient(135deg, #ff9ecd 0%, #c4b0ff 100%);
+  
+  --text-primary: #4a4a4a;
+  --text-secondary: #7a7a7a;
+  --text-muted: #ababab;
+  --text-white: #ffffff;
+  
+  --border-color: #ffe0f0;
+  --border-radius: 12px;
+  --border-width: 2px;
+  
+  --shadow-card: 0 6px 16px rgba(255, 158, 205, 0.15);
+  --shadow-hover: 0 10px 30px rgba(255, 158, 205, 0.25);
+  
+  /* ===== 差异化样式 - 仅柔和主题特有 ===== */
+  
+  color: var(--text-primary);
+  
+  .app-container {
+    background: linear-gradient(135deg, #ffeef8 0%, #e8f4ff 100%);
+  }
+  
+  .header {
+    box-shadow: 0 6px 20px rgba(255, 158, 205, 0.4);
+    border-bottom: 2px solid var(--border-color);
+  }
+  
+  /* 柔和阴影和边框 */
+  .add-category-section,
+  .category,
+  .stats {
+    border: 2px solid var(--border-color);
+    box-shadow: 0 6px 16px rgba(255, 158, 205, 0.15);
+  }
+  
+  .category-header {
+    background: linear-gradient(135deg, #ff9ecd 0%, #c4b0ff 100%);
+    color: var(--text-white);
+    border-bottom: 2px solid var(--border-color);
+  }
+  
+  .category-title {
+    color: var(--text-white);
+  }
+  
+  .category-collapse-btn {
+    background: var(--bg-button-overlay, rgba(255, 255, 255, 0.3));
+    border: 2px solid var(--bg-button-overlay-border, rgba(255, 255, 255, 0.5));
+    color: var(--text-white);
+  }
+  
+  .section-title {
+    background: var(--bg-input);
+    border: 2px solid var(--border-color);
+  }
+  
+  /* 项目样式 */
+  .item {
+    border: 2px solid var(--border-color);
+    
+    &:hover {
+      background: #fff8fd;
+      border-color: var(--primary-color);
+    }
+    
+    &.completed {
+      background: #e8faf5;
+      border-color: var(--success-color);
+    }
+  }
+  
+  /* 统计项渐变 */
+  .stat-item {
+    background: linear-gradient(135deg, #ffd4ea 0%, #e6d9ff 100%);
+    border: 2px solid var(--border-color);
+  }
+  
+  /* 导航栏 */
+  .nav-menu {
+    border-top: 2px solid var(--border-color);
+    border-bottom: 2px solid var(--border-color);
+  }
+  
+  .nav-link:hover {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+  }
+  
+  .nav-link.danger:hover {
+    color: var(--danger-color);
+    border-bottom-color: var(--danger-color);
+  }
+  
+  .nav-divider {
+    background: var(--border-color);
+  }
+  
+  /* 模态框 */
+  .modal-content {
+    border: 2px solid var(--border-color);
+    box-shadow: 0 12px 40px rgba(255, 158, 205, 0.25);
+  }
+  
+  .modal-header {
+    background: linear-gradient(135deg, #ff9ecd 0%, #c4b0ff 100%);
+    color: var(--text-white);
+    border-bottom: 2px solid var(--border-color);
+    
+    h3, .close {
+      color: var(--text-white);
+    }
+  }
+  
+  .tab-btn {
+    background: var(--bg-input);
+    border: 2px solid var(--border-color);
+    
+    &.active {
+      background: var(--primary-color);
+      color: var(--text-white);
+      border-color: var(--primary-color);
+    }
+  }
+  
+  /* 日志彩色背景 */
+  .log-item {
+    background: var(--bg-input);
+    border-left: 4px solid var(--border-color);
+    
+    &.log-add {
+      border-left-color: var(--success-color);
+      background: #e8faf5;
+    }
+    
+    &.log-delete {
+      border-left-color: var(--danger-color);
+      background: #ffe8ec;
+    }
+    
+    &.log-edit {
+      border-left-color: var(--warning-color);
+      background: #fff8e1;
+    }
+  }
+  
+  /* 添加按钮弹性效果 */
+  .add-item-button {
+    background: var(--primary-color);
+    color: var(--text-white);
+    border: 2px solid var(--border-color);
+    
+    &:hover {
+      transform: translateY(-4px) scale(1.05);
+      box-shadow: 0 10px 25px rgba(255, 158, 205, 0.3);
+    }
+    
+    &.cancel {
+      background: var(--danger-color);
+    }
+  }
+  
+  /* 区域分隔 */
+  .add-item-section {
+    background: var(--bg-input);
+    border-top: 2px dashed var(--border-color);
+  }
+  
+  .items-section {
+    border-top: 2px dashed var(--border-color);
+  }
+  
+  /* 配置信息 */
+  .config-info {
+    background: var(--bg-input);
+    border: 2px solid var(--border-color);
+    
+    &.warning {
+      border-color: var(--warning-color);
+      background: #fff8e1;
+      color: var(--warning-color);
+    }
+  }
+  
+  /* 测试结果 */
+  .test-result,
+  .recommendation-item {
+    background: var(--bg-input);
+    border: 2px solid var(--border-color);
+  }
+  
+  .test-result {
+    &.success {
+      color: var(--success-color);
+      border-color: var(--success-color);
+    }
+    
+    &.error {
+      color: var(--danger-color);
+      border-color: var(--danger-color);
+    }
+  }
+  
+  /* 焦点柔和效果 */
+  input:focus,
+  select:focus,
+  textarea:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(255, 158, 205, 0.2);
+  }
+  
+  /* 主题切换器柔和效果 */
+  .theme-toggle-btn {
+    box-shadow: 0 6px 16px rgba(255, 158, 205, 0.25);
+    
+    &:hover {
+      box-shadow: 0 10px 30px rgba(255, 158, 205, 0.35);
+    }
+  }
+  
+  .theme-options {
+    box-shadow: 0 12px 40px rgba(255, 158, 205, 0.3);
+  }
+  
+  .theme-option.active {
+    box-shadow: 0 4px 12px rgba(255, 158, 205, 0.3);
+  }
+}

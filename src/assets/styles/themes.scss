@@ -1,0 +1,28 @@
+/**
+ * 主题样式管理系统 - 主入口
+ * 
+ * 架构说明：
+ * 1. _base.scss - 通用基础样式（所有主题共享的结构和布局）
+ * 2. _mixins.scss - 可复用的 SCSS 混入
+ * 3. _theme-*.scss - 各主题的差异化样式（只定义颜色、特效等差异）
+ * 
+ * 优势：
+ * - 避免重复代码
+ * - 主题文件更简洁，只关注差异
+ * - 易于维护和扩展
+ */
+
+/* 引入混入 */
+@use './_mixins' as *;
+
+/* 引入基础通用样式 */
+@use './_base';
+
+/* 引入各主题（只包含差异化样式） */
+@use './_theme-default';
+@use './_theme-paper';
+@use './_theme-dark';
+@use './_theme-soft';
+@use './_theme-pixel';
+@use './_theme-minimal';
+

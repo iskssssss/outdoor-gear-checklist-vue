@@ -1,0 +1,302 @@
+/**
+ * 手绘主题 - Paper.css 风格
+ * 只定义差异化样式，通用样式在 _base.scss 中
+ */
+@use './_mixins' as *;
+
+body.theme-paper {
+  /* ===== CSS 变量定义 ===== */
+  --primary-color: #41403e;
+  --primary-dark: #2c2416;
+  --primary-light: #c1c0bd;
+  --secondary-color: #0071de;
+  --success-color: #86a361;
+  --success-light: #d0dbc2;
+  --success-text: #374427;
+  --warning-color: #ddcd45;
+  --warning-light: #f5f0c6;
+  --warning-text: #746a15;
+  --danger-color: #a7342d;
+  --danger-light: #f0cbc9;
+  --danger-text: #7f2722;
+  --info-color: #17a2b8;
+  --info-light: #d1ecf1;
+  --muted-color: #868e96;
+  
+  --bg-main: #f4e7d7;
+  --bg-card: #fffef9;
+  --bg-header: #fffef9;
+  --bg-input: #ffffff;
+  --bg-button-group: #faf6f0;
+  --bg-gradient: linear-gradient(135deg, #86a361 0%, #6b8a4f 100%);
+  
+  --text-primary: #2c2416;
+  --text-secondary: #5c4f3f;
+  --text-muted: #8b7d6b;
+  --text-white: #fffef9;
+  
+  --border-color: #41403e;
+  --border-light: #d4c4b0;
+  --border-radius: 12px;
+  --border-width: 2px;
+  
+  --shadow-card: 5px 5px 0 rgba(0, 0, 0, 0.1);
+  --shadow-hover: 6px 6px 0 rgba(0, 0, 0, 0.15);
+  
+  --font-family-base: 'Neucha', cursive, sans-serif;
+  --font-family-heading: 'Patrick Hand', cursive, sans-serif;
+  
+  /* ===== 差异化样式 - 仅手绘主题特有 ===== */
+  
+  font-family: var(--font-family-base);
+  color: var(--text-primary);
+  
+  .app-container {
+    background: linear-gradient(135deg, #f4e7d7 0%, #e8d5c4 100%);
+  }
+  
+  /* 不规则边框效果 */
+  .header {
+    @include irregular-border(1);
+  }
+  
+  .category:nth-child(6n+1) { @include irregular-border(1); }
+  .category:nth-child(6n+2) { @include irregular-border(2); }
+  .category:nth-child(6n+3) { @include irregular-border(3); }
+  .category:nth-child(6n+4) { @include irregular-border(4); }
+  .category:nth-child(6n+5) { @include irregular-border(5); }
+  .category:nth-child(6n+6) { @include irregular-border(6); }
+  
+  /* 纸张阴影效果 */
+  .header,
+  .category,
+  .stats,
+  .modal-content {
+    @include paper-shadow;
+    border: var(--border-width) solid var(--border-color);
+  }
+  
+  /* 手写字体 */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-family-heading);
+    font-weight: 400;
+  }
+  
+  /* 手绘按钮 */
+  .btn {
+    @include paper-button;
+    font-family: var(--font-family-base);
+  }
+  
+  .btn-success {
+    background-color: #d0dbc2;
+    color: #374427;
+    border-color: #86a361;
+  }
+  
+  .btn-primary {
+    background-color: #deefff;
+    color: #0057ab;
+    border-color: #0071de;
+  }
+  
+  .btn-warning {
+    background-color: #f5f0c6;
+    color: #746a15;
+    border-color: #ddcd45;
+  }
+  
+  .btn-danger {
+    background-color: #f0cbc9;
+    color: #7f2722;
+    border-color: #a7342d;
+  }
+  
+  .btn-info {
+    background-color: #d1f4f7;
+    color: #0c5460;
+    border-color: #17a2b8;
+  }
+  
+  .btn-secondary {
+    background-color: #e6e7e9;
+    color: #313538;
+    border-color: #868e96;
+  }
+  
+  /* 双层边框卡片效果 */
+  .category::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border: 2px solid var(--border-light);
+    border-radius: inherit;
+    transform: rotate(-0.5deg);
+    pointer-events: none;
+    opacity: 0.3;
+  }
+  
+  /* 不规则输入框 */
+  input,
+  select,
+  textarea {
+    border-radius: 15px 255px 225px 15px / 255px 15px 15px 225px;
+  }
+  
+  .theme-selector {
+    border-radius: 15px 255px 225px 15px / 255px 15px 15px 225px;
+  }
+  
+  /* 分类头部 */
+  .category-header {
+    background: var(--success-color);
+    border-bottom: var(--border-width) solid var(--border-light);
+  }
+  
+  .category-collapse-btn {
+    background: rgba(255, 255, 255, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+  }
+  
+  /* 项目样式 */
+  .item {
+    border: 1px solid var(--border-light);
+    
+    &:hover {
+      background: #fefcf8;
+      border-color: var(--border-color);
+    }
+    
+    &.completed {
+      background: var(--success-light);
+      border-color: var(--success-color);
+    }
+  }
+  
+  /* 区域分隔 */
+  .section-title {
+    background: var(--bg-button-group);
+    border: var(--border-width) solid var(--border-light);
+  }
+  
+  .add-item-section {
+    background: var(--bg-button-group);
+    border-top: var(--border-width) dashed var(--border-light);
+  }
+  
+  .items-section {
+    border-top: var(--border-width) dashed var(--border-light);
+  }
+  
+  /* 添加按钮 */
+  .add-item-button {
+    background: var(--success-light);
+    color: var(--success-text);
+    border: var(--border-width) solid var(--success-color);
+    box-shadow: 5px 5px 0 rgba(0, 0, 0, 0.1);
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 6px 6px 0 rgba(134, 163, 97, 0.3);
+    }
+    
+    &.cancel {
+      background: var(--danger-light);
+      color: var(--danger-text);
+      border-color: var(--danger-color);
+    }
+  }
+  
+  /* 模态框 */
+  .modal-header {
+    background: var(--success-color);
+    border-bottom: var(--border-width) solid var(--border-light);
+    
+    h3, .close {
+      color: var(--text-white);
+    }
+  }
+  
+  .tab-btn {
+    border: var(--border-width) solid var(--border-color);
+    background: var(--bg-button-group);
+    
+    &.active {
+      background: var(--secondary-color);
+      color: var(--text-white);
+      border-color: var(--secondary-color);
+    }
+  }
+  
+  /* 日志 */
+  .log-item {
+    background: var(--bg-button-group);
+    border-left: 3px solid var(--border-color);
+    
+    &.log-add {
+      border-left-color: var(--success-color);
+      background: var(--success-light);
+    }
+    
+    &.log-delete {
+      border-left-color: var(--danger-color);
+      background: var(--danger-light);
+    }
+    
+    &.log-edit {
+      border-left-color: var(--warning-color);
+      background: var(--warning-light);
+    }
+  }
+  
+  /* 配置信息 */
+  .config-info {
+    background: var(--bg-button-group);
+    border-left: 4px solid var(--border-light);
+    
+    &.warning {
+      border-color: var(--warning-color);
+      background: var(--warning-light);
+      color: var(--warning-text);
+    }
+  }
+  
+  /* 测试结果 */
+  .test-result {
+    background: var(--bg-button-group);
+    border: var(--border-width) solid var(--border-light);
+    
+    &.success {
+      color: var(--success-text);
+      border-color: var(--success-color);
+    }
+    
+    &.error {
+      color: var(--danger-text);
+      border-color: var(--danger-color);
+    }
+  }
+  
+  /* 主题切换器手绘效果 */
+  .theme-toggle-btn {
+    @include irregular-border(1);
+    @include paper-shadow;
+  }
+  
+  .theme-options {
+    @include irregular-border(2);
+    box-shadow: 15px 28px 25px -18px rgba(0, 0, 0, 0.2);
+  }
+  
+  .theme-option {
+    border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+    font-family: var(--font-family-base);
+    
+    &.active {
+      background: var(--secondary-color);
+    }
+  }
+}

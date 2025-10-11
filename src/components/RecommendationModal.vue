@@ -1,0 +1,810 @@
+<template>
+  <div v-if="isVisible" class="modal" @click="close">
+    <div class="modal-content" @click.stop>
+      <div class="modal-header">
+        <h3>🤖 智能装备推荐</h3>
+        <span class="close" @click="close">&times;</span>
+      </div>
+      <div class="modal-body scroll-area">
+        <div class="recommendation-settings">
+          <h4>推荐设置</h4>
+          <div class="setting-group">
+            <label>活动类型：</label>
+            <InputSelect
+              v-model="prefs.activityType"
+              :options="allActivityTypeOptions"
+              category="activityType"
+              placeholder="选择或输入活动类型"
+              @update:modelValue="savePreferences"
+              @addCustomOption="handleAddCustomOption"
+            />
+          </div>
+          <div class="setting-group">
+            <label>季节：</label>
+            <InputSelect
+              v-model="prefs.season"
+              :options="allSeasonOptions"
+              category="season"
+              placeholder="选择或输入季节"
+              @update:modelValue="savePreferences"
+              @addCustomOption="handleAddCustomOption"
+            />
+          </div>
+          <div class="setting-group">
+            <label>天气条件：</label>
+            <InputSelect
+              v-model="prefs.weather"
+              :options="allWeatherOptions"
+              category="weather"
+              placeholder="选择或输入天气条件"
+              @update:modelValue="savePreferences"
+              @addCustomOption="handleAddCustomOption"
+            />
+          </div>
+          <div class="setting-group">
+            <label>难度等级：</label>
+            <InputSelect
+              v-model="prefs.difficulty"
+              :options="allDifficultyOptions"
+              category="difficulty"
+              placeholder="选择或输入难度等级"
+              @update:modelValue="savePreferences"
+              @addCustomOption="handleAddCustomOption"
+            />
+          </div>
+          <div class="setting-group">
+            <label>预算范围：</label>
+            <InputSelect
+              v-model="prefs.budget"
+              :options="allBudgetOptions"
+              category="budget"
+              placeholder="选择或输入预算范围"
+              @update:modelValue="savePreferences"
+              @addCustomOption="handleAddCustomOption"
+            />
+          </div>
+        </div>
+
+        
+        <div class="config-info">
+          <strong>⚙️ 使用模型配置</strong>
+          推荐功能将使用"⚙️ 模型配置"中保存的API设置。如需修改API配置，请点击顶部"⚙️ 模型配置"按钮。
+        </div>
+
+        <div class="recommendation-actions">
+          <button class="btn btn-primary" @click="getRecommendations" :disabled="isLoading">
+            {{ isLoading ? '正在获取推荐...' : '获取推荐' }}
+          </button>
+          <button class="btn btn-secondary" @click="close">取消</button>
+        </div>
+
+        <div v-if="showResults" class="recommendation-results">
+          <h4>推荐结果</h4>
+          <div v-if="isLoading" class="loading">
+            正在分析您的装备清单并生成推荐...
+          </div>
+          <div v-else-if="error" class="error">
+            {{ error }}
+          </div>
+          <div v-else-if="recommendations.length === 0" class="success">
+            您的装备清单已经很完善了！
+          </div>
+          <div v-else class="recommendation-content">
+            <div
+              v-for="(rec, index) in recommendations"
+              :key="index"
+              class="recommendation-item"
+              :style="getItemStyle(rec.priority)"
+            >
+              <div class="recommendation-header">
+                <span class="recommendation-number">{{ index + 1 }}</span>
+                <h5 class="recommendation-title">{{ rec.title }}</h5>
+                <span class="priority-badge" :style="getBadgeStyle(rec.priority)">
+                  {{ getPriorityIcon(rec.priority) }} {{ getPriorityLabel(rec.priority) }}
+                </span>
+              </div>
+              <p class="recommendation-description">{{ rec.description }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref, computed } from 'vue'
+import { useModelConfigStore } from '../stores/modelConfig'
+import { useEquipmentStore } from '../stores/equipment'
+import { useOperationLogStore } from '../stores/operationLog'
+import { activityTypeOptions, seasonOptions, weatherOptions, difficultyOptions, budgetOptions } from '../config/appConfig'
+import InputSelect from './InputSelect.vue'
+
+const modelConfigStore = useModelConfigStore()
+const equipmentStore = useEquipmentStore()
+const logStore = useOperationLogStore()
+
+const isVisible = ref(false)
+let openCount = 0
+let scrollPosition = 0
+const showResults = ref(false)
+const isLoading = ref(false)
+const error = ref('')
+const recommendations = ref([])
+
+const prefs = computed(() => modelConfigStore.recommendationPreferences)
+const customOptions = computed(() => modelConfigStore.customRecommendationOptions)
+
+const allActivityTypeOptions = computed(() => [
+  ...activityTypeOptions,
+  ...customOptions.value.activityType
+]);
+const allSeasonOptions = computed(() => [
+  ...seasonOptions,
+  ...customOptions.value.season
+]);
+const allWeatherOptions = computed(() => [
+  ...weatherOptions,
+  ...customOptions.value.weather
+]);
+const allDifficultyOptions = computed(() => [
+  ...difficultyOptions,
+  ...customOptions.value.difficulty
+]);
+const allBudgetOptions = computed(() => [
+  ...budgetOptions,
+  ...customOptions.value.budget
+]);
+
+// Functions to handle custom options from InputSelect
+function handleAddCustomOption(category, value, label) {
+  modelConfigStore.addCustomOption(category, value, label);
+}
+
+// 优先级配置 - 使用CSS变量以支持主题切换
+const priorityConfig = computed(() => {
+  const style = getComputedStyle(document.documentElement)
+  
+  // 获取主题颜色，如果不存在则使用默认值
+  const dangerColor = style.getPropertyValue('--danger-color').trim() || '#dc3545'
+  const warningColor = style.getPropertyValue('--warning-color').trim() || '#ff9800'
+  const successColor = style.getPropertyValue('--success-color').trim() || '#28a745'
+  const infoColor = style.getPropertyValue('--info-color').trim() || '#17a2b8'
+  
+  return {
+    'critical': { 
+      icon: '🔴', 
+      label: '必备', 
+      color: dangerColor, 
+      bg: `${dangerColor}15` // 使用半透明背景，更符合主题
+    },
+    'high': { 
+      icon: '🟠', 
+      label: '重要', 
+      color: warningColor, 
+      bg: `${warningColor}15` 
+    },
+    'medium': { 
+      icon: '🟡', 
+      label: '建议', 
+      color: infoColor, 
+      bg: `${infoColor}15` 
+    },
+    'low': { 
+      icon: '🟢', 
+      label: '可选', 
+      color: successColor, 
+      bg: `${successColor}15` 
+    }
+  }
+})
+
+function show() {
+  isVisible.value = true
+  openCount++
+  if (openCount === 1) {
+    scrollPosition = window.scrollY
+    document.body.style.top = `-${scrollPosition}px`
+    document.body.classList.add('no-scroll')
+  }
+  showResults.value = false
+  error.value = ''
+}
+
+function close() {
+  isVisible.value = false
+  openCount = Math.max(0, openCount - 1)
+  if (openCount === 0) {
+    document.body.classList.remove('no-scroll')
+    document.body.style.top = ''
+    window.scrollTo(0, scrollPosition)
+  }
+}
+
+function savePreferences() {
+  modelConfigStore.savePreferences()
+}
+
+async function getRecommendations() {
+  // 检查是否配置了模型
+  if (!modelConfigStore.settings.apiKey && !modelConfigStore.settings.apiUrl.includes('localhost')) {
+    showResults.value = true
+    error.value = '未配置API\n\n请先在"⚙️ 模型配置"中配置API信息（URL、Key、模型名称）后再使用推荐功能。'
+    return
+  }
+
+  isLoading.value = true
+  showResults.value = true
+  error.value = ''
+  
+  try {
+    // 使用在线或离线推荐
+    const hasApiConfig = modelConfigStore.settings.apiUrl && modelConfigStore.settings.apiKey
+    
+    if (!hasApiConfig) {
+      // 离线模式
+      recommendations.value = getOfflineRecommendations()
+    } else {
+      // 在线模式
+      recommendations.value = await getOnlineRecommendations()
+    }
+
+    // 记录日志
+    logStore.log('recommend', '获取了AI装备推荐', {
+      activityType: prefs.value.activityType,
+      season: prefs.value.season,
+      weather: prefs.value.weather,
+      difficulty: prefs.value.difficulty,
+      budget: prefs.value.budget,
+      recommendationCount: recommendations.value.length
+    })
+  } catch (err) {
+    error.value = err.message || '获取推荐失败'
+    console.error('获取推荐失败:', err)
+  } finally {
+    isLoading.value = false
+  }
+}
+
+function getOfflineRecommendations() {
+  const currentItems = equipmentStore.categories.flatMap(cat => cat.items)
+  const itemNames = currentItems.map(item => item.name.toLowerCase())
+  
+  const recommendations = []
+  
+  // 基础必备装备检查
+  const essentials = [
+    { name: '登山鞋', title: '户外鞋/登山鞋', description: '适合路况的专业户外鞋，提供足够的支撑和防滑', priority: 'critical' },
+    { name: '背包', title: '合适容量的背包', description: '根据活动天数选择合适容量的背包（一日10-20L，多日40-60L）', priority: 'critical' },
+    { name: '饮水', title: '饮水系统', description: '水袋或水瓶，确保充足的水分补给', priority: 'critical' }
+  ]
+  
+  essentials.forEach(essential => {
+    if (!itemNames.some(name => name.includes(essential.name))) {
+      recommendations.push(essential)
+    }
+  })
+  
+  // 根据季节推荐
+  if (prefs.value.season === 'winter' && !itemNames.some(name => name.includes('保暖') || name.includes('羽绒'))) {
+    recommendations.push({
+      title: '保暖装备',
+      description: '冬季户外需要羽绒服、保暖内衣等防寒装备',
+      priority: 'high'
+    })
+  }
+  
+  // 根据天气推荐
+  if ((prefs.value.weather === 'rainy' || prefs.value.weather === 'mixed') && !itemNames.some(name => name.includes('雨') || name.includes('防水'))) {
+    recommendations.push({
+      title: '防雨装备',
+      description: '雨衣或防水外套、背包防雨罩，保护装备和保持干燥',
+      priority: 'high'
+    })
+  }
+  
+  // 根据预算推荐
+  if (prefs.value.budget === 'low') {
+    recommendations.push({
+      title: '预算优化建议',
+      description: '考虑迪卡侬等平价品牌，关注二手装备市场，优先投资关键装备（鞋、背包）',
+      priority: 'medium'
+    })
+  }
+  
+  return recommendations
+}
+
+async function getOnlineRecommendations() {
+  const settings = modelConfigStore.settings
+  const apiUrl = modelConfigStore.buildApiUrl(settings.apiUrl)
+  
+  // 构建当前装备清单信息
+  const currentItems = equipmentStore.categories.flatMap(cat => 
+    cat.items.map(item => 
+      `类别: ${cat.name}, 名称: ${item.name}, 是否准备: ${item.prepared ? '是' : '否'}, 数量: ${item.quantity}${item.quantityUnit || '个'}, 重量: ${item.weight}${item.weightUnit || 'g'}, 备注: ${item.notes || '无'}`
+    )
+  )
+  
+  const prompt = `作为户外装备专家，请根据以下信息为户外装备清单提供专业推荐：
+
+活动类型：${prefs.value.activityType}
+季节：${prefs.value.season}
+天气条件：${prefs.value.weather}
+难度等级：${prefs.value.difficulty}
+预算范围：${prefs.value.budget}
+
+当前装备清单：
+${currentItems.length > 0 ? currentItems.join('\n') : '暂无装备'}
+
+请提供以下方面的推荐：
+1. 缺少的必备装备
+2. 根据季节和天气的装备建议
+3. 根据难度等级的装备升级建议
+4. 根据预算的装备选择建议
+5. 装备使用和维护建议
+
+请以JSON格式返回推荐结果，包含title、description、priority字段。`
+
+  // 构建请求
+  const requestBody = {
+    model: settings.modelName,
+    messages: [
+      { role: 'system', content: '你是一位经验丰富的户外装备专家，擅长根据活动类型、季节、天气条件为用户推荐合适的装备。' },
+      { role: 'user', content: prompt }
+    ],
+    max_tokens: settings.maxTokens || 1000,
+    temperature: settings.temperature || 0.7,
+    stream: false
+  }
+  
+  const headers = {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${settings.apiKey}`
+  }
+  
+  const response = await fetch(apiUrl, {
+    method: 'POST',
+    headers: headers,
+    body: JSON.stringify(requestBody)
+  })
+  
+  if (!response.ok) {
+    throw new Error(`API请求失败: ${response.status} ${response.statusText}`)
+  }
+  
+  const data = await response.json()
+  const content = data.choices?.[0]?.message?.content || ''
+  
+  if (!content) {
+    throw new Error('API返回了空内容，请检查配置和请求参数')
+  }
+  
+  // 尝试解析JSON响应
+  try {
+    const parsed = JSON.parse(content)
+    
+    if (parsed.recommendations && Array.isArray(parsed.recommendations)) {
+      return parsed.recommendations
+    }
+    
+    if (Array.isArray(parsed)) {
+      return parsed
+    }
+    
+    return [parsed]
+  } catch (e) {
+    // 尝试提取JSON部分
+    const jsonMatch = content.match(/\{[\s\S]*\}/)
+    if (jsonMatch) {
+      try {
+        const parsed = JSON.parse(jsonMatch[0])
+        if (parsed.recommendations && Array.isArray(parsed.recommendations)) {
+          return parsed.recommendations
+        }
+      } catch (e2) {
+        // 解析失败
+      }
+    }
+    
+    // 如果都失败，返回文本内容
+    return [{
+      type: 'general',
+      title: 'AI推荐',
+      description: content,
+      priority: 'medium'
+    }]
+  }
+}
+
+function getItemStyle(priority) {
+  const config = priorityConfig.value[priority] || priorityConfig.value['medium']
+  return {
+    borderLeftColor: config.color,
+    borderColor: config.color + '40', // 添加透明度
+    backgroundColor: config.bg
+  }
+}
+
+function getBadgeStyle(priority) {
+  const config = priorityConfig.value[priority] || priorityConfig.value['medium']
+  return {
+    background: config.color
+  }
+}
+
+function getPriorityIcon(priority) {
+  return priorityConfig.value[priority]?.icon || '🟡'
+}
+
+function getPriorityLabel(priority) {
+  return priorityConfig.value[priority]?.label || '建议'
+}
+
+defineExpose({ show })
+</script>
+
+<style scoped lang="scss">
+.modal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--modal-overlay-bg, rgba(0,0,0,0.5));
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-content {
+  background: var(--bg-card);
+  border-radius: 12px;
+  width: 90%;
+  max-width: 800px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  animation: slideIn 0.3s ease;
+  overflow: hidden;
+}
+
+@keyframes slideIn {
+  from { transform: translateY(-50px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 25px 30px;
+  border-bottom: 2px solid var(--border-color);
+  border-radius: 12px 12px 0 0;
+  flex-shrink: 0;
+  background: var(--bg-card);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.close {
+  font-size: 2rem;
+  font-weight: 300;
+  cursor: pointer;
+  color: var(--text-white, white);
+  opacity: 0.8;
+  transition: opacity 0.3s;
+}
+
+.close:hover {
+  opacity: 1;
+}
+
+.modal-body {
+  padding: 30px;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+/* 美化滚动条 */
+.modal-body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+  background: var(--bg-input);
+  border-radius: 4px;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+.recommendation-settings {
+  background: var(--bg-input);
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.recommendation-settings h4 {
+  margin: 0 0 15px 0;
+  color: var(--text-primary);
+}
+
+.setting-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.setting-group:last-child {
+  margin-bottom: 0;
+}
+
+.setting-group label {
+  min-width: 100px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.config-info {
+  padding: 15px;
+  background: var(--bg-input);
+  border-left: 4px solid var(--primary-color);
+  border-radius: 6px;
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+.recommendation-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.btn {
+  padding: 12px 30px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: var(--primary-color);
+  color: var(--text-white, white);
+}
+
+.btn-secondary {
+  background: var(--text-muted, #6c757d);
+  color: var(--text-white, white);
+}
+
+.btn:not(:disabled):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.recommendation-results {
+  border-top: 2px solid var(--border-color);
+  padding-top: 20px;
+}
+
+.recommendation-results h4 {
+  margin: 0 0 15px 0;
+  color: var(--text-primary);
+}
+
+.loading,
+.error,
+.success {
+  text-align: center;
+  padding: 30px;
+  border-radius: 8px;
+}
+
+.loading {
+  color: var(--primary-color);
+  background: var(--bg-input);
+}
+
+.error {
+  color: var(--danger-color, #dc3545);
+  background: var(--danger-light, #f8d7da);
+  white-space: pre-line;
+}
+
+.success {
+  color: var(--success-color, #28a745);
+  background: var(--success-light, #d4edda);
+}
+
+.recommendation-content {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.recommendation-item {
+  padding: 20px;
+  border-left: 4px solid;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  backdrop-filter: blur(10px);
+}
+
+.recommendation-item:hover {
+  transform: translateX(5px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  border-color: currentColor;
+}
+
+.recommendation-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.recommendation-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: var(--primary-color);
+  border-radius: 50%;
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: var(--text-white, white);
+}
+
+.recommendation-title {
+  flex: 1;
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+}
+
+.priority-badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-white, white);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.recommendation-description {
+  margin: 0;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.input-select-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.input-select-wrapper input {
+  flex: 1;
+  padding: 10px 15px;
+  border: 2px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 1rem;
+  background: var(--bg-input);
+  color: var(--text-primary);
+  cursor: pointer;
+  z-index: 1;
+}
+
+.input-select-wrapper input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+.suggestions-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  max-height: 200px;
+  overflow-y: auto;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  z-index: 10;
+  margin-top: 5px;
+  padding: 0;
+  list-style: none;
+}
+
+.suggestions-list li {
+  padding: 10px 15px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  color: var(--text-primary);
+}
+
+.suggestions-list li:hover {
+  background-color: var(--primary-light);
+}
+
+.suggestions-list li.selected {
+  background-color: var(--primary-light);
+  font-weight: 500;
+}
+
+.suggestions-list li.add-new-option {
+  color: var(--primary-color);
+  font-weight: 500;
+  cursor: pointer;
+  padding: 10px 15px;
+  text-align: center;
+  border-top: 1px solid var(--border-color);
+}
+
+.suggestions-list li.add-new-option:hover {
+  background-color: var(--primary-light);
+}
+
+@media (max-width: 768px) {
+  .modal-content {
+    width: 95%;
+    max-height: 95vh;
+  }
+  
+  .modal-header,
+  .modal-body {
+    padding: 20px;
+  }
+  
+  .setting-group {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .setting-group label {
+    min-width: auto;
+  }
+  
+  .setting-group select {
+    width: 100%;
+  }
+}
+</style>
+

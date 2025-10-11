@@ -1,0 +1,108 @@
+/**
+ * 默认主题 - 现代简洁风格
+ * 只定义差异化样式，通用样式在 _base.scss 中
+ */
+
+:root,
+body.theme-default {
+  /* ===== CSS 变量定义 ===== */
+  --primary-color: #667eea;
+  --primary-dark: #5568d3;
+  --secondary-color: #764ba2;
+  --success-color: #28a745;
+  --success-light: #d4edda;
+  --warning-color: #ffc107;
+  --warning-light: #fff3cd;
+  --danger-color: #dc3545;
+  --danger-light: #f8d7da;
+  --info-color: #17a2b8;
+  --info-light: #d1ecf1;
+  
+  --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --bg-card: #ffffff;
+  --bg-header: #ffffff;
+  --bg-input: #f8f9fa;
+  --bg-button-group: #f8f9fa;
+  
+  --text-primary: #333333;
+  --text-secondary: #666666;
+  --text-muted: #999999;
+  --text-white: #ffffff;
+  
+  --border-color: #e0e0e0;
+  --border-radius: 12px;
+  --border-width: 1px;
+  
+  --shadow-card: 0 4px 8px rgba(0, 0, 0, 0.1);
+  --shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.15);
+  
+  --btn-success: #28a745;
+  --btn-primary: #667eea;
+  --btn-warning: #ffc107;
+  --btn-danger: #dc3545;
+  --btn-info: #17a2b8;
+  --btn-secondary: #6c757d;
+  
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 600;
+}
+
+body.theme-default {
+  color: var(--text-primary);
+  
+  /* ===== 差异化样式 - 仅默认主题特有 ===== */
+  
+  .app-container {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  }
+  
+  .header {
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.35);
+  }
+  
+  .category-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  }
+  
+  .item:hover {
+    background: #e9ecef;
+  }
+  
+  .item.completed {
+    background: #d4edda;
+  }
+  
+  .stat-item {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: var(--text-white);
+  }
+  
+  .nav-menu {
+    border-color: rgba(102, 126, 234, 0.2);
+  }
+  
+  .nav-link {
+    color: #555;
+    
+    &:hover {
+      color: #667eea;
+      border-bottom-color: #667eea;
+    }
+    
+    &.danger:hover {
+      color: #dc3545;
+      border-bottom-color: #dc3545;
+    }
+  }
+  
+  .modal-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: var(--text-white);
+    border-bottom: 2px solid var(--border-color);
+    
+    h3, .close {
+      color: var(--text-white);
+    }
+  }
+}

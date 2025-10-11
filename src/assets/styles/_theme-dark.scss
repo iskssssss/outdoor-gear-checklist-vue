@@ -1,0 +1,242 @@
+/**
+ * 暗黑主题 - 深色高对比度
+ * 只定义差异化样式，通用样式在 _base.scss 中
+ */
+
+body.theme-dark {
+  /* ===== CSS 变量定义 ===== */
+  --primary-color: #00d9ff;
+  --primary-dark: #00b8d4;
+  --secondary-color: #b388ff;
+  --success-color: #00e676;
+  --success-light: #1a3d35;
+  --warning-color: #ffd740;
+  --warning-light: #2d2510;
+  --danger-color: #ff1744;
+  --danger-light: #2d0f13;
+  --info-color: #00e5ff;
+  --info-light: #0d2a2e;
+  
+  --bg-main: #1a1a2e;
+  --bg-card: #0f1419;
+  --bg-header: #1a1d29;
+  --bg-input: #2a2d3a;
+  --bg-button-group: #1e2230;
+  --bg-gradient: linear-gradient(135deg, #1a1d29 0%, #0f1419 100%);
+  
+  --text-primary: #e8e8e8;
+  --text-secondary: #b0b0b0;
+  --text-muted: #707070;
+  --text-white: #ffffff;
+  --text-black: #000000;
+  
+  --border-color: #3a3f51;
+  --border-radius: 8px;
+  --border-width: 1px;
+  
+  --shadow-card: 0 4px 12px rgba(0, 217, 255, 0.15);
+  --shadow-hover: 0 6px 20px rgba(0, 217, 255, 0.25);
+  
+  /* ===== 差异化样式 - 仅暗黑主题特有 ===== */
+  
+  color: var(--text-primary);
+  
+  .app-container {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  }
+  
+  .header {
+    box-shadow: 0 6px 24px rgba(0, 217, 255, 0.4);
+    border-bottom: 1px solid var(--border-color);
+  }
+  
+  /* 荧光阴影效果 */
+  .add-category-section,
+  .category,
+  .stats {
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 12px rgba(0, 217, 255, 0.15);
+  }
+  
+  .category-header {
+    background: linear-gradient(135deg, #1a1d29 0%, #0f1419 100%);
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: 0 2px 8px rgba(0, 217, 255, 0.1);
+  }
+  
+  .category-collapse-btn {
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+  }
+  
+  .section-title {
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+  }
+  
+  /* 项目荧光效果 */
+  .item {
+    border: 1px solid var(--border-color);
+    
+    &:hover {
+      background: #353947;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 10px rgba(0, 217, 255, 0.2);
+    }
+    
+    &.completed {
+      background: #1a3d35;
+      border-color: var(--success-color);
+    }
+  }
+  
+  /* 统计项荧光效果 */
+  .stat-item {
+    background: linear-gradient(135deg, #1a1d29 0%, #252a3d 100%);
+    border: 1px solid var(--border-color);
+    
+    &:hover {
+      box-shadow: 0 0 20px rgba(0, 217, 255, 0.3);
+    }
+  }
+  
+  /* 导航栏荧光效果 */
+  .nav-menu {
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+  }
+  
+  .nav-link:hover {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+    text-shadow: 0 0 8px rgba(0, 217, 255, 0.5);
+  }
+  
+  .nav-link.danger:hover {
+    color: var(--danger-color);
+    border-bottom-color: var(--danger-color);
+    text-shadow: 0 0 8px rgba(255, 23, 68, 0.5);
+  }
+  
+  .nav-divider {
+    background: var(--border-color);
+  }
+  
+  /* 模态框荧光效果 */
+  .modal-content {
+    border: 1px solid var(--border-color);
+    box-shadow: 0 8px 32px rgba(0, 217, 255, 0.2);
+  }
+  
+  .modal-header {
+    background: linear-gradient(135deg, #1a1d29 0%, #0f1419 100%);
+    border-bottom: 1px solid var(--border-color);
+  }
+  
+  .tab-btn {
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    
+    &.active {
+      background: var(--primary-color);
+      color: var(--text-black);
+      border-color: var(--primary-color);
+      box-shadow: 0 0 15px rgba(0, 217, 255, 0.5);
+    }
+  }
+  
+  /* 日志特殊背景 */
+  .log-item {
+    background: var(--bg-input);
+    border-left: 3px solid var(--border-color);
+    
+    &.log-add {
+      border-left-color: var(--success-color);
+      background: #0d2618;
+    }
+    
+    &.log-delete {
+      border-left-color: var(--danger-color);
+      background: #2d0f13;
+    }
+    
+    &.log-edit {
+      border-left-color: var(--warning-color);
+      background: #2d2510;
+    }
+  }
+  
+  /* 添加按钮荧光效果 */
+  .add-item-button {
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    
+    &:hover {
+      background: var(--primary-color);
+      color: var(--text-black);
+      box-shadow: 0 0 20px rgba(0, 217, 255, 0.5);
+    }
+    
+    &.cancel:hover {
+      background: var(--danger-color);
+      color: var(--text-white);
+    }
+  }
+  
+  /* 配置信息 */
+  .config-info {
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    
+    &.warning {
+      border-color: var(--warning-color);
+      background: #2d2510;
+      color: var(--warning-color);
+    }
+  }
+  
+  /* 测试结果 */
+  .test-result,
+  .recommendation-item {
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+  }
+  
+  .test-result {
+    &.success {
+      color: var(--success-color);
+      border-color: var(--success-color);
+    }
+    
+    &.error {
+      color: var(--danger-color);
+      border-color: var(--danger-color);
+    }
+  }
+  
+  /* 焦点荧光效果 */
+  input:focus,
+  select:focus,
+  textarea:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.2);
+  }
+  
+  /* 主题切换器荧光效果 */
+  .theme-toggle-btn {
+    box-shadow: 0 4px 12px rgba(0, 217, 255, 0.3);
+    
+    &:hover {
+      box-shadow: 0 0 20px rgba(0, 217, 255, 0.5);
+    }
+  }
+  
+  .theme-options {
+    border: 1px solid var(--border-color);
+    box-shadow: 0 8px 32px rgba(0, 217, 255, 0.3);
+  }
+  
+  .theme-option.active {
+    box-shadow: 0 0 15px rgba(0, 217, 255, 0.5);
+  }
+}

@@ -1,0 +1,211 @@
+/**
+ * 像素风格主题
+ * 核心在于模拟8位/16位像素艺术的视觉效果
+ */
+
+:root,
+body.theme-pixel {
+  /* ===== 颜色变量 - 像素风常见调色板 ===== */
+  --primary-color: #008080; /* 青色，经典像素游戏主色 */
+  --primary-dark: #005f5f;
+  --secondary-color: #800080; /* 紫色，辅助色 */
+  --success-color: #00a000;
+  --success-light: #a0ffa0;
+  --warning-color: #c0c000;
+  --warning-light: #ffff80;
+  --danger-color: #a00000;
+  --danger-light: #ffa0a0;
+  --info-color: #008080;
+  --info-light: #80ffff;
+  
+  --bg-gradient: linear-gradient(135deg, #404040 0%, #202020 100%); /* 暗色渐变背景 */
+  --bg-card: #c0c0c0; /* 银色/灰色，模拟老式屏幕 */
+  --bg-header: #808080; /* 中灰色 */
+  --bg-input: #f0f0f0; /* 浅灰色 */
+  --bg-button-group: #a0a0a0;
+  
+  --text-primary: #000000; /* 纯黑色文本 */
+  --text-secondary: #303030;
+  --text-muted: #606060;
+  --text-white: #ffffff; /* 纯白色文本 */
+  
+  --border-color: #505050; /* 深灰色边框 */
+  --border-radius: 0; /* 像素风无圆角 */
+  --border-width: 2px; /* 更粗的边框 */
+  
+  --shadow-card: 4px 4px #404040; /* 像素化阴影 */
+  --shadow-hover: 6px 6px #606060; /* 像素化悬停阴影 */
+  
+  --btn-success: #00a000;
+  --btn-primary: #008080;
+  --btn-warning: #c0c000;
+  --btn-danger: #a00000;
+  --btn-info: #008080;
+  --btn-secondary: #808080;
+  
+  /* ===== 字体 - 像素风字体，需要引入外部字体或使用系统自带的等宽字体 ===== */
+  --font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; /* 使用全局统一字体 */
+  --font-weight-normal: 400;
+  --font-weight-medium: 700; /* 像素字体粗细变化不明显，用700强调 */
+  --font-weight-bold: 900;
+  
+  /* 额外像素风专属变量 */
+  --pixel-size: 2px; /* 定义像素单位大小 */
+  --pixel-border-color: #202020;
+  --pixel-shadow-color: #101010;
+}
+
+body.theme-pixel {
+  font-family: var(--font-family);
+  color: var(--text-primary);
+  background-color: #202020; /* 整体背景 */
+  
+  /* 全局应用像素化效果 */
+  * {
+    image-rendering: pixelated; /* 确保图片和图标像素化 */
+    -ms-interpolation-mode: nearest-neighbor; /* IE兼容 */
+  }
+
+  /* 差异化样式 */
+  .app-container {
+    background: var(--bg-gradient);
+  }
+  
+  .header {
+    box-shadow: 6px 6px var(--pixel-shadow-color);
+    border-bottom: var(--pixel-size) solid var(--pixel-border-color);
+  }
+  
+  .category-header {
+    background: var(--primary-color);
+    color: var(--text-white);
+    border: var(--pixel-size) solid var(--pixel-border-color);
+    box-shadow: var(--pixel-size) var(--pixel-size) var(--pixel-shadow-color);
+  }
+  
+  .item {
+    background: var(--bg-card);
+    border: var(--pixel-size) solid var(--border-color);
+    border-radius: var(--border-radius);
+    margin-bottom: calc(var(--pixel-size) * 2);
+  }
+
+  .item:hover {
+    background: #e0e0e0;
+    box-shadow: var(--pixel-size) var(--pixel-size) #606060;
+  }
+  
+  .item.completed {
+    background: #a0ffa0; /* 鲜绿色 */
+    border-color: #008000;
+  }
+  
+  .stat-item {
+    background: var(--primary-color);
+    color: var(--text-white);
+    border: var(--pixel-size) solid var(--pixel-border-color);
+    box-shadow: var(--pixel-size) var(--pixel-size) var(--pixel-shadow-color);
+    border-radius: var(--border-radius);
+  }
+  
+  .nav-menu {
+    border-color: var(--border-color);
+    border-bottom: var(--pixel-size) solid var(--pixel-border-color);
+  }
+  
+  .nav-link {
+    color: var(--text-primary);
+    
+    &:hover {
+      color: var(--primary-color);
+      border-bottom-color: var(--primary-color);
+    }
+    
+    &.danger:hover {
+      color: var(--btn-danger);
+      border-bottom-color: var(--btn-danger);
+    }
+  }
+  
+  .modal-content {
+    border: var(--pixel-size) solid var(--pixel-border-color);
+    box-shadow: calc(var(--pixel-size) * 2) calc(var(--pixel-size) * 2) var(--pixel-shadow-color);
+    border-radius: var(--border-radius);
+  }
+
+  .modal-header {
+    background: var(--primary-color);
+    color: var(--text-white);
+    border-bottom: var(--pixel-size) solid var(--pixel-border-color);
+    
+    h3, .close {
+      color: var(--text-white);
+    }
+  }
+
+  .config-tabs {
+    border-bottom: var(--pixel-size) solid var(--border-color);
+  }
+
+  .tab-btn {
+    border-bottom: var(--pixel-size) solid transparent;
+    &:hover {
+      color: var(--primary-color);
+    }
+    &.active {
+      color: var(--primary-color);
+      border-bottom-color: var(--primary-color);
+    }
+  }
+
+  .btn {
+    border-radius: var(--border-radius);
+    border: var(--pixel-size) solid var(--pixel-border-color);
+    box-shadow: var(--pixel-size) var(--pixel-size) var(--pixel-shadow-color);
+
+    &:not(:disabled):hover {
+      transform: translate(calc(var(--pixel-size) * -1), calc(var(--pixel-size) * -1));
+      box-shadow: calc(var(--pixel-size) * 2) calc(var(--pixel-size) * 2) var(--pixel-shadow-color);
+    }
+  }
+
+  .btn-primary {
+    background: var(--btn-primary);
+  }
+  
+  .btn-secondary {
+    background: var(--btn-secondary);
+  }
+
+  .setting-group input,
+  .setting-group select,
+  .setting-group textarea {
+    border: var(--pixel-size) solid var(--border-color);
+    border-radius: var(--border-radius);
+    &:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: calc(var(--pixel-size) * 2) calc(var(--pixel-size) * 2) rgba(0,0,0,0.1);
+    }
+  }
+
+  .config-info {
+    border-left: calc(var(--pixel-size) * 2) solid var(--primary-color);
+    border-radius: var(--border-radius);
+  }
+
+  .test-result {
+    border: var(--pixel-size) solid var(--border-color);
+    border-radius: var(--border-radius);
+  }
+
+  .test-result.success {
+    background: var(--btn-success);
+    color: var(--text-white);
+  }
+
+  .test-result.error {
+    background: var(--btn-danger);
+    color: var(--text-white);
+  }
+}
