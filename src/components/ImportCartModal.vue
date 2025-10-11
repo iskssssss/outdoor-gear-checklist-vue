@@ -8,7 +8,12 @@
         <div class="modal-body scroll-area">
           <div class="import-section">
             <h4>粘贴京东购物车分享信息</h4>
-            <p class="help-text">支持两种方式：<br>1. 直接粘贴京东分享文本（如：【京东】https://3.cn/xxx-xxx 「购物清单」）<br>2. 粘贴完整的HTML源代码</p>
+            <p class="help-text">
+              <strong>📋 方式一（推荐）：</strong>直接粘贴京东分享文本<br>
+              例如：【京东】https://3.cn/xxx-xxx 「我的购物清单」<br><br>
+              <strong>📄 方式二：</strong>粘贴页面源代码<br>
+              如果自动获取失败，打开链接 → 右键"查看网页源代码" → 全选复制 → 粘贴到此处
+            </p>
             <textarea
               v-model="cartShareLink"
               placeholder="请粘贴京东购物车分享信息或完整HTML源代码"
@@ -157,7 +162,7 @@
           message.value = '页面内容获取成功，正在解析商品...';
         } catch (fetchError) {
           console.error('自动获取失败:', fetchError);
-          message.value = `无法自动获取页面内容（跨域限制）。\n请打开链接：${shortLink}\n然后按 F12 打开开发者工具，在"元素"标签中右键点击 <html>，选择"复制" -> "复制 outerHTML"，再粘贴到此处。`;
+          message.value = `无法自动获取页面内容（跨域限制）。\n\n请按以下步骤操作：\n1️⃣ 打开链接：${shortLink}\n2️⃣ 在页面任意位置右键，选择"查看网页源代码"（或按 Ctrl+U / Cmd+Option+U）\n3️⃣ 全选源代码（Ctrl+A / Cmd+A），复制（Ctrl+C / Cmd+C）\n4️⃣ 将源代码粘贴到此处的输入框中，再次点击"解析商品"`;
           messageType.value = 'error';
           isLoading.value = false;
           return;
@@ -273,10 +278,10 @@
     const prompt = `请将以下户外用品列表进行分类。对于每个商品，请给出最合适的户外装备分类（如果不存在，请建议新分类，但尽量使用常见的户外分类如"背负系统"、"睡眠系统"、"服装系统"等）。${categoriesHint}在返回的每个商品的'name'字段中，请根据产品属性保留必要的信息，例如品牌、产品名称、型号等，去除其他冗余信息。同时，如果提供的信息中不存在数量(quantity)和重量(weight)，请将这些字段留空（即设置为null或不包含）。请以JSON数组格式返回结果，每个对象包含 name, category, quantity, quantityUnit, weight, weightUnit 字段。商品列表：${itemNames}`;
 
     try {
-      // 这里的实现需要根据实际的大模型API进行调整
-      // 假设 modelConfigStore 有一个 testConnection 方法，并且它能够处理并返回结构化的JSON
-      const result = await modelConfigStore.testConnection(prompt); 
-      const rawContent = result.content; // 假设 content 是带有markdown代码块的字符串
+        // 这里的实现需要根据实际的大模型API进行调整
+        // 假设 modelConfigStore 有一个 testConnection 方法，并且它能够处理并返回结构化的JSON
+        const result = await modelConfigStore.testConnection(prompt);
+        const rawContent = result.content; // 假设 content 是带有markdown代码块的字符串
       let contentToParse = rawContent;
 
       // 尝试去除最外层的双引号，以防大模型返回的是一个被包裹在字符串字面量中的JSON
