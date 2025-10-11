@@ -53,11 +53,7 @@
               </div>
               <div class="commit-message">{{ getCommitMessage(commit.message) }}</div>
               <div v-if="commit.body" class="commit-body">
-                <ul>
-                  <li v-for="(line, idx) in getCommitBodyLines(commit.body)" :key="idx">
-                    {{ line }}
-                  </li>
-                </ul>
+                <div class="markdown-content" v-html="renderMarkdown(commit.body)"></div>
               </div>
             </div>
           </div>
@@ -264,6 +260,138 @@ function getCommitBodyLines(body) {
   return body.split('\n').filter(line => line.trim())
 }
 
+/**
+ * HTML转义
+ */
+function escapeHtml(text) {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+}
+
+/**
+ * 解析列表（简化版）
+ */
+function parseListsInMarkdown(html) {
+  const lines = html.split('\n')
+  const result = []
+  let i = 0
+  
+  while (i < lines.length) {
+    const line = lines[i]
+    const isListLine = /^\s*([-*+]|\d+\.)\s+/.test(line)
+    
+    if (isListLine) {
+      const listLines = []
+      const isOrdered = /^\s*\d+\./.test(line)
+      
+      while (i < lines.length && /^\s*([-*+]|\d+\.)\s+/.test(lines[i])) {
+        const match = lines[i].match(/^\s*([-*+]|\d+\.)\s+(\[([ xX])\]\s*)?(.*)$/)
+        if (match) {
+          const [, , , taskMark, content] = match
+          if (taskMark !== undefined) {
+            listLines.push(`<li class="task-item"><input type="checkbox" ${/x/i.test(taskMark) ? 'checked' : ''} disabled> ${content}</li>`)
+          } else {
+            listLines.push(`<li>${content}</li>`)
+          }
+        }
+        i++
+      }
+      
+      result.push(isOrdered ? `<ol>${listLines.join('')}</ol>` : `<ul>${listLines.join('')}</ul>`)
+    } else {
+      result.push(line)
+      i++
+    }
+  }
+  
+  return result.join('\n')
+}
+
+/**
+ * 渲染 Markdown 内容（简化版，参考 DocPage.vue）
+ */
+function renderMarkdown(text) {
+  if (!text) return ''
+  
+  let html = text.replace(/\r\n/g, '\n')
+  
+  // 提取代码块
+  const codeBlocks = []
+  html = html.replace(/```(\w+)?\s*\n([\s\S]*?)```/g, (match, lang, code) => {
+    const placeholder = `CODEBLOCK${codeBlocks.length}PLACEHOLDER`
+    codeBlocks.push(`<pre><code class="language-${lang || 'plaintext'}">${escapeHtml(code)}</code></pre>`)
+    return placeholder
+  })
+  
+  // 提取行内代码
+  const inlineCodes = []
+  html = html.replace(/`([^`\n]+)`/g, (match, code) => {
+    const placeholder = `INLINECODE${inlineCodes.length}PLACEHOLDER`
+    inlineCodes.push(`<code>${escapeHtml(code)}</code>`)
+    return placeholder
+  })
+  
+  // 转义HTML
+  html = escapeHtml(html)
+  
+  // 图片和链接
+  html = html.replace(/!\[([^\]]*)\]\(([^)\s]+)(?:\s+"([^"]*)")?\)/g, '<img src="$2" alt="$1" title="$3" />')
+  html = html.replace(/\[([^\]]+)\]\(([^)\s]+)(?:\s+"([^"]*)")?\)/g, '<a href="$2" title="$3" target="_blank" rel="noopener noreferrer">$1</a>')
+  
+  // 标题
+  for (let i = 6; i >= 1; i--) {
+    const regex = new RegExp(`^#{${i}}\\s+(.+)$`, 'gim')
+    html = html.replace(regex, `<h${i}>$1</h${i}>`)
+  }
+  
+  // 水平线
+  html = html.replace(/^(?:---|\\*\\*\\*|___)$/gim, '<hr>')
+  
+  // 引用块
+  html = html.replace(/(^&gt;[\s\S]+?(?=\n{2,}|$))/gm, (match) => {
+    const lines = match.split('\n').map(line => line.replace(/^&gt;\s?/, '')).join('<br>')
+    return `<blockquote>${lines}</blockquote>`
+  })
+  
+  // 列表解析
+  html = parseListsInMarkdown(html)
+  
+  // 加粗、斜体、删除线
+  html = html.replace(/\*\*\*([^\*\n]+?)\*\*\*/g, '<strong><em>$1</em></strong>')
+  html = html.replace(/\*\*([^\*\n]+?)\*\*/g, '<strong>$1</strong>')
+  html = html.replace(/\*([^\*\n]+?)\*/g, '<em>$1</em>')
+  html = html.replace(/~~([^~\n]+?)~~/g, '<del>$1</del>')
+  
+  // 段落处理
+  const blockRegex = /^(<h\d>|<ul>|<ol>|<pre>|<hr>|<blockquote>|<table>|<img>|CODEBLOCK|INLINECODE)/i
+  html = html.split(/\n{2,}/).map(block => {
+    const trimmed = block.trim()
+    if (!trimmed) return ''
+    if (blockRegex.test(trimmed)) return block
+    return `<p>${block}</p>`
+  }).filter(Boolean).join('\n\n')
+  
+  // 段落内换行
+  html = html.replace(/<p(?:\s+class="[^"]*")?>([\s\S]*?)<\/p>/g, (m, c) => {
+    const cls = m.match(/class="([^"]*)"/)?.[1] || ''
+    const classAttr = cls ? ` class="${cls}"` : ''
+    return `<p${classAttr}>${c.replace(/\n/g, '<br>')}</p>`
+  })
+  html = html.replace(/<li>([\s\S]*?)<\/li>/g, (m, c) => `<li>${c.replace(/\n/g, '<br>')}</li>`)
+  
+  // 恢复代码块和行内代码
+  codeBlocks.forEach((code, idx) => {
+    html = html.replace(new RegExp(`CODEBLOCK${idx}PLACEHOLDER`, 'g'), code)
+  })
+  inlineCodes.forEach((code, idx) => {
+    html = html.replace(new RegExp(`INLINECODE${idx}PLACEHOLDER`, 'g'), code)
+  })
+  
+  return html
+}
+
 // 暴露方法给父组件
 defineExpose({
   show,
@@ -425,6 +553,100 @@ defineExpose({
   padding: 12px;
   background: var(--bg-card);
   border-radius: 8px;
+  
+  .markdown-content {
+    color: var(--text-primary);
+    line-height: 1.6;
+    font-size: 0.9rem;
+    
+    :deep(p) {
+      margin: 0.5em 0;
+      line-height: 1.6;
+    }
+    
+    :deep(ul), :deep(ol) {
+      margin: 0.5em 0;
+      padding-left: 1.5em;
+      
+      li {
+        margin: 0.2em 0;
+        line-height: 1.5;
+      }
+    }
+    
+    :deep(code) {
+      background: var(--bg-input);
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 0.85em;
+      color: var(--danger-color);
+      border: 1px solid var(--border-color);
+    }
+    
+    :deep(pre) {
+      background: var(--bg-input);
+      padding: 12px;
+      border-radius: 6px;
+      overflow-x: auto;
+      margin: 0.8em 0;
+      border: 1px solid var(--border-color);
+      
+      code {
+        background: none;
+        padding: 0;
+        color: var(--text-primary);
+        font-size: 0.85em;
+        border: none;
+      }
+    }
+    
+    :deep(strong) {
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    
+    :deep(em) {
+      font-style: italic;
+      color: var(--text-secondary);
+    }
+    
+    :deep(a) {
+      color: var(--primary-color);
+      text-decoration: none;
+      border-bottom: 1px dashed var(--primary-color);
+      
+      &:hover {
+        border-bottom-style: solid;
+      }
+    }
+    
+    :deep(blockquote) {
+      border-left: 3px solid var(--primary-color);
+      background: var(--bg-input);
+      padding: 0.6em 0.8em;
+      margin: 0.8em 0;
+      color: var(--text-secondary);
+      font-style: italic;
+      border-radius: 0 4px 4px 0;
+    }
+    
+    :deep(hr) {
+      border: none;
+      height: 1px;
+      background: var(--border-color);
+      margin: 1em 0;
+    }
+    
+    :deep(li.task-item) {
+      list-style: none;
+      
+      input[type="checkbox"] {
+        margin-right: 0.5em;
+        cursor: not-allowed;
+      }
+    }
+  }
   
   ul {
     margin: 0;
