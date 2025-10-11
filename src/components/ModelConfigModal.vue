@@ -46,7 +46,7 @@
               <label>API URL：</label>
               <input 
                 type="text" 
-                v-model="settings.apiUrl" 
+                v-model="localSettings.apiUrl" 
                 placeholder="https://api.deepseek.com/v1"
               >
               <small>基础URL，系统将自动拼接 /chat/completions</small>
@@ -55,7 +55,7 @@
               <label>API Key：</label>
               <input 
                 type="password" 
-                v-model="settings.apiKey" 
+                v-model="localSettings.apiKey" 
                 placeholder="sk-xxxxxxxxxxxxxxxx"
               >
               <small>格式：sk-开头的密钥</small>
@@ -64,7 +64,7 @@
               <label>模型名称：</label>
               <input 
                 type="text" 
-                v-model="settings.modelName" 
+                v-model="localSettings.modelName" 
                 placeholder="deepseek-chat"
               >
               <small>如：deepseek-chat, gpt-3.5-turbo等</small>
@@ -80,7 +80,7 @@
               <label>最大Token：</label>
               <input 
                 type="number" 
-                v-model.number="settings.maxTokens" 
+                v-model.number="localSettings.maxTokens" 
                 placeholder="1000" 
                 min="100" 
                 max="4000"
@@ -90,7 +90,7 @@
               <label>温度：</label>
               <input 
                 type="number" 
-                v-model.number="settings.temperature" 
+                v-model.number="localSettings.temperature" 
                 placeholder="0.7" 
                 min="0" 
                 max="2" 
@@ -100,7 +100,7 @@
             <div class="setting-group">
               <label>请求头：</label>
               <textarea 
-                v-model="settings.customHeaders" 
+                v-model="localSettings.customHeaders" 
                 placeholder='{"Authorization": "Bearer your-key", "Content-Type": "application/json"}' 
                 rows="3"
               ></textarea>
@@ -108,7 +108,7 @@
             <div class="setting-group">
               <label>请求体模板：</label>
               <textarea 
-                v-model="settings.requestTemplate" 
+                v-model="localSettings.requestTemplate" 
                 placeholder='{"model": "{{model}}", "messages": [{"role": "user", "content": "{{prompt}}"}], "max_tokens": {{max_tokens}}, "temperature": {{temperature}}}' 
                 rows="4"
               ></textarea>
@@ -119,7 +119,7 @@
             <h4>响应解析</h4>
             <div class="setting-group">
               <label>响应解析器：</label>
-              <select v-model="settings.responseParser">
+              <select v-model="localSettings.responseParser">
                 <option value="openai">OpenAI格式</option>
                 <option value="claude">Claude格式</option>
                 <option value="custom">自定义解析</option>
@@ -129,7 +129,7 @@
               <label>响应路径：</label>
               <input 
                 type="text" 
-                v-model="settings.responsePath" 
+                v-model="localSettings.responsePath" 
                 placeholder="choices[0].message.content 或 content[0].text"
               >
             </div>
@@ -161,34 +161,37 @@
         </div>
 
         <div class="config-actions">
-          <button class="btn btn-primary" @click="saveConfig">保存配置</button>
-          <button class="btn btn-secondary" @click="resetConfig">重置配置</button>
+          <button class="btn btn-primary" @click="saveConfig" :disabled="!isChanged || isLoading">保存配置</button>
+          <button class="btn btn-secondary" @click="resetConfig" :disabled="!isChanged || isLoading">重置配置</button>
           <button class="btn btn-secondary" @click="close">取消</button>
         </div>
   </BaseModal>
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, inject, computed } from 'vue'
 import { useModelConfigStore } from '../stores/modelConfig'
 import { defaultTestPrompt } from '../config/appConfig'
 import BaseModal from './BaseModal.vue'
+import { debounce } from '../utils/debounce';
 
 const modelConfigStore = useModelConfigStore()
+const toast = inject('toast')
 
 const modalRef = ref(null)
 const activeTab = ref('basic')
-const settings = reactive({ ...modelConfigStore.settings })
+const localSettings = ref({});
+const localPreferences = ref({});
 
-const testPrompt = ref(defaultTestPrompt)
-const isTestingConnection = ref(false)
-const testResult = ref('')
-const testResultType = ref('')
+const isChanged = computed(() => {
+  return JSON.stringify(localSettings.value) !== JSON.stringify(modelConfigStore.settings) ||
+         JSON.stringify(localPreferences.value) !== JSON.stringify(modelConfigStore.recommendationPreferences)
+});
 
 function show() {
-  // 重新加载最新配置
-  Object.assign(settings, modelConfigStore.settings)
-  modalRef.value?.show()
+  localSettings.value = { ...modelConfigStore.settings };
+  localPreferences.value = { ...modelConfigStore.recommendationPreferences };
+  modalRef.value?.show();
 }
 
 function close() {
@@ -200,30 +203,19 @@ function handleClose() {
 }
 
 function saveConfig() {
-  // 保存到store
-  Object.assign(modelConfigStore.settings, settings)
-  modelConfigStore.saveSettings()
-  
-  testResultType.value = 'success'
-  testResult.value = `✅ 配置已保存成功！\n\n📋 保存的配置：\n• 模型名称: ${settings.modelName}\n• API地址: ${settings.apiUrl}\n\n配置已成功保存到本地存储，刷新页面后会自动加载。\n\n2秒后自动关闭...`
+  modelConfigStore.saveSettings(localSettings.value);
+  modelConfigStore.savePreferences(localPreferences.value);
+  toast?.success('模型配置和偏好设置已保存');
   
   setTimeout(() => {
-    testResult.value = ''
-    testResultType.value = ''
-    close()
-  }, 2000)
+    close();
+  }, 300);
 }
 
 function resetConfig() {
-  modelConfigStore.loadSettings()
-  Object.assign(settings, modelConfigStore.settings)
-  testResultType.value = 'success'
-  testResult.value = '✅ 配置已重置！\n\n配置已恢复为保存的设置。'
-  
-  setTimeout(() => {
-    testResult.value = ''
-    testResultType.value = ''
-  }, 2000)
+  localSettings.value = { ...modelConfigStore.defaultSettings };
+  localPreferences.value = { ...modelConfigStore.defaultRecommendationPreferences };
+  toast?.info('本地配置已重置为默认值'); // 添加重置后的提示
 }
 
 async function testConnection() {
@@ -239,16 +231,15 @@ async function testConnection() {
 
   try {
     // 临时应用当前设置
-    const tempSettings = { ...modelConfigStore.settings }
-    Object.assign(modelConfigStore.settings, settings)
+    const tempSettings = { ...modelConfigStore.settings };
+    const currentSettings = { ...localSettings.value };
     
-    const result = await modelConfigStore.testConnection(testPrompt.value)
+    const result = await modelConfigStore.testConnection(testPrompt.value, currentSettings);
     
-    testResultType.value = 'success'
-    testResult.value = `✅ 连接成功！\n\n🤖 模型响应：\n${result.content}\n\n━━━━━━━━━━━━━━━━━━\n📊 请求信息：\n• 基础URL: ${settings.apiUrl}\n• 完整URL: ${result.apiUrl}\n• 模型: ${result.modelName}\n• 温度: ${result.temperature}\n• Max Tokens: ${result.maxTokens}`
+    testResultType.value = 'success';
+    testResult.value = `✅ 连接成功！\n\n🤖 模型响应：\n${result.content}\n\n━━━━━━━━━━━━━━━━━━\n📊 请求信息：\n• 基础URL: ${currentSettings.apiUrl}\n• 完整URL: ${result.apiUrl}\n• 模型: ${result.modelName}\n• 温度: ${result.temperature}\n• Max Tokens: ${result.maxTokens}`;
     
-    // 恢复原设置
-    Object.assign(modelConfigStore.settings, tempSettings)
+    Object.assign(modelConfigStore.settings, tempSettings);
   } catch (err) {
     testResultType.value = 'error'
     testResult.value = err.message || '连接失败'

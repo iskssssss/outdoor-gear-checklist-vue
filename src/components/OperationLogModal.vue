@@ -7,9 +7,9 @@
     @close="handleClose"
   >
     <div class="log-controls">
-      <button class="btn btn-danger btn-sm" @click="clearLogs">清空日志</button>
-      <button class="btn btn-primary btn-sm" @click="exportLogs">导出日志</button>
-      <button class="btn btn-success btn-sm" @click="quickUndo" :disabled="logStore.undoableCount === 0">
+      <button class="btn btn-danger btn-sm" @click="debouncedClearLogs">清空日志</button>
+      <button class="btn btn-primary btn-sm" @click="debouncedExportLogs">导出日志</button>
+      <button class="btn btn-success btn-sm" @click="debouncedQuickUndo" :disabled="logStore.undoableCount === 0">
         ⟲ 快速撤销
       </button>
       <span class="log-count">
@@ -40,7 +40,7 @@
             <button 
               v-if="log.undoable && !log.undone && log.beforeState && log.beforeState.categories"
               class="btn-undo"
-              @click="handleUndo(log.id)"
+              @click="debouncedHandleUndo(log)"
               title="撤销此操作"
             >
               ⟲ 撤销
@@ -64,14 +64,16 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, inject } from 'vue'
 import { useOperationLogStore } from '../stores/operationLog'
 import { useEquipmentStore } from '../stores/equipment'
 import BaseModal from './BaseModal.vue'
+import { debounce } from '../utils/debounce';
 
 const logStore = useOperationLogStore()
 const equipmentStore = useEquipmentStore()
 const modalRef = ref(null)
+const showConfirm = inject('showConfirm')
 
 // 日志类型配置
 const typeConfig = {
@@ -107,12 +109,34 @@ function exportLogs() {
   logStore.exportLogs()
 }
 
-function quickUndo() {
-  equipmentStore.quickUndo()
+async function quickUndo() {
+  const latestLog = equipmentStore.getLatestUndoableLog()
+  if (!latestLog) {
+    toast.info('没有可以撤销的操作')
+    return
+  }
+
+  const confirmed = await showConfirm({
+    title: '快速撤销',
+    message: `确定要撤销以下操作吗？\n\n${latestLog.action}`,
+    confirmButtonText: '确定撤销'
+  })
+
+  if (confirmed) {
+    equipmentStore.quickUndo()
+  }
 }
 
-function handleUndo(logId) {
-  equipmentStore.undoOperation(logId)
+async function handleUndo(log) {
+  const confirmed = await showConfirm({
+    title: '撤销操作',
+    message: `确定要撤销以下操作吗？\n\n${log.action}`,
+    confirmButtonText: '确定撤销'
+  })
+
+  if (confirmed) {
+    equipmentStore.undoOperation(log.id)
+  }
 }
 
 function getLogIcon(type) {
@@ -126,6 +150,12 @@ function getLogLabel(type) {
 function getLogClass(type) {
   return typeConfig[type]?.class || ''
 }
+
+const debouncedQuickUndo = debounce(quickUndo, 300);
+const debouncedExportLogs = debounce(exportLogs, 300);
+const debouncedHandleUndo = debounce(handleUndo, 300);
+const debouncedClose = debounce(close, 300);
+const debouncedClearLogs = debounce(clearLogs, 300);
 
 defineExpose({ show, close })
 </script>
@@ -193,10 +223,6 @@ defineExpose({ show, close })
 .btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-}
-
-.log-content {
-  /* 移除 max-height 和 overflow-y，使用父级 .modal-body 的滚动 */
 }
 
 .empty-log {

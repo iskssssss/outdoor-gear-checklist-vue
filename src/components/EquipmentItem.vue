@@ -3,7 +3,7 @@
     v-if="!isEditingForm"
     class="item" 
     :class="{ completed: completed }"
-    @click="toggleItem"
+    @click="debouncedToggleCompleted"
   >
     <div class="item-status">
       {{ completed ? '✅' : '⭕' }}
@@ -43,8 +43,8 @@
       <div class="actions-dropdown">
         <button class="actions-menu-btn">⋯</button>
         <div class="actions-menu">
-          <a class="actions-menu-item" @click="startEdit">✏️ 修改</a>
-          <a class="actions-menu-item danger" @click="deleteItem">🗑️ 删除</a>
+          <a class="actions-menu-item" @click="debouncedStartEditing">✏️ 修改</a>
+          <a class="actions-menu-item danger" @click="debouncedDeleteItem">🗑️ 删除</a>
         </div>
       </div>
     </div>
@@ -93,16 +93,17 @@
         </div>
       </div>
       <div class="add-item-button-container">
-        <button class="add-item-button" @click="handleSave">{{ isAdding ? '✓ 确认添加' : '✓ 确认修改' }}</button>
-        <button class="add-item-button cancel" @click="handleCancel">✕ 取消</button>
+        <button class="add-item-button" @click="debouncedConfirmChanges">{{ isAdding ? '✓ 确认添加' : '✓ 确认修改' }}</button>
+        <button class="add-item-button cancel" @click="debouncedCancelChanges">✕ 取消</button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, nextTick, computed } from 'vue'
+import { ref, nextTick, computed, inject } from 'vue'
 import { useEquipmentStore } from '../stores/equipment'
+import { debounce } from '../utils/debounce'
 
 const props = defineProps({
   item: {
@@ -130,6 +131,7 @@ const props = defineProps({
 const emit = defineEmits(['save', 'cancel'])
 
 const equipmentStore = useEquipmentStore()
+const showConfirm = inject('showConfirm')
 
 // 编辑/添加状态
 const isEditingForm = ref(props.isAdding);
@@ -254,9 +256,23 @@ function handleCancel() {
 /**
  * 删除装备
  */
-function deleteItem() {
-  equipmentStore.deleteItem(props.categoryId, props.item.id)
+async function deleteItem() {
+  const confirmed = await showConfirm({
+    title: '删除装备',
+    message: `确定要删除 #${props.itemIndex} "${props.item.name}"吗？`,
+    confirmButtonText: '删除'
+  })
+
+  if (confirmed) {
+    equipmentStore.deleteItem(props.categoryId, props.item.id)
+  }
 }
+
+const debouncedStartEditing = debounce(startEdit, 300)
+const debouncedConfirmChanges = debounce(handleSave, 300)
+const debouncedCancelChanges = debounce(handleCancel, 300)
+const debouncedDeleteItem = debounce(deleteItem, 300)
+const debouncedToggleCompleted = debounce(toggleItem, 300)
 </script>
 
 <style scoped lang="scss">

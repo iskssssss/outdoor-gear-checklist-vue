@@ -6,6 +6,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { useOperationLogStore } from './operationLog'
 import { defaultCategories, localStorageKeys } from '../config/appConfig'
+import { toast } from '../utils/toast'
 
 export const useEquipmentStore = defineStore('equipment', () => {
   // 状态
@@ -167,7 +168,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
       })
     } catch (e) {
       console.error('❌ 数据保存失败:', e)
-      alert('数据保存失败，请检查浏览器存储空间')
+      toast.error('数据保存失败，请检查浏览器存储空间')
     }
   }
 
@@ -191,7 +192,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
    */
   function addCategory(name, icon = '✨') {
     if (!name || name.trim() === '') {
-      alert('请输入分类名称')
+      toast.warning('请输入分类名称')
       return false
     }
 
@@ -254,32 +255,30 @@ export const useEquipmentStore = defineStore('equipment', () => {
   /**
    * 删除分类
    */
-  function deleteCategory(categoryId) {
+  async function deleteCategory(categoryId) {
     const category = categories.value.find(cat => cat.id === categoryId)
     if (!category) return false
 
     const categoryName = category.name
     const itemCount = category.items.length
 
-    if (confirm(`确定要删除"${categoryName}"及其所有装备吗？`)) {
-      // 保存操作前的状态
-      const beforeState = {
-        action: 'deleteCategory',
-        categories: JSON.parse(JSON.stringify(categories.value))
-      }
-
-      categories.value = categories.value.filter(cat => cat.id !== categoryId)
-      saveData()
-
-      const logStore = useOperationLogStore()
-      logStore.log('delete', `删除了分类：${categoryName}`, { 
-        category: categoryName, 
-        itemCount: itemCount 
-      }, beforeState)
-      
-      return true
+    // 保存操作前的状态
+    const beforeState = {
+      action: 'deleteCategory',
+      categories: JSON.parse(JSON.stringify(categories.value))
     }
-    return false
+
+    categories.value = categories.value.filter(cat => cat.id !== categoryId)
+    saveData()
+
+    const logStore = useOperationLogStore()
+    logStore.log('delete', `删除了分类：${categoryName}`, { 
+      category: categoryName, 
+      itemCount: itemCount 
+    }, beforeState)
+      
+    toast.success(`分类"${categoryName}"已删除`)
+    return true
   }
 
   /**
@@ -290,7 +289,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
     if (!category) return false
 
     if (!newName || newName.trim() === '') {
-      alert('分类名称不能为空')
+      toast.warning('分类名称不能为空')
       return false
     }
 
@@ -314,6 +313,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
       newName: newName
     }, beforeState)
 
+    toast.success(`分类名称已更新为"${newName}"`)
     return true
   }
 
@@ -404,7 +404,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
     if (!category) return false
 
     if (!itemData.name || itemData.name.trim() === '') {
-      alert('请输入装备名称')
+      toast.warning('请输入装备名称')
       return false
     }
 
@@ -447,45 +447,41 @@ export const useEquipmentStore = defineStore('equipment', () => {
       price: `${newItem.price}${newItem.priceUnit}`
     }, beforeState)
 
+    toast.success(`装备"${newItem.name}"添加成功`)
     return true
   }
 
   /**
    * 删除装备项目
    */
-  function deleteItem(categoryId, itemId) {
+  async function deleteItem(categoryId, itemId) {
     const category = categories.value.find(cat => cat.id === categoryId)
     if (!category) return false
 
     const item = category.items.find(i => i.id === itemId)
     if (!item) return false
 
-    const itemName = item.name
-    const itemIndex = item.index
-
-    if (confirm(`确定要删除 #${itemIndex} "${itemName}"吗？`)) {
-      // 保存操作前的状态
-      const beforeState = {
-        action: 'deleteItem',
-        categories: JSON.parse(JSON.stringify(categories.value))
-      }
-
-      category.items = category.items.filter(item => item.id !== itemId)
-      
-      // 删除后重新编码
-      reindexCategory(categoryId)
-      saveData()
-
-      const logStore = useOperationLogStore()
-      logStore.log('delete', `删除了装备 #${itemIndex}：${itemName}`, {
-        category: category.name,
-        item: itemName,
-        index: itemIndex
-      }, beforeState)
-
-      return true
+    // 保存操作前的状态
+    const beforeState = {
+      action: 'deleteItem',
+      categories: JSON.parse(JSON.stringify(categories.value))
     }
-    return false
+
+    category.items = category.items.filter(item => item.id !== itemId)
+      
+    // 删除后重新编码
+    reindexCategory(categoryId)
+    saveData()
+
+    const logStore = useOperationLogStore()
+    logStore.log('delete', `删除了装备 #${item.index}：${item.name}`, {
+      category: category.name,
+      item: item.name,
+      index: item.index
+    }, beforeState)
+
+    toast.success(`装备"${item.name}"已删除`)
+    return true
   }
 
   /**
@@ -499,7 +495,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
     if (!item) return false
 
     if (!itemData.name || itemData.name.trim() === '') {
-      alert('请输入装备名称')
+      toast.warning('请输入装备名称')
       return false
     }
 
@@ -534,6 +530,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
       price: `${oldPrice} → ${item.price}${item.priceUnit}`
     }, beforeState)
 
+    toast.success(`装备"${item.name}"已更新`)
     return true
   }
 
@@ -575,62 +572,59 @@ export const useEquipmentStore = defineStore('equipment', () => {
   /**
    * 导入数据
    */
-  function importData(data) {
+  async function importData(data) {
     if (!Array.isArray(data)) {
-      alert('导入的数据格式不正确')
+      toast.error('导入的数据格式不正确')
       return false
     }
 
-    if (confirm('导入数据将覆盖当前清单，确定要继续吗？')) {
-      const oldCount = categories.value.length
+    const oldCount = categories.value.length
       
-      // 导入数据并为每个装备分配序号和唯一ID，补充默认值
-      categories.value = data.map(cat => {
-        const categoryData = {
-          ...cat,
-          icon: cat.icon || '✨', // 确保导入时 icon 属性存在
-          items: cat.items.map((item, index) => ({
-            ...item,
-            // 如果没有ID或ID不是数字，生成新的唯一ID
-            id: (item.id && typeof item.id === 'number') ? item.id : Date.now() + Math.random() * 10000 + index,
-            index: item.index || (index + 1), // 如果没有序号就分配一个
-            price: item.price !== undefined ? item.price : 0, // 确保价格字段存在
-            priceUnit: item.priceUnit || '人民币' // 确保价格单位存在
-          }))
-        }
-        return categoryData
-      })
-      
-      // 重新编码所有分类（确保序号连续）
-      categories.value.forEach(cat => {
-        reindexCategory(cat.id)
-      })
-      
-      // 修复所有重复的ID
-      let totalFixed = 0
-      categories.value.forEach(cat => {
-        const fixed = fixDuplicateIds(cat.id)
-        totalFixed += fixed
-      })
-      
-      if (totalFixed > 0) {
-        console.warn(`⚠️ 导入数据时修复了 ${totalFixed} 个重复的装备ID`)
+    // 导入数据并为每个装备分配序号和唯一ID，补充默认值
+    categories.value = data.map(cat => {
+      const categoryData = {
+        ...cat,
+        icon: cat.icon || '✨', // 确保导入时 icon 属性存在
+        items: cat.items.map((item, index) => ({
+          ...item,
+          // 如果没有ID或ID不是数字，生成新的唯一ID
+          id: (item.id && typeof item.id === 'number') ? item.id : Date.now() + Math.random() * 10000 + index,
+          index: item.index || (index + 1), // 如果没有序号就分配一个
+          price: item.price !== undefined ? item.price : 0, // 确保价格字段存在
+          priceUnit: item.priceUnit || '人民币' // 确保价格单位存在
+        }))
       }
+      return categoryData
+    })
       
-      saveData()
-
-      const logStore = useOperationLogStore()
-      logStore.log('import', '导入了装备清单数据', {
-        oldCategories: oldCount,
-        newCategories: categories.value.length,
-        totalItems: totalItems.value
-      })
-
-      console.log('✅ 数据导入完成，已为所有装备分配序号')
-      alert('数据导入成功！')
-      return true
+    // 重新编码所有分类（确保序号连续）
+    categories.value.forEach(cat => {
+      reindexCategory(cat.id)
+    })
+      
+    // 修复所有重复的ID
+    let totalFixed = 0
+    categories.value.forEach(cat => {
+      const fixed = fixDuplicateIds(cat.id)
+      totalFixed += fixed
+    })
+      
+    if (totalFixed > 0) {
+      console.warn(`⚠️ 导入数据时修复了 ${totalFixed} 个重复的装备ID`)
     }
-    return false
+      
+    saveData()
+
+    const logStore = useOperationLogStore()
+    logStore.log('import', '导入了装备清单数据', {
+      oldCategories: oldCount,
+      newCategories: categories.value.length,
+      totalItems: totalItems.value
+    })
+
+    console.log('✅ 数据导入完成，已为所有装备分配序号')
+    // toast 通知已在 CategoryList 中处理
+    return true
   }
 
   /**
@@ -651,7 +645,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
           deletedItems: oldItems
         })
 
-        alert('所有数据已清空！')
+        // toast 通知已在 CategoryList 中处理
         return true
       }
     }
@@ -676,22 +670,22 @@ export const useEquipmentStore = defineStore('equipment', () => {
     const targetLog = logStore.logs.find(log => log.id === logId)
     
     if (!targetLog) {
-      alert('未找到要撤销的操作')
+      toast.warning('未找到要撤销的操作')
       return false
     }
 
     if (!targetLog.undoable) {
-      alert('此操作不支持撤销')
+      toast.warning('此操作不支持撤销')
       return false
     }
 
     if (targetLog.undone) {
-      alert('此操作已经被撤销过了')
+      toast.warning('此操作已经被撤销过了')
       return false
     }
 
     if (!targetLog.beforeState || !targetLog.beforeState.categories) {
-      alert('无法撤销：此操作记录于旧版本，缺少状态数据。\n\n提示：只有本次更新后的新操作才支持撤销功能。')
+      toast.error('无法撤销：此操作记录于旧版本，缺少状态数据')
       console.warn('⚠️ 尝试撤销旧版本操作', {
         操作: targetLog.action,
         时间: targetLog.timestamp,
@@ -700,30 +694,26 @@ export const useEquipmentStore = defineStore('equipment', () => {
       return false
     }
 
-    if (confirm(`确定要撤销操作"${targetLog.action}"吗？`)) {
-      // 恢复到操作前的状态
-      categories.value = JSON.parse(JSON.stringify(targetLog.beforeState.categories))
-      saveData()
+    // 恢复到操作前的状态
+    categories.value = JSON.parse(JSON.stringify(targetLog.beforeState.categories))
+    saveData()
 
-      // 标记为已撤销
-      logStore.markAsUndone(logId)
+    // 标记为已撤销
+    logStore.markAsUndone(logId)
 
-      // 记录撤销操作
-      logStore.log('undo', `撤销了操作：${targetLog.action}`, {
-        originalAction: targetLog.action,
-        originalType: targetLog.type
-      }, null, false) // 撤销操作本身不可再撤销
+    // 记录撤销操作
+    logStore.log('undo', `撤销了操作：${targetLog.action}`, {
+      originalAction: targetLog.action,
+      originalType: targetLog.type
+    }, null, false) // 撤销操作本身不可再撤销
 
-      console.log('✅ 操作已撤销', {
-        操作: targetLog.action,
-        类型: targetLog.type
-      })
+    console.log('✅ 操作已撤销', {
+      操作: targetLog.action,
+      类型: targetLog.type
+    })
 
-      alert('操作已成功撤销！')
-      return true
-    }
-
-    return false
+    toast.success('操作已成功撤销')
+    return true
   }
 
   /**
@@ -734,11 +724,16 @@ export const useEquipmentStore = defineStore('equipment', () => {
     const latestLog = logStore.getLatestUndoableLog()
     
     if (!latestLog) {
-      alert('没有可以撤销的操作')
+      toast.info('没有可以撤销的操作')
       return false
     }
 
     return undoOperation(latestLog.id)
+  }
+
+  function getLatestUndoableLog() {
+    const logStore = useOperationLogStore()
+    return logStore.getLatestUndoableLog()
   }
 
   return {
@@ -773,7 +768,8 @@ export const useEquipmentStore = defineStore('equipment', () => {
     importData,
     clearAllData,
     undoOperation, // 撤销指定操作
-    quickUndo // 快速撤销最近操作
+    quickUndo, // 快速撤销最近操作
+    getLatestUndoableLog // 暴露获取最新可撤销日志方法
   }
 })
 

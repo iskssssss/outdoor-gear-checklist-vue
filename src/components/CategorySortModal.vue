@@ -32,8 +32,8 @@
     </template>
 
     <template #footer>
-      <button class="btn btn-secondary" @click="close">取消</button>
-      <button class="btn btn-primary" @click="saveOrder">保存顺序</button>
+      <button class="btn btn-secondary" @click="debouncedClose">取消</button>
+      <button class="btn btn-primary" @click="debouncedSaveSort">保存顺序</button>
     </template>
   </BaseModal>
 </template>
@@ -42,6 +42,7 @@
 import { ref, defineExpose } from 'vue'
 import { useEquipmentStore } from '../stores/equipment'
 import BaseModal from './BaseModal.vue'
+import { debounce } from '../utils/debounce';
 
 const equipmentStore = useEquipmentStore()
 
@@ -117,6 +118,9 @@ function saveOrder() {
   console.log('✅ 分类顺序已保存')
   close()
 }
+
+const debouncedSaveSort = debounce(saveOrder, 300);
+const debouncedClose = debounce(close, 300);
 
 // 暴露方法给父组件
 defineExpose({

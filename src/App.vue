@@ -29,15 +29,16 @@
     </div>
 
     <AppHeader 
-      @show-recommendation="showRecommendation"
       @show-model-config="showModelConfig"
-      @show-operation-log="showOperationLog"
       @show-changelog="showChangelog"
       @show-doc="openDocPage"
     />
     <div class="main-content">
       <StatsPanel />
-      <CategoryList />
+      <CategoryList 
+        @show-recommendation="showRecommendation" 
+        @show-operation-log="showOperationLog"
+      />
     </div>
 
     <AppFooter 
@@ -53,10 +54,16 @@
   <ModelConfigModal ref="modelConfigModalRef" />
   <OperationLogModal ref="operationLogModalRef" />
   <ChangelogModal ref="changelogModalRef" />
+  
+  <!-- Toast 通知组件 -->
+  <ToastNotification ref="toastRef" />
+
+  <!-- 自定义确认模态框 -->
+  <BaseConfirm ref="confirmModalRef" />
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, provide } from 'vue'
 import AppHeader from './components/AppHeader.vue'
 import CategoryList from './components/CategoryList.vue'
 import StatsPanel from './components/StatsPanel.vue'
@@ -66,14 +73,32 @@ import ModelConfigModal from './components/ModelConfigModal.vue'
 import OperationLogModal from './components/OperationLogModal.vue'
 import ChangelogModal from './components/ChangelogModal.vue'
 import DocPage from './components/DocPage.vue'
+import ToastNotification from './components/ToastNotification.vue'
+import BaseConfirm from './components/BaseConfirm.vue' // 引入自定义确认框
 import { useEquipmentStore } from './stores/equipment'
 import { useModelConfigStore } from './stores/modelConfig'
 import { useThemeStore } from './stores/themeStore'
+import { toast as toastService } from './utils/toast'
 
 // 初始化stores
 const equipmentStore = useEquipmentStore()
 const modelConfigStore = useModelConfigStore()
 const themeStore = useThemeStore()
+
+// Toast 引用
+const toastRef = ref(null)
+const confirmModalRef = ref(null) // 新增确认模态框引用
+
+// 提供全局 toast 方法
+provide('toast', {
+  success: (message, duration) => toastRef.value?.success(message, duration),
+  error: (message, duration) => toastRef.value?.error(message, duration),
+  warning: (message, duration) => toastRef.value?.warning(message, duration),
+  info: (message, duration) => toastRef.value?.info(message, duration),
+})
+
+// 提供全局 confirm 方法
+provide('showConfirm', (options) => confirmModalRef.value?.show(options))
 
 // 模态框引用
 const recommendationModalRef = ref(null)
@@ -138,6 +163,11 @@ onMounted(() => {
   equipmentStore.loadData()
   modelConfigStore.loadSettings()
   themeStore.loadTheme() // 加载主题设置
+  
+  // 设置全局 toast 实例
+  if (toastRef.value) {
+    toastService.setInstance(toastRef.value)
+  }
   
   // 添加键盘快捷键监听
   window.addEventListener('keydown', handleKeyboardShortcut)

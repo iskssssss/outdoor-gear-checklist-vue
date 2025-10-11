@@ -3,7 +3,7 @@
     <div class="category-header">
       <button 
         class="category-collapse-btn" 
-        @click="toggleCollapse"
+        @click="debouncedToggleCollapse"
         :title="category.collapsed ? '展开' : '收起'"
       >
         {{ category.collapsed ? '▶' : '▼' }}
@@ -12,13 +12,13 @@
       <div 
         v-if="!isEditingName" 
         class="category-title" 
-        @click="startEditName"
+        @click="debouncedStartEditName"
         title="点击编辑分类名称"
       >
         <span 
           class="category-icon" 
           :class="{ 'is-editing-icon': isEditingIcon }"
-          @click.stop="startEditIcon"
+          @click.stop="debouncedStartEditIcon"
           :title="isEditingIcon ? '保存或取消图标编辑' : '点击编辑图标'"
         >
           {{ category.icon || '✨' }}
@@ -28,9 +28,9 @@
           ref="iconInput"
           v-model="editingIcon"
           class="category-icon-input"
-          @blur="saveEditIcon"
-          @keypress.enter="saveEditIcon"
-          @keypress.esc="cancelEditIcon"
+          @blur="debouncedSaveEditIcon"
+          @keypress.enter="debouncedSaveEditIcon"
+          @keypress.esc="debouncedCancelEditIcon"
           @click.stop
           placeholder="输入图标"
           :style="{ width: `${editingIcon.length + 2}ch` }"
@@ -46,9 +46,9 @@
           ref="nameInput"
           v-model="editingName"
           class="category-name-input"
-          @blur="saveEditName"
-          @keypress.enter="saveEditName"
-          @keypress.esc="cancelEditName"
+          @blur="debouncedSaveEditName"
+          @keypress.enter="debouncedSaveEditName"
+          @keypress.esc="debouncedCancelEditName"
           @click.stop
         >
       </div>
@@ -57,15 +57,15 @@
         <div class="category-dropdown">
           <button class="category-menu-btn">⋯</button>
           <div class="category-menu">
-            <a class="category-menu-item" @click="startEditName">✏️ 编辑名称</a>
+            <a class="category-menu-item" @click="debouncedStartEditName">✏️ 编辑名称</a>
             <a 
               v-if="category.items.length > 0" 
               class="category-menu-item" 
-              @click="reindexItems"
+              @click="debouncedReindexItems"
             >
               🔢 重新编码
             </a>
-            <a class="category-menu-item danger" @click="deleteCategory">🗑️ 删除分类</a>
+            <a class="category-menu-item danger" @click="debouncedDeleteCategory">🗑️ 删除分类</a>
           </div>
         </div>
       </div>
@@ -129,7 +129,7 @@
         <!-- 添加装备区域 -->
         <div class="add-item-section">
           <div v-if="!isAddingItem" class="add-item-button-container">
-            <button class="add-item-button" @click="showAddItemInput">+ 添加装备</button>
+            <button class="add-item-button" @click="debouncedShowAddItemInput">+ 添加装备</button>
           </div>
           <EquipmentItem
             v-else
@@ -145,9 +145,10 @@
 </template>
 
 <script setup>
-import { ref, computed, nextTick, watch } from 'vue'
+import { ref, computed, nextTick, watch, inject } from 'vue'
 import { useEquipmentStore } from '../stores/equipment'
 import EquipmentItem from './EquipmentItem.vue'
+import { debounce } from '../utils/debounce'
 
 const props = defineProps({
   category: {
@@ -161,6 +162,8 @@ const props = defineProps({
 })
 
 const equipmentStore = useEquipmentStore()
+const toast = inject('toast')
+const showConfirm = inject('showConfirm') // 注入全局确认框方法
 
 // 监听分类数据变化，检查数据完整性
 watch(() => props.category.items, (newItems) => {
@@ -240,15 +243,30 @@ function cancelEditName() {
 /**
  * 删除分类
  */
-function deleteCategory() {
-  equipmentStore.deleteCategory(props.category.id)
+async function deleteCategory() {
+  const categoryName = props.category.name
+  const confirmed = await showConfirm({
+    title: '删除分类',
+    message: `确定要删除"${categoryName}"及其所有装备吗？`,
+    confirmButtonText: '删除',
+    showDangerWarning: true
+  })
+
+  if (confirmed) {
+    equipmentStore.deleteCategory(props.category.id)
+  }
 }
 
 /**
  * 重新编码装备序号
  */
-function reindexItems() {
-  if (confirm(`确定要重新编码"${props.category.name}"分类的所有装备序号吗？\n\n序号将按照当前顺序重新编码为 1, 2, 3...`)) {
+async function reindexItems() {
+  const confirmed = await showConfirm({
+    title: '重新编码装备',
+    message: `确定要重新编码"${props.category.name}"分类的所有装备序号吗？\n\n序号将按照当前顺序重新编码为 1, 2, 3...`,
+    confirmButtonText: '确定'
+  })
+  if (confirmed) {
     // 先修复重复ID（如果有）
     const fixedCount = equipmentStore.fixDuplicateIds(props.category.id)
     
@@ -257,9 +275,9 @@ function reindexItems() {
     equipmentStore.saveData()
     
     if (fixedCount > 0) {
-      alert(`重编码完成！\n同时修复了 ${fixedCount} 个重复的装备ID。`)
+      toast?.success(`重编码完成！同时修复了 ${fixedCount} 个重复的装备ID`)
     } else {
-      alert('重编码完成！')
+      toast?.success('重编码完成！')
     }
   }
 }
@@ -348,6 +366,17 @@ function cancelAddItem() {
   //   weightUnit: 'g'
   // }
 }
+
+const debouncedToggleCollapse = debounce(toggleCollapse, 300)
+const debouncedStartEditName = debounce(startEditName, 300)
+const debouncedSaveEditName = debounce(saveEditName, 300)
+const debouncedCancelEditName = debounce(cancelEditName, 300)
+const debouncedDeleteCategory = debounce(deleteCategory, 300)
+const debouncedReindexItems = debounce(reindexItems, 300)
+const debouncedStartEditIcon = debounce(startEditIcon, 300)
+const debouncedSaveEditIcon = debounce(saveEditIcon, 300)
+const debouncedCancelEditIcon = debounce(cancelEditIcon, 300)
+const debouncedShowAddItemInput = debounce(showAddItemInput, 300)
 </script>
 
 <style scoped lang="scss">

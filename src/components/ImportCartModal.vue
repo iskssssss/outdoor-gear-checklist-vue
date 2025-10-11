@@ -47,7 +47,7 @@
               </div>
             </div>
             <div class="import-actions">
-              <button class="btn btn-primary" @click="importItems" :disabled="isImporting">
+              <button class="btn btn-primary" @click="debouncedImportCart" :disabled="isImporting">
                 {{ isImporting ? '正在导入...' : '导入到清单' }}
               </button>
             </div>
@@ -64,6 +64,7 @@
   import { useModelConfigStore } from '../stores/modelConfig';
   import { useOperationLogStore } from '../stores/operationLog';
   import BaseModal from './BaseModal.vue';
+  import { debounce } from '../utils/debounce';
   
   const equipmentStore = useEquipmentStore();
   const modelConfigStore = useModelConfigStore();
@@ -357,6 +358,9 @@
     }
   }
   
+  const debouncedImportCart = debounce(importItems, 300);
+  const debouncedClose = debounce(close, 300);
+
   defineExpose({ show, close });
   </script>
   

@@ -72,10 +72,10 @@
         </div>
 
         <div class="recommendation-actions">
-          <button class="btn btn-primary" @click="getRecommendations" :disabled="isLoading">
+          <button class="btn btn-primary" @click="debouncedGetRecommendations" :disabled="isLoading">
             {{ isLoading ? '正在获取推荐...' : '获取推荐' }}
           </button>
-          <button class="btn btn-secondary" @click="close">取消</button>
+          <button class="btn btn-secondary" @click="debouncedClose">取消</button>
         </div>
 
         <div v-if="showResults" class="recommendation-results">
@@ -117,6 +117,7 @@ import { useEquipmentStore } from '../stores/equipment'
 import { activityTypeOptions, seasonOptions, weatherOptions, difficultyOptions, budgetOptions } from '../config/appConfig'
 import InputSelect from './InputSelect.vue'
 import BaseModal from './BaseModal.vue'
+import { debounce } from '../utils/debounce';
 
 const modelConfigStore = useModelConfigStore()
 const equipmentStore = useEquipmentStore()
@@ -419,6 +420,9 @@ function getPriorityIcon(priority) {
 function getPriorityLabel(priority) {
   return priorityConfig.value[priority]?.label || '建议'
 }
+
+const debouncedGetRecommendations = debounce(getRecommendations, 500); // Longer debounce for API calls
+const debouncedClose = debounce(close, 300);
 
 defineExpose({ show, close })
 </script>

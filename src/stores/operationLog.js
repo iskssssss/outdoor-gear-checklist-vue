@@ -5,6 +5,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { localStorageKeys } from '../config/appConfig'
+import { toast } from '../utils/toast'
 
 export const useOperationLogStore = defineStore('operationLog', () => {
   // 状态
@@ -105,7 +106,7 @@ export const useOperationLogStore = defineStore('operationLog', () => {
    */
   function exportLogs() {
     if (logs.value.length === 0) {
-      alert('暂无日志可导出')
+      toast.info('暂无日志可导出')
       return false
     }
 

@@ -59,12 +59,28 @@ let resizeTimeout = null
 let animationFrameId = null
 let isAnimating = false
 let currentTransitionDuration = ref(0.5) // 当前transition时长（秒）
+const activeTimeouts = new Set() // 存储所有活动的定时器 ID
 
 // 存储每个分类上次的高度，用于平滑动画
 const lastHeights = new Map()
 
 // 动画锁变量
 let isAnimatingCollapse = false
+
+/**
+ * 安全的 setTimeout 包装器
+ */
+const safeSetTimeout = (callback, delay) => {
+  const timeoutId = setTimeout(() => {
+    activeTimeouts.delete(timeoutId)
+    // 在执行回调前检查容器是否还存在
+    if (containerRef.value) {
+      callback()
+    }
+  }, delay)
+  activeTimeouts.add(timeoutId)
+  return timeoutId
+}
 
 /**
  * 设置分类ref
@@ -92,9 +108,14 @@ const calculateWaterfallLayout = () => {
   }
 
   nextTick(() => {
+    // 再次检查容器是否存在（可能在 nextTick 期间被卸载）
+    if (!containerRef.value) {
+      return
+    }
+    
     const containerWidth = containerRef.value.offsetWidth
     if (containerWidth === 0) {
-      setTimeout(() => calculateWaterfallLayout(), 100)
+      safeSetTimeout(() => calculateWaterfallLayout(), 100)
       return
     }
 
@@ -208,7 +229,7 @@ const animateLayout = (startTime, duration = 500, frameCount = 0) => {
   } else {
     isAnimating = false
     // 动画结束后再计算一次，确保精确
-    setTimeout(() => {
+    safeSetTimeout(() => {
       calculateWaterfallLayout()
     }, 50)
   }
@@ -232,9 +253,10 @@ const startLayoutAnimation = (duration = 500) => {
 const handleResize = () => {
   if (resizeTimeout) {
     clearTimeout(resizeTimeout)
+    activeTimeouts.delete(resizeTimeout)
   }
   
-  resizeTimeout = setTimeout(() => {
+  resizeTimeout = safeSetTimeout(() => {
     const width = window.innerWidth
     
     if (width <= 768) {
@@ -274,7 +296,7 @@ watch(() => props.categories.map(c => c.collapsed), (newStates, oldStates) => {
     currentTransitionDuration.value = 0.3
     startLayoutAnimation(300)
     
-    setTimeout(() => {
+    safeSetTimeout(() => {
       isAnimatingCollapse = false
       calculateWaterfallLayout()
       startLayoutAnimation(300)
@@ -293,7 +315,7 @@ watch(() => props.categories.map(c => c.collapsed), (newStates, oldStates) => {
 // 监听分类内容变化（装备数量变化会影响高度）
 watch(() => props.categories.map(c => c.items.length), () => {
   currentTransitionDuration.value = 0.5
-  setTimeout(() => {
+  safeSetTimeout(() => {
     calculateWaterfallLayout()
   }, 100)
 }, { deep: true })
@@ -305,7 +327,7 @@ watch(() => props.categories.length, (newLength, oldLength) => {
     categoryRefs.length = newLength;
   }
   currentTransitionDuration.value = 0.5
-  setTimeout(() => {
+  safeSetTimeout(() => {
     calculateWaterfallLayout()
   }, 100)
 })
@@ -314,7 +336,7 @@ watch(() => props.categories.length, (newLength, oldLength) => {
 watch(() => props.layoutMode, (newMode, oldMode) => {
   if (newMode === 'waterfall' && oldMode !== 'waterfall') {
     // 从其他模式切换到瀑布流，延迟计算确保DOM稳定
-    setTimeout(() => {
+    safeSetTimeout(() => {
       calculateWaterfallLayout()
     }, 200)
   }
@@ -334,7 +356,7 @@ onMounted(() => {
   window.addEventListener('resize', handleResize)
   // 仅在瀑布流模式下延迟计算布局，确保DOM元素稳定
   if (props.layoutMode === 'waterfall') {
-    setTimeout(() => {
+    safeSetTimeout(() => {
       calculateWaterfallLayout()
     }, 200) // 200ms延迟，确保切换稳定
   }
@@ -343,9 +365,16 @@ onMounted(() => {
 // 组件卸载
 onUnmounted(() => {
   window.removeEventListener('resize', handleResize)
+  
+  // 清理所有定时器
   if (resizeTimeout) {
     clearTimeout(resizeTimeout)
   }
+  activeTimeouts.forEach(timeoutId => {
+    clearTimeout(timeoutId)
+  })
+  activeTimeouts.clear()
+  
   if (animationFrameId) {
     cancelAnimationFrame(animationFrameId)
   }

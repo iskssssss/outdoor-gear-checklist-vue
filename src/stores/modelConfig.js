@@ -5,6 +5,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { defaultModelSettings, defaultRecommendationPreferences, localStorageKeys } from '../config/appConfig'
+import { toast } from '../utils/toast'
 
 export const useModelConfigStore = defineStore('modelConfig', () => {
   // 状态
@@ -56,15 +57,20 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
 
   /**
    * 保存模型配置
+   * @param {Object} newSettings - 新的设置对象
    * （系统配置操作，不记录日志）
    */
-  function saveSettings() {
+  function saveSettings(newSettings) {
     try {
+      Object.assign(settings.value, newSettings)
       localStorage.setItem(localStorageKeys.modelSettings, JSON.stringify(settings.value))
       
+      // toast 通知已移至 ModelConfigModal.vue
+      // toast.success('模型配置保存成功')
       console.log('✅ 模型配置已保存')
       return true
     } catch (e) {
+      // toast.error('模型配置保存失败') // 通知已移至 ModelConfigModal.vue
       console.error('❌ 模型配置保存失败:', e)
       return false
     }
@@ -72,15 +78,20 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
 
   /**
    * 保存推荐偏好
+   * @param {Object} newPreferences - 新的偏好对象
    */
-  function savePreferences() {
+  function savePreferences(newPreferences) {
     try {
+      Object.assign(recommendationPreferences.value, newPreferences)
       localStorage.setItem(localStorageKeys.recommendationPreferences, JSON.stringify(recommendationPreferences.value))
       localStorage.setItem(localStorageKeys.customRecommendationOptions, JSON.stringify(customRecommendationOptions.value))
+      // toast 通知已移至 ModelConfigModal.vue
+      // toast.success('推荐偏好保存成功')
       console.log('✅ 推荐偏好和自定义选项已保存')
       return true
     } catch (e) {
-      console.error('❌ 推荐偏好和自定义选项保存失败:', e)
+      // toast.error('推荐偏好保存失败') // 通知已移至 ModelConfigModal.vue
+      console.error('❌ 推荐偏好保存失败:', e)
       return false
     }
   }
