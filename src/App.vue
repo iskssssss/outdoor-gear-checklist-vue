@@ -35,6 +35,10 @@
       <CategoryList />
     </div>
 
+    <AppFooter 
+      @show-changelog="showChangelog"
+    />
+
     <!-- 主题选择按钮已移除 -->
   </div>
 
@@ -50,6 +54,7 @@ import { ref, computed, onMounted } from 'vue'
 import AppHeader from './components/AppHeader.vue'
 import CategoryList from './components/CategoryList.vue'
 import StatsPanel from './components/StatsPanel.vue'
+import AppFooter from './components/AppFooter.vue'
 import RecommendationModal from './components/RecommendationModal.vue'
 import ModelConfigModal from './components/ModelConfigModal.vue'
 import OperationLogModal from './components/OperationLogModal.vue'
