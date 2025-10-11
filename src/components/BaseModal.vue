@@ -271,17 +271,17 @@ defineExpose({
 }
 
 .base-modal-body::-webkit-scrollbar-track {
-  background: var(--bg-input);
+  background: var(--bg-input, #f5f5f5);
   border-radius: 4px;
 }
 
 .base-modal-body::-webkit-scrollbar-thumb {
-  background: var(--border-color);
+  background: var(--border-color, #ddd);
   border-radius: 4px;
 }
 
 .base-modal-body::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted);
+  background: var(--text-muted, #999);
 }
 
 /* 底部 */

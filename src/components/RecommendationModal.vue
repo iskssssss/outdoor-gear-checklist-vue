@@ -703,6 +703,25 @@ defineExpose({ show, close })
   list-style: none;
 }
 
+/* 美化滚动条 */
+.suggestions-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.suggestions-list::-webkit-scrollbar-track {
+  background: var(--bg-input, #f5f5f5);
+  border-radius: 3px;
+}
+
+.suggestions-list::-webkit-scrollbar-thumb {
+  background: var(--border-color, #ddd);
+  border-radius: 3px;
+}
+
+.suggestions-list::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted, #999);
+}
+
 .suggestions-list li {
   padding: 10px 15px;
   cursor: pointer;

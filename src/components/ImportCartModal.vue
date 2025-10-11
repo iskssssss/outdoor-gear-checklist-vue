@@ -550,20 +550,20 @@
   }
 
   .item-list::-webkit-scrollbar-track {
-    background: var(--bg-input);
+    background: var(--bg-input, #f5f5f5);
     border-radius: 4px;
   }
 
   .item-list::-webkit-scrollbar-thumb {
-    background: var(--border-color);
+    background: var(--border-color, #ddd);
     border-radius: 4px;
   }
 
   .item-list::-webkit-scrollbar-thumb:hover {
-    background: var(--text-muted);
+    background: var(--text-muted, #999);
   }
 
-  .parsed-item {
+.parsed-item {
     display: flex;
     justify-content: space-between;
     padding: 8px 12px;

@@ -27,6 +27,10 @@
           <div class="stat-number">{{ equipmentStore.totalWeight }}</div>
           <div class="stat-label">总重量</div>
         </div>
+        <div class="stat-item">
+          <div class="stat-number">{{ equipmentStore.totalPrice }}</div>
+          <div class="stat-label">总价格</div>
+        </div>
       </div>
     </div>
     
@@ -66,6 +70,15 @@
                   <span class="item-name">{{ item.name }}</span>
                   <span class="item-details">
                     {{ item.quantity }}{{ item.quantityUnit }} · {{ item.weight }}{{ item.weightUnit }}
+                    <template v-if="item.price && item.price > 0">
+                      · {{ item.price }}{{ item.priceUnit || '人民币' }}
+                    </template>
+                  </span>
+                  <span v-if="item.notes && item.notes.trim()" class="item-notes">
+                    📝 {{ item.notes }}
+                  </span>
+                  <span v-if="item.priority && item.priority !== 'medium'" class="item-priority" :class="`priority-${item.priority}`">
+                    {{ getPriorityLabel(item.priority) }}
                   </span>
                 </div>
               </div>
@@ -96,6 +109,15 @@ const props = defineProps({
 })
 
 const exportContent = ref(null)
+
+// 获取优先级标签
+const getPriorityLabel = (priority) => {
+  const labels = {
+    high: '⚠️ 重要',
+    low: '💡 可选'
+  }
+  return labels[priority] || priority
+}
 
 // 过滤和验证分类数据，确保所有分类都有items属性且不为空
 const validCategories = computed(() => {
@@ -176,7 +198,7 @@ defineExpose({
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(6, 1fr);
   gap: 16px;
 }
 
@@ -225,7 +247,7 @@ defineExpose({
   display: grid;
   gap: 20px;
   width: 100%;
-  max-width: 1600px;
+  max-width: 100%;
   align-items: start;
 }
 
@@ -308,14 +330,14 @@ defineExpose({
 .items-list {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 12px;
 }
 
 .item {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 6px 10px;
+  padding: 10px 12px;
   background: var(--bg-input);
   border-radius: var(--border-radius, 8px);
   border: var(--border-width, 1px) solid transparent;
@@ -329,7 +351,6 @@ defineExpose({
   body.theme-pixel & {
     border: var(--pixel-size, 2px) solid var(--border-color);
     border-radius: var(--border-radius);
-    margin-bottom: calc(var(--pixel-size, 2px) * 2);
   }
   body.theme-paper & {
     border: 1px solid var(--border-light);
@@ -350,7 +371,7 @@ defineExpose({
   flex-direction: column;
   align-items: flex-start; /* 装备项内容左对齐 */
   text-align: left; /* 确保文本左对齐 */
-  gap: 2px;
+  gap: 4px;
 }
 
 .item-name {
@@ -369,6 +390,37 @@ defineExpose({
 .item-details {
   font-size: 0.85rem;
   color: var(--text-secondary);
+}
+
+.item-notes {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  font-style: italic;
+  margin-top: 4px;
+  display: block;
+  line-height: 1.4;
+  opacity: 0.85;
+}
+
+.item-priority {
+  display: inline-block;
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-top: 4px;
+  font-weight: 500;
+  
+  &.priority-high {
+    background: rgba(255, 107, 107, 0.15);
+    color: var(--danger-color, #dc3545);
+    border: 1px solid rgba(255, 107, 107, 0.3);
+  }
+  
+  &.priority-low {
+    background: rgba(102, 126, 234, 0.1);
+    color: var(--primary-color, #667eea);
+    border: 1px solid rgba(102, 126, 234, 0.25);
+  }
 }
 
 .no-data-message {

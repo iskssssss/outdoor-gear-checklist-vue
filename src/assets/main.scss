@@ -66,16 +66,16 @@ body::-webkit-scrollbar {
 }
 
 body::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.1);
+  background: var(--bg-input, #f5f5f5);
 }
 
 body::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.3);
+  background: var(--border-color, #ddd);
   border-radius: 5px;
 }
 
 body::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.5);
+  background: var(--text-muted, #999);
 }
 
 /* 工具类 */

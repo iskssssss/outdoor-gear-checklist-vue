@@ -13,10 +13,10 @@
           class="refresh-btn" 
           @click="fetchCommitsFromGitHub(false)"
           :disabled="loading || cooldownTime > 0"
-          :title="loading ? '加载中...' : cooldownTime > 0 ? `请等待 ${cooldownTime} 秒后再刷新` : '刷新更新记录'"
+          :title="cooldownTooltip"
         >
           <span :class="{ 'spinning': loading }">
-            {{ cooldownTime > 0 ? cooldownTime : '🔄' }}
+            {{ formattedCooldownTime }}
           </span>
         </button>
         <button class="close-btn" @click="close">✕</button>
@@ -72,7 +72,9 @@ const error = ref(null)
 
 // 刷新冷却时间相关
 const cooldownTime = ref(0) // 剩余冷却时间（秒）
-const COOLDOWN_DURATION = 30 // 冷却持续时间（秒）
+const COOLDOWN_DURATION = 60 * 60 * 3 // 冷却持续时间（秒）- 3小时
+const COOLDOWN_STORAGE_KEY = 'changelog_last_refresh_time'
+const COMMITS_CACHE_KEY = 'changelog_commits_cache'
 let cooldownTimer = null
 
 // GitHub仓库配置
@@ -81,6 +83,37 @@ const GITHUB_API = `https://api.github.com/repos/${GITHUB_REPO}/commits`
 
 // Git提交记录数据（从GitHub API动态获取）
 const commits = ref([])
+
+/**
+ * 格式化冷却时间显示
+ */
+const formattedCooldownTime = computed(() => {
+  if (cooldownTime.value <= 0) return '🔄'
+  
+  const minutes = Math.floor(cooldownTime.value / 60)
+  const seconds = cooldownTime.value % 60
+  
+  if (minutes > 0) {
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`
+  }
+  return `${seconds}`
+})
+
+/**
+ * 冷却提示文本
+ */
+const cooldownTooltip = computed(() => {
+  if (loading.value) return '加载中...'
+  if (cooldownTime.value <= 0) return '刷新更新记录'
+  
+  const minutes = Math.floor(cooldownTime.value / 60)
+  const seconds = cooldownTime.value % 60
+  
+  if (minutes > 0) {
+    return `请等待 ${minutes} 分 ${seconds} 秒后再刷新`
+  }
+  return `请等待 ${seconds} 秒后再刷新`
+})
 
 /**
  * 按日期分组提交记录
@@ -107,11 +140,62 @@ const groupedCommits = computed(() => {
 })
 
 /**
- * 从GitHub API获取提交记录
+ * 从localStorage读取缓存的commits数据
  */
-function startCooldown() {
-  cooldownTime.value = COOLDOWN_DURATION
-  
+function loadCachedCommits() {
+  try {
+    const cached = localStorage.getItem(COMMITS_CACHE_KEY)
+    if (cached) {
+      const data = JSON.parse(cached)
+      commits.value = data
+      console.log('✅ 从缓存加载了', data.length, '条提交记录')
+      return true
+    }
+  } catch (err) {
+    console.warn('⚠️ 读取缓存失败:', err)
+  }
+  return false
+}
+
+/**
+ * 保存commits数据到localStorage
+ */
+function saveCachedCommits(data) {
+  try {
+    localStorage.setItem(COMMITS_CACHE_KEY, JSON.stringify(data))
+    console.log('✅ 已缓存', data.length, '条提交记录')
+  } catch (err) {
+    console.warn('⚠️ 保存缓存失败:', err)
+  }
+}
+
+/**
+ * 从localStorage恢复冷却状态
+ * @returns {boolean} 返回 true 表示在冷却期内，false 表示可以刷新
+ */
+function restoreCooldownState() {
+  const lastRefreshTime = localStorage.getItem(COOLDOWN_STORAGE_KEY)
+  if (lastRefreshTime) {
+    const elapsed = Math.floor((Date.now() - parseInt(lastRefreshTime)) / 1000)
+    const remaining = COOLDOWN_DURATION - elapsed
+    
+    if (remaining > 0) {
+      console.log(`⏱️ 恢复冷却状态，剩余 ${remaining} 秒`)
+      cooldownTime.value = remaining
+      startCooldownTimer()
+      return true // 在冷却期内
+    } else {
+      // 冷却时间已过，清除存储
+      localStorage.removeItem(COOLDOWN_STORAGE_KEY)
+    }
+  }
+  return false // 不在冷却期内
+}
+
+/**
+ * 开始冷却倒计时
+ */
+function startCooldownTimer() {
   // 清除之前的定时器
   if (cooldownTimer) {
     clearInterval(cooldownTimer)
@@ -123,8 +207,23 @@ function startCooldown() {
     if (cooldownTime.value <= 0) {
       clearInterval(cooldownTimer)
       cooldownTimer = null
+      // 清除localStorage中的记录
+      localStorage.removeItem(COOLDOWN_STORAGE_KEY)
     }
   }, 1000)
+}
+
+/**
+ * 开始冷却（保存到localStorage）
+ */
+function startCooldown() {
+  cooldownTime.value = COOLDOWN_DURATION
+  
+  // 保存当前时间到localStorage
+  localStorage.setItem(COOLDOWN_STORAGE_KEY, Date.now().toString())
+  
+  // 开始倒计时
+  startCooldownTimer()
 }
 
 async function fetchCommitsFromGitHub(isInitialLoad = false) {
@@ -171,13 +270,20 @@ async function fetchCommitsFromGitHub(isInitialLoad = false) {
     commits.value = fetchedCommits
     console.log('✅ 成功从GitHub获取提交记录:', fetchedCommits.length, '条')
     
-    // 只有非首次加载才启动冷却倒计时
-    if (!isInitialLoad) {
-      startCooldown()
-    }
+    // 保存到缓存
+    saveCachedCommits(fetchedCommits)
+    
+    // 启动冷却倒计时（无论是否首次加载）
+    startCooldown()
   } catch (err) {
     console.warn('⚠️ 从GitHub获取提交记录失败:', err.message)
     error.value = err.message
+    
+    // 尝试从缓存加载数据
+    const hasCached = loadCachedCommits()
+    if (hasCached) {
+      console.log('✅ 从缓存加载了备用数据')
+    }
   } finally {
     loading.value = false
   }
@@ -201,9 +307,25 @@ function handleClose() {
   // 额外的关闭逻辑（如果需要）
 }
 
-// 组件挂载时尝试从GitHub获取数据（首次加载不启动冷却）
+// 组件挂载时恢复冷却状态并智能加载数据
 onMounted(() => {
-  fetchCommitsFromGitHub(true)
+  // 先恢复冷却状态
+  const isInCooldown = restoreCooldownState()
+  
+  if (isInCooldown) {
+    // 在冷却期内，从缓存加载数据
+    console.log('⏱️ 在冷却期内，从缓存加载数据')
+    const hasCached = loadCachedCommits()
+    if (!hasCached) {
+      // 如果没有缓存，仍然需要请求一次
+      console.log('⚠️ 没有缓存数据，请求GitHub API')
+      fetchCommitsFromGitHub(true)
+    }
+  } else {
+    // 不在冷却期内，直接请求最新数据
+    console.log('✅ 不在冷却期内，请求最新数据')
+    fetchCommitsFromGitHub(true)
+  }
 })
 
 // 组件卸载时清理定时器

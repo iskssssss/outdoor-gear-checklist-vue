@@ -116,7 +116,7 @@ export const budgetOptions = [
 export const imageExportConfig = {
   scale: 4, // 缩放比例，越高质量越好（建议 2-5）
   dpi: 384, // DPI 设置，越高越清晰（建议 192-600）
-  exportWidth: 1600, // 导出宽度（像素）
+  exportWidth: 2000, // 导出宽度（像素）
   quality: 1.0, // 图片质量 0-1
   format: 'image/png', // 图片格式
   imageTimeout: 10000, // 图片加载超时时间（毫秒）
