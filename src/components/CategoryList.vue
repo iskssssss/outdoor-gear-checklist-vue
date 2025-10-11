@@ -1,7 +1,14 @@
 <template>
   <div class="categories-section">
     <!-- 全局操作按钮 -->
-    <div class="global-actions" v-if="equipmentStore.categories.length > 0">
+    <div class="global-actions" v-if="equipmentStore.categories.length > 0 || isAdding">
+      <button 
+        class="btn btn-primary btn-sm" 
+        @click="toggleLayout"
+        :title="layoutMode === 'grid' ? '切换到瀑布流模式' : '切换到网格模式'"
+      >
+        {{ layoutMode === 'grid' ? '💧 瀑布流' : '🔲 网格' }}
+      </button>
       <button 
         class="btn btn-secondary btn-sm" 
         @click="toggleAllCategories"
@@ -12,26 +19,68 @@
     </div>
     
     <!-- 装备分类列表 -->
-    <div class="categories-container">
-      <div v-if="equipmentStore.categories.length === 0" class="empty-state">
-        <h3>还没有装备分类</h3>
-        <p>点击下方 "+" 按钮开始创建您的装备清单</p>
-      </div>
-      
+    <div v-if="equipmentStore.categories.length === 0 && !isAdding" class="empty-state">
+      <h3>还没有装备分类</h3>
+      <p>点击下方 "+" 按钮开始创建您的装备清单</p>
+    </div>
+
+    <!-- 瀑布流布局组件 -->
+    <WaterfallLayout
+      v-show="layoutMode === 'waterfall'"
+      :categories="equipmentStore.categories"
+      :column-gap="16"
+      :add-card-visible="true"
+      :is-adding="isAdding"
+      :layout-mode="layoutMode"
+      @add-card-click="showAddInput"
+    >
+      <template v-slot:add-card-content>
+        <div class="add-icon">+</div>
+        <div class="add-text">添加分类</div>
+      </template>
+      <template v-slot:add-input-card-content>
+        <input 
+          ref="categoryInput"
+          type="text" 
+          v-model="newCategoryName" 
+          @keypress.enter="addCategory"
+          @blur="cancelAdd"
+          placeholder="输入分类名称"
+          class="category-input"
+        >
+        <div class="input-actions">
+          <button class="btn btn-primary btn-sm" @click="addCategory">✓ 确认</button>
+          <button class="btn btn-secondary btn-sm" @click="cancelAdd">✕ 取消</button>
+        </div>
+      </template>
+    </WaterfallLayout>
+
+    <!-- 网格布局 -->
+    <div 
+      v-show="layoutMode === 'grid'"
+      class="categories-container"
+    >
       <CategoryItem
         v-for="category in equipmentStore.categories"
         :key="category.id"
         :category="category"
+        :layout-mode="layoutMode"
       />
       
-      <!-- 添加分类按钮 -->
-      <div class="add-category-card" v-if="!isAdding" @click="showAddInput">
+      <!-- 添加分类按钮/输入框 (网格模式下) -->
+      <div 
+        class="add-category-card" 
+        v-if="!isAdding" 
+        @click="showAddInput"
+      >
         <div class="add-icon">+</div>
         <div class="add-text">添加分类</div>
       </div>
       
-      <!-- 添加分类输入框 -->
-      <div class="add-category-input-card" v-else>
+      <div 
+        class="add-category-input-card" 
+        v-else
+      >
         <input 
           ref="categoryInput"
           type="text" 
@@ -51,14 +100,16 @@
 </template>
 
 <script setup>
-import { ref, computed, nextTick } from 'vue'
+import { ref, computed, nextTick, watch, onMounted, onUnmounted } from 'vue'
 import { useEquipmentStore } from '../stores/equipment'
 import CategoryItem from './CategoryItem.vue'
+import WaterfallLayout from './WaterfallLayout.vue' // 引入瀑布流布局组件
 
 const equipmentStore = useEquipmentStore()
 const newCategoryName = ref('')
 const isAdding = ref(false)
 const categoryInput = ref(null)
+const layoutMode = ref('grid') // 'grid' 或 'waterfall'
 
 /**
  * 计算是否所有分类都已收起
@@ -100,6 +151,23 @@ function cancelAdd() {
 }
 
 /**
+ * 切换布局模式
+ */
+function toggleLayout() {
+  layoutMode.value = layoutMode.value === 'grid' ? 'waterfall' : 'grid'
+  
+  // 切换到瀑布流模式时，延迟触发布局计算
+  if (layoutMode.value === 'waterfall') {
+    nextTick(() => {
+      setTimeout(() => {
+        // 触发resize事件，强制WaterfallLayout重新计算
+        window.dispatchEvent(new Event('resize'))
+      }, 150)
+    })
+  }
+}
+
+/**
  * 切换所有分类的展开/收起状态
  */
 function toggleAllCategories() {
@@ -110,17 +178,18 @@ function toggleAllCategories() {
     }
   })
 }
+
 </script>
 
 <style scoped lang="scss">
 .categories-section {
-  margin-bottom: 30px;
+  margin-bottom: 16px;
 }
 
 .global-actions {
   display: flex;
   justify-content: flex-end;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
   gap: 10px;
   
   .btn {
@@ -137,7 +206,7 @@ function toggleAllCategories() {
 .categories-container {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
+  gap: 16px;
   align-items: start;
 }
 
@@ -161,10 +230,10 @@ function toggleAllCategories() {
 
 /* 添加分类卡片 - + 按钮样式 */
 .add-category-card {
-  background: var(--bg-card);
+  background: transparent;
   border: 2px dashed var(--primary-color);
   border-radius: 12px;
-  padding: 40px;
+  padding: 32px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -172,14 +241,16 @@ function toggleAllCategories() {
   gap: 10px;
   cursor: pointer;
   transition: all 0.3s ease;
-  min-height: 200px;
+  min-height: 180px;
+  opacity: 0.7;
 }
 
 .add-category-card:hover {
-  background: var(--bg-input);
+  background: var(--bg-card);
   border-style: solid;
   transform: translateY(-4px);
   box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+  opacity: 1;
 }
 
 .add-icon {
@@ -200,11 +271,11 @@ function toggleAllCategories() {
   background: var(--bg-card);
   border: 2px solid var(--primary-color);
   border-radius: 12px;
-  padding: 30px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
   gap: 15px;
-  min-height: 200px;
+  min-height: 180px;
   justify-content: center;
 }
 
@@ -249,11 +320,27 @@ function toggleAllCategories() {
 .btn-primary {
   background: var(--primary-color);
   color: var(--text-white, white);
+  
+  &:hover {
+    background: var(--primary-dark, #5568d3);
+  }
+  
+  &:active {
+    transform: translateY(-2px) scale(0.95);
+  }
 }
 
 .btn-secondary {
   background: var(--text-muted);
   color: var(--text-white, white);
+  
+  &:hover {
+    background: var(--text-secondary);
+  }
+}
+
+.btn {
+  transition: all 0.2s ease;
 }
 
 .btn:hover {

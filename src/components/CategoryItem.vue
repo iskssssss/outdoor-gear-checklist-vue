@@ -1,5 +1,5 @@
 <template>
-  <div class="category" :class="{ collapsed: category.collapsed }">
+  <div class="category" :class="{ collapsed: category.collapsed, 'waterfall-mode': layoutMode === 'waterfall' }">
     <div class="category-header">
       <button 
         class="category-collapse-btn" 
@@ -119,6 +119,10 @@ const props = defineProps({
   category: {
     type: Object,
     required: true
+  },
+  layoutMode: {
+    type: String,
+    default: 'grid'
   }
 })
 
@@ -287,8 +291,23 @@ function cancelAddItem() {
   border-radius: 12px;
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
   overflow: hidden;
-  transition: max-height 0.3s ease, box-shadow 0.3s ease;
+  transition: max-height 0.5s ease, box-shadow 0.3s ease;
   max-height: 2000px; /* 默认展开的最大高度，足够容纳大量装备 */
+}
+
+.category.collapsed {
+  /* 收起时使用更快的动画 */
+  transition: max-height 0.3s ease, box-shadow 0.3s ease;
+  max-height: 95px; /* 折叠时只显示标题栏 */
+}
+
+/* 瀑布流模式下禁用所有动画，避免干扰布局计算 */
+.category.waterfall-mode {
+  transition: none !important;
+}
+
+.category.waterfall-mode * {
+  transition: none !important;
 }
 
 .category:hover {
@@ -299,7 +318,7 @@ function cancelAddItem() {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 20px;
+  padding: 16px;
   flex-wrap: nowrap; /* 确保不换行 */
 }
 
@@ -406,11 +425,18 @@ function cancelAddItem() {
 }
 
 .category-content {
-  padding: 20px;
+  padding: 16px;
+  opacity: 1;
+  transition: opacity 0.4s ease 0.1s; /* 延迟0.1s开始淡入，持续0.4s */
+}
+
+.category.collapsed .category-content {
+  opacity: 0;
+  transition: opacity 0.2s ease; /* 收起时快速淡出 */
 }
 
 .items-section {
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 
 .section-title {
@@ -475,14 +501,6 @@ function cancelAddItem() {
 .add-item-button.cancel:hover {
   background: var(--danger-color, #dc3545);
   color: var(--text-white, white);
-}
-
-.category.collapsed {
-  max-height: 95px; /* 折叠时只显示标题栏 */
-}
-
-.category.collapsed .category-content {
-  display: none; /* 折叠时完全隐藏内容区域 */
 }
 
 .category-name-edit-group {
