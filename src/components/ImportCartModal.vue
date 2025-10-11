@@ -7,15 +7,18 @@
         </div>
         <div class="modal-body scroll-area">
           <div class="import-section">
-            <h4>粘贴京东购物车分享页面HTML源代码</h4>
+            <h4>粘贴京东购物车分享信息</h4>
+            <p class="help-text">支持两种方式：<br>1. 直接粘贴京东分享文本（如：【京东】https://3.cn/xxx-xxx 「购物清单」）<br>2. 粘贴完整的HTML源代码</p>
             <textarea
               v-model="cartShareLink"
-              placeholder="请粘贴京东购物车分享页面的完整HTML源代码到此处"
+              placeholder="请粘贴京东购物车分享信息或完整HTML源代码"
               class="share-link-input"
               rows="10"
             ></textarea>
             <div class="action-buttons">
-              <button class="btn btn-primary" @click="parseLink" :disabled="!cartShareLink.trim()">解析HTML</button>
+              <button class="btn btn-primary" @click="parseLink" :disabled="!cartShareLink.trim() || isLoading">
+                {{ isLoading ? '正在处理...' : '解析商品' }}
+              </button>
               <button class="btn btn-secondary" @click="clearLink">清空</button>
             </div>
           </div>
@@ -55,6 +58,7 @@
   const cartShareLink = ref('');
   const parsedItems = ref([]);
   const isImporting = ref(false);
+  const isLoading = ref(false);
   const message = ref('');
   const messageType = ref(''); // 'success', 'error', 'info'
   
@@ -90,34 +94,94 @@
     messageType.value = '';
   }
   
+  /**
+   * 从文本中提取京东短链接
+   */
+  function extractJdShortLink(text) {
+    // 匹配 https://3.cn/xxx 格式的短链接
+    const shortLinkRegex = /https?:\/\/3\.cn\/[a-zA-Z0-9_-]+/i;
+    const match = text.match(shortLinkRegex);
+    return match ? match[0] : null;
+  }
+
+  /**
+   * 通过代理或直接获取页面HTML
+   * 注意：由于浏览器跨域限制，这里需要使用 CORS 代理或者让用户手动提供HTML
+   */
+  async function fetchPageHtml(url) {
+    try {
+      // 尝试使用 CORS 代理服务
+      // 常用的公共代理：https://corsproxy.io/, https://api.allorigins.win/
+      const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+      
+      const response = await fetch(proxyUrl);
+      if (!response.ok) {
+        throw new Error(`HTTP错误: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      return data.contents;
+    } catch (error) {
+      console.error('获取页面失败:', error);
+      throw new Error('无法自动获取页面内容，请手动复制页面HTML源代码粘贴');
+    }
+  }
+
   async function parseLink() {
-    message.value = '正在解析链接...';
+    isLoading.value = true;
+    message.value = '正在解析...';
     messageType.value = 'info';
     parsedItems.value = [];
   
-    const htmlContent = cartShareLink.value.trim();
-    if (!htmlContent) {
-      message.value = '请输入京东购物车分享页面的HTML源代码。';
+    const inputContent = cartShareLink.value.trim();
+    if (!inputContent) {
+      message.value = '请输入京东购物车分享信息或HTML源代码。';
       messageType.value = 'error';
+      isLoading.value = false;
       return;
     }
   
     try {
+      let htmlContent = inputContent;
+      
+      // 检查是否包含短链接
+      const shortLink = extractJdShortLink(inputContent);
+      
+      if (shortLink) {
+        // 如果找到短链接，尝试获取页面内容
+        message.value = `找到链接 ${shortLink}，正在获取页面内容...`;
+        messageType.value = 'info';
+        
+        try {
+          htmlContent = await fetchPageHtml(shortLink);
+          message.value = '页面内容获取成功，正在解析商品...';
+        } catch (fetchError) {
+          console.error('自动获取失败:', fetchError);
+          message.value = `无法自动获取页面内容（跨域限制）。\n请打开链接：${shortLink}\n然后按 F12 打开开发者工具，在"元素"标签中右键点击 <html>，选择"复制" -> "复制 outerHTML"，再粘贴到此处。`;
+          messageType.value = 'error';
+          isLoading.value = false;
+          return;
+        }
+      }
+      
+      // 解析HTML内容
       const extractedItems = extractItemsFromJdHtml(htmlContent);
   
       if (extractedItems.length === 0) {
-        message.value = '未能从HTML中解析出商品，请检查HTML源代码是否完整有效。特别是确保商品名称和数量的HTML结构与预期匹配。';
+        message.value = '未能从内容中解析出商品。\n如果您粘贴的是分享链接，请手动打开链接并复制完整的HTML源代码。';
         messageType.value = 'error';
       } else {
         parsedItems.value = extractedItems;
-        message.value = `成功解析到 ${extractedItems.length} 件商品。`;
+        message.value = `成功解析到 ${extractedItems.length} 件商品！`;
         messageType.value = 'success';
       }
   
     } catch (e) {
-      console.error('解析HTML失败:', e);
-      message.value = `解析HTML失败: ${e.message}。请检查HTML源代码是否正确或联系开发者。`;
+      console.error('解析失败:', e);
+      message.value = `解析失败: ${e.message}`;
       messageType.value = 'error';
+    } finally {
+      isLoading.value = false;
     }
   }
   
@@ -382,6 +446,17 @@
   .import-section h4 {
     margin: 0;
     color: var(--text-primary);
+  }
+
+  .help-text {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin: 0;
+    padding: 10px;
+    background: rgba(102, 126, 234, 0.05);
+    border-left: 3px solid var(--primary-color);
+    border-radius: 4px;
   }
   
   .share-link-input {
