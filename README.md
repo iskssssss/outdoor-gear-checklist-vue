@@ -183,16 +183,10 @@ outdoor-gear-checklist/
 │   │       ├── _theme-*.scss  # 各主题样式
 │   │       └── themes.scss    # 主题入口
 │   ├── components/            # Vue 组件
-│   │   ├── AppHeader.vue      # 头部导航
-│   │   ├── CategoryList.vue   # 分类列表
-│   │   ├── CategoryItem.vue   # 分类卡片
-│   │   ├── EquipmentItem.vue  # 装备项
-│   │   ├── StatsPanel.vue     # 统计面板
-│   │   ├── ExportPreview.vue  # 导出预览
-│   │   ├── ImportCartModal.vue        # 购物车导入
-│   │   ├── RecommendationModal.vue    # 智能推荐
-│   │   ├── ModelConfigModal.vue       # 模型配置
-│   │   └── OperationLogModal.vue      # 操作日志
+│   │   ├── common/            # 通用基础组件
+│   │   ├── layout/            # 布局组件
+│   │   ├── modals/            # 弹窗组件
+│   │   └── views/             # 视图组件
 │   ├── config/                # 配置文件
 │   │   └── appConfig.js       # 应用配置
 │   ├── stores/                # Pinia 状态管理

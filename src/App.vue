@@ -64,17 +64,17 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted, provide } from 'vue'
-import AppHeader from './components/AppHeader.vue'
-import CategoryList from './components/CategoryList.vue'
-import StatsPanel from './components/StatsPanel.vue'
-import AppFooter from './components/AppFooter.vue'
-import RecommendationModal from './components/RecommendationModal.vue'
-import ModelConfigModal from './components/ModelConfigModal.vue'
-import OperationLogModal from './components/OperationLogModal.vue'
-import ChangelogModal from './components/ChangelogModal.vue'
-import DocPage from './components/DocPage.vue'
-import ToastNotification from './components/ToastNotification.vue'
-import BaseConfirm from './components/BaseConfirm.vue' // 引入自定义确认框
+import AppHeader from './components/layout/AppHeader.vue'
+import CategoryList from './components/views/CategoryList.vue'
+import StatsPanel from './components/views/StatsPanel.vue'
+import AppFooter from './components/layout/AppFooter.vue'
+import RecommendationModal from './components/modals/RecommendationModal.vue'
+import ModelConfigModal from './components/modals/ModelConfigModal.vue'
+import OperationLogModal from './components/modals/OperationLogModal.vue'
+import ChangelogModal from './components/modals/ChangelogModal.vue'
+import DocPage from './components/views/DocPage.vue'
+import ToastNotification from './components/common/ToastNotification.vue'
+import BaseConfirm from './components/common/BaseConfirm.vue' // 引入自定义确认框
 import { useEquipmentStore } from './stores/equipment'
 import { useModelConfigStore } from './stores/modelConfig'
 import { useThemeStore } from './stores/themeStore'

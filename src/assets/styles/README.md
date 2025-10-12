@@ -13,6 +13,8 @@ src/assets/styles/
 ├── _theme-paper.scss     # 手绘主题 - 仅差异化样式
 ├── _theme-dark.scss      # 暗黑主题 - 仅差异化样式
 ├── _theme-soft.scss      # 柔和主题 - 仅差异化样式
+├── _theme-pixel.scss     # 像素主题 - 仅差异化样式
+├── _theme-minimal.scss   # 极简主题 - 仅差异化样式
 └── themes.scss           # 主题入口文件，统一导入所有文件
 ```
 
@@ -89,6 +91,18 @@ src/assets/styles/
 - 定义马卡龙色系变量
 - 柔和渐变和阴影
 - 弹性动画效果
+
+### `_theme-pixel.scss`
+像素主题 - 仅差异化部分：
+- 定义8-bit像素风格变量
+- 像素化边框和阴影
+- 使用像素字体（如果已引入）
+
+### `_theme-minimal.scss`
+极简主题 - 仅差异化部分：
+- 定义黑白灰变量
+- 移除大部分装饰性样式
+- 强调线条和对比度
 
 ### `themes.scss`
 主入口文件：
@@ -220,6 +234,8 @@ body.theme-dark {
 - `theme-paper` - 手绘主题
 - `theme-dark` - 暗黑主题
 - `theme-soft` - 柔和主题
+- `theme-pixel` - 像素主题
+- `theme-minimal` - 极简主题
 
 由 `themeStore.js` 动态管理 body class。
 
