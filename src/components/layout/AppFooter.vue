@@ -32,7 +32,7 @@
       </div>
       <div class="footer-meta">
         <span>Made with ❤️ for outdoor enthusiasts</span>
-        <span class="version-tag">v1.0.0</span>
+        <span class="version-tag">v1.1.0</span>
       </div>
     </div>
   </footer>
