@@ -556,7 +556,7 @@ defineExpose({
   flex-shrink: 0;
   position: sticky;
   // 增加顶部偏移量，确保在导航栏下方并留出间距
-  top: 120px;
+  top: 88px;
   align-self: flex-start;
   // 限制最大高度，防止目录过长
   max-height: calc(100vh - 180px);
