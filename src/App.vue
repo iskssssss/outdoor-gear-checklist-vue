@@ -222,7 +222,7 @@ function showOperationLog() {
   flex-grow: 1;
   // 确保内容区域至少占满整个屏幕
   min-height: 100vh;
-  padding-top: 32px;
+  padding: 32px 0;
 }
 
 .main-section {

@@ -189,11 +189,12 @@ defineExpose({ fetchContent })
 .markdown-container {
   max-width: 1320px;
   margin: 0 auto;
-  padding: 20px;
   background: var(--bg-card);
   border-radius: var(--border-radius);
   box-shadow: var(--shadow-md);
   // 新增内边距以创建与页脚的间距
-  padding-bottom: 40px;
+  padding: 20px 20px 40px;
+
+  border: var(--pixel-size) solid #202020;
 }
 </style>

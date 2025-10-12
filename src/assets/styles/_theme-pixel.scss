@@ -25,7 +25,7 @@ body.theme-pixel {
   --info-light: #e0e0ff;
 
   // 暗色渐变背景
-  --bg-gradient: linear-gradient(135deg, #404040 0%, #202020 100%);
+  --bg-gradient: linear-gradient(135deg, #757575 0%, #2f2f2f 100%);
   // 经典浅灰色背景
   --bg-main: #c0c0c0;
   // 银色/灰色，模拟老式屏幕
@@ -131,9 +131,6 @@ body.theme-pixel {
     --bg-hover: #606060;
     --border-color: #606060;
 
-    // 深灰色背景
-    background: #404040 !important;
-
     .doc-header,
     .markdown-header,
     .changelog-header {
@@ -160,27 +157,8 @@ body.theme-pixel {
       border: var(--pixel-size) solid #005f5f;
     }
 
-    .doc-main,
-    .markdown-main,
-    .changelog-main {
-      background: #404040;
-    }
-
-    .doc-container,
-    .markdown-container,
-    .changelog-container {
-      background: transparent;
-    }
-
-    .doc-content-wrapper,
-    .markdown-content-wrapper {
-      background: transparent;
-    }
-
     .doc-toc,
     .markdown-toc {
-      // 深灰色目录背景
-      background: #505050 !important;
       border: var(--pixel-size) solid #202020 !important;
 
       .toc-header h3 {
