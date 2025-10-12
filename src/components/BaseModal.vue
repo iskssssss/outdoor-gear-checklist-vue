@@ -1,45 +1,26 @@
 <template>
   <Teleport to="body">
-    <Transition name="modal-fade">
-      <div 
-        v-if="isVisible" 
-        class="base-modal-overlay" 
-        @click="handleOverlayClick"
-      >
+    <Transition name="modal-fade" @after-leave="onAfterLeave">
+      <div v-if="isVisible" class="base-modal-overlay" @click="handleOverlayClick">
         <Transition name="modal-slide">
-          <div 
-            v-if="isVisible"
-            class="base-modal-content" 
-            :style="contentStyle"
-            @click.stop
-          >
+          <div v-if="isVisible" class="base-modal-content" :style="contentStyle" @click.stop>
             <!-- 头部区域 -->
             <div class="base-modal-header">
               <slot name="header">
                 <component :is="titleTag" class="base-modal-title">{{ title }}</component>
-                <button 
-                  class="base-modal-close" 
-                  @click="close"
-                  :aria-label="closeButtonAriaLabel"
-                >
+                <button class="base-modal-close" @click="attemptClose" :aria-label="closeButtonAriaLabel">
                   {{ closeButtonText }}
                 </button>
               </slot>
             </div>
 
             <!-- 主体区域 -->
-            <div 
-              class="base-modal-body"
-              :class="[bodyClass, { 'no-inner-scroll': disableBodyScroll }]"
-            >
+            <div class="base-modal-body" :class="[bodyClass, { 'no-inner-scroll': disableBodyScroll }]">
               <slot></slot>
             </div>
 
             <!-- 底部区域 -->
-            <div 
-              v-if="$slots.footer || showFooter" 
-              class="base-modal-footer"
-            >
+            <div v-if="$slots.footer || showFooter" class="base-modal-footer">
               <slot name="footer"></slot>
             </div>
           </div>
@@ -108,10 +89,15 @@ const props = defineProps({
   modelValue: {
     type: Boolean,
     default: false
+  },
+  // 关闭前的钩子函数
+  beforeClose: {
+    type: Function,
+    default: null
   }
 })
 
-const emit = defineEmits(['close', 'update:modelValue'])
+const emit = defineEmits(['close', 'update:modelValue', 'after-close'])
 
 // 内部状态
 const isVisible = ref(props.modelValue)
@@ -140,15 +126,33 @@ watch(() => props.modelValue, (newValue) => {
 function show() {
   isVisible.value = true
   modalCount++
-  
+
   // 只在第一个模态框打开时锁定滚动
   if (modalCount === 1) {
     scrollPosition = window.scrollY
     document.body.style.top = `-${scrollPosition}px`
     document.body.classList.add('no-scroll')
   }
-  
+
   emit('update:modelValue', true)
+}
+
+/**
+ * 尝试关闭模态框，会触发表单类的拟态框都必须点击关闭按钮才能关闭
+ */
+async function attemptClose() {
+  if (props.beforeClose) {
+    try {
+      const canClose = await props.beforeClose()
+      if (!canClose) {
+        return // 如果 beforeClose 返回 false，则阻止关闭
+      }
+    } catch (e) {
+      console.error("`beforeClose` hook failed:", e)
+      return // a hook error should prevent closing
+    }
+  }
+  close()
 }
 
 /**
@@ -157,14 +161,14 @@ function show() {
 function close() {
   isVisible.value = false
   modalCount = Math.max(0, modalCount - 1)
-  
+
   // 只在所有模态框关闭后解锁滚动
   if (modalCount === 0) {
     document.body.classList.remove('no-scroll')
     document.body.style.top = ''
     window.scrollTo(0, scrollPosition)
   }
-  
+
   emit('close')
   emit('update:modelValue', false)
 }
@@ -174,8 +178,15 @@ function close() {
  */
 function handleOverlayClick() {
   if (props.closeOnOverlayClick) {
-    close()
+    attemptClose()
   }
+}
+
+/**
+ * 在模态框关闭动画结束后触发
+ */
+function onAfterLeave() {
+  emit('after-close');
 }
 
 // 暴露方法
@@ -256,9 +267,12 @@ defineExpose({
   overflow-y: auto;
   flex: 1;
   min-height: 0;
-  display: flex; /* 新增：使用Flexbox布局 */
-  flex-direction: column; /* 新增：垂直堆叠子元素 */
-  gap: 20px; /* 新增：子元素之间的间距 */
+  display: flex;
+  /* 新增：使用Flexbox布局 */
+  flex-direction: column;
+  /* 新增：垂直堆叠子元素 */
+  gap: 20px;
+  /* 新增：子元素之间的间距 */
 }
 
 .base-modal-body.no-inner-scroll {
@@ -340,4 +354,3 @@ defineExpose({
   }
 }
 </style>
-

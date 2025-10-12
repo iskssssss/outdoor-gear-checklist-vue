@@ -12,6 +12,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
   // 状态
   const categories = ref([])
   const groupByStatus = ref(true) // 是否按准备状态分栏显示
+  const hasLoaded = ref(false) // 新增：数据是否已加载完成
 
   // Getters - 统计信息
   const totalCategories = computed(() => categories.value.length)
@@ -127,10 +128,13 @@ export const useEquipmentStore = defineStore('equipment', () => {
       } catch (e) {
         console.error('❌ 数据加载失败:', e)
         categories.value = []
+      } finally {
+        hasLoaded.value = true // 数据加载完成，设置hasLoaded为true
       }
     } else {
       console.log('📦 首次使用，初始化预设分类')
       initializeDefaultCategories()
+      hasLoaded.value = true // 首次初始化完成，设置hasLoaded为true
     }
   }
 
@@ -763,6 +767,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
     // 状态
     categories,
     groupByStatus,
+    hasLoaded, // 暴露 hasLoaded 状态
     // Getters
     totalCategories,
     totalItems,

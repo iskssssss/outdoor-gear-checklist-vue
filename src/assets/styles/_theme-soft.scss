@@ -253,4 +253,59 @@ body.theme-soft {
   .theme-option.active {
     box-shadow: 0 4px 12px rgba(255, 158, 205, 0.3);
   }
+  
+  /* 智能推荐按钮柔和风格 */
+  .btn-recommendation {
+    background: var(--primary-color) !important;
+    color: var(--text-white) !important;
+    border: 2px solid var(--border-color) !important;
+    box-shadow: 0 6px 16px rgba(255, 158, 205, 0.25);
+    
+    &:hover:not(:disabled) {
+      background: var(--primary-dark) !important;
+      transform: translateY(-4px) scale(1.05);
+      box-shadow: 0 10px 30px rgba(255, 158, 205, 0.4);
+    }
+  }
+  
+  /* 撤销按钮柔和风格 */
+  .btn-undo {
+    background: var(--success-color) !important;
+    color: var(--text-white) !important;
+    border: 2px solid var(--border-color) !important;
+    box-shadow: 0 6px 16px rgba(144, 217, 197, 0.25);
+    
+    &:hover:not(:disabled) {
+      transform: translateY(-4px) scale(1.05);
+      box-shadow: 0 10px 30px rgba(144, 217, 197, 0.4);
+      filter: brightness(1.1);
+    }
+    
+    &:disabled {
+      background: var(--text-muted) !important;
+      border-color: var(--border-color) !important;
+      opacity: 0.6;
+    }
+  }
+  
+  /* 添加分类卡片柔和风格 */
+  .add-category-card {
+    border: 2px dashed var(--border-color) !important;
+    box-shadow: 0 6px 16px rgba(255, 158, 205, 0.1);
+    
+    &:hover {
+      border-color: var(--primary-color) !important;
+      box-shadow: 0 10px 30px rgba(255, 158, 205, 0.2);
+    }
+  }
+  
+  .add-category-input-card {
+    border: 2px solid var(--primary-color) !important;
+    box-shadow: 0 8px 24px rgba(255, 158, 205, 0.2);
+  }
+
+  .category-input:focus {
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 3px rgba(255, 158, 205, 0.2) !important;
+  }
 }

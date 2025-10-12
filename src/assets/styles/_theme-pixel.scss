@@ -443,4 +443,70 @@ body.theme-pixel {
     background: var(--btn-danger);
     color: var(--text-white);
   }
+  
+  /* 智能推荐按钮像素风格 */
+  .btn-recommendation {
+    background: var(--btn-primary) !important;
+    color: var(--text-white) !important;
+    border: var(--pixel-size) solid var(--pixel-border-color) !important;
+    box-shadow: var(--pixel-size) var(--pixel-size) var(--pixel-shadow-color);
+    border-radius: 0 !important;
+    
+    &:hover:not(:disabled) {
+      background: #00a0a0 !important;
+      transform: translate(calc(var(--pixel-size) * -1), calc(var(--pixel-size) * -1));
+      box-shadow: calc(var(--pixel-size) * 2) calc(var(--pixel-size) * 2) var(--pixel-shadow-color);
+    }
+  }
+  
+  /* 撤销按钮像素风格 */
+  .btn-undo {
+    background: var(--btn-success) !important;
+    color: var(--text-white) !important;
+    border: var(--pixel-size) solid var(--pixel-border-color) !important;
+    box-shadow: var(--pixel-size) var(--pixel-size) var(--pixel-shadow-color);
+    border-radius: 0 !important;
+    
+    &:hover:not(:disabled) {
+      background: #00c000 !important;
+      transform: translate(calc(var(--pixel-size) * -1), calc(var(--pixel-size) * -1));
+      box-shadow: calc(var(--pixel-size) * 2) calc(var(--pixel-size) * 2) var(--pixel-shadow-color);
+    }
+    
+    &:disabled {
+      background: var(--btn-secondary) !important;
+      border-color: var(--border-color) !important;
+      box-shadow: none;
+      filter: grayscale(0.5);
+    }
+  }
+  
+  /* 添加分类卡片像素风格 */
+  .add-category-card {
+    border: var(--pixel-size) dashed var(--primary-color) !important;
+    border-radius: 0 !important;
+    box-shadow: var(--pixel-size) var(--pixel-size) var(--pixel-shadow-color);
+    
+    &:hover {
+      border-color: #00a0a0 !important;
+      background: var(--bg-card) !important;
+      box-shadow: calc(var(--pixel-size) * 2) calc(var(--pixel-size) * 2) var(--pixel-shadow-color);
+    }
+  }
+  
+  .add-category-input-card {
+    border: var(--pixel-size) solid var(--primary-color) !important;
+    border-radius: 0 !important;
+    box-shadow: var(--pixel-size) var(--pixel-size) var(--pixel-shadow-color);
+  }
+
+  .category-input {
+    border: var(--pixel-size) solid var(--border-color) !important;
+    border-radius: 0 !important;
+    
+    &:focus {
+      border-color: var(--primary-color) !important;
+      box-shadow: var(--pixel-size) var(--pixel-size) var(--primary-color) !important; // 像素风格的焦点阴影
+    }
+  }
 }

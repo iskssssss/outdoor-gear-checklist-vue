@@ -5,6 +5,7 @@
     title-tag="h2"
     width="500px"
     max-height="80vh"
+    :close-on-overlay-click="false"
     :show-footer="true"
     @close="handleClose"
   >

@@ -304,4 +304,74 @@ body.theme-paper {
       background: var(--secondary-color);
     }
   }
+  
+  /* 智能推荐按钮手绘风格 */
+  .btn-recommendation {
+    @include irregular-border(3);
+    @include paper-shadow;
+    background: var(--success-light) !important;
+    color: var(--success-text) !important;
+    border-color: var(--success-color) !important;
+    
+    &:hover:not(:disabled) {
+      background: var(--success-color) !important;
+      color: var(--text-white) !important;
+      transform: translateY(-2px);
+      box-shadow: 6px 6px 0 rgba(134, 163, 97, 0.3);
+    }
+  }
+  
+  /* 撤销按钮手绘风格 */
+  .btn-undo {
+    @include irregular-border(4);
+    @include paper-shadow;
+    background: var(--info-light) !important;
+    color: #0c5460 !important;
+    border-color: var(--info-color) !important;
+    
+    &:hover:not(:disabled) {
+      background: var(--info-color) !important;
+      color: var(--text-white) !important;
+      transform: translateY(-2px);
+      box-shadow: 6px 6px 0 rgba(23, 162, 184, 0.3);
+    }
+    
+    &:disabled {
+      background: #e6e7e9 !important;
+      color: #313538 !important;
+      border-color: #868e96 !important;
+      opacity: 0.6;
+    }
+  }
+  
+  /* 添加分类卡片手绘风格 */
+  .add-category-card {
+    @include irregular-border(5);
+    @include paper-shadow;
+    background: var(--bg-card) !important;
+    border: var(--border-width) dashed var(--border-color) !important;
+    
+    &:hover {
+      background: var(--bg-hover) !important;
+      border-color: var(--primary-color) !important;
+    }
+  }
+  
+  .add-category-input-card {
+    @include irregular-border(6);
+    @include paper-shadow;
+    background: var(--bg-card) !important;
+    border: var(--border-width) solid var(--primary-color) !important;
+  }
+
+  .category-input {
+    @include irregular-border(2);
+    border: var(--border-width) solid var(--border-color) !important;
+    background: var(--bg-input) !important;
+
+    &:focus {
+      border-color: var(--primary-color) !important;
+      box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1) !important; // 使用一个更通用的柔和阴影
+    }
+  }
 }

@@ -1,20 +1,10 @@
 <template>
-  <BaseModal
-    ref="modalRef"
-    title-tag="h2"
-    width="800px"
-    max-height="80vh"
-    @close="handleClose"
-  >
+  <BaseModal ref="modalRef" title-tag="h2" width="800px" max-height="80vh" @close="handleClose">
     <template #header>
       <h2 class="changelog-title">📝 更新日志</h2>
       <div class="header-actions">
-        <button 
-          class="refresh-btn" 
-          @click="fetchCommitsFromGitHub(false)"
-          :disabled="loading || cooldownTime > 0"
-          :title="cooldownTooltip"
-        >
+        <button class="refresh-btn" @click="fetchCommitsFromGitHub(false)" :disabled="loading || cooldownTime > 0"
+          :title="cooldownTooltip">
           <span :class="{ 'spinning': loading }">
             {{ formattedCooldownTime }}
           </span>
@@ -24,40 +14,36 @@
     </template>
 
     <template #default>
-        <!-- 加载状态 -->
-        <div v-if="loading" class="loading-state">
-          <div class="loading-spinner"></div>
-          <p>正在从GitHub加载更新记录...</p>
-        </div>
-        
-        <!-- 错误提示 -->
-        <div v-else-if="error" class="error-state">
-          <p>⚠️ 无法从GitHub获取最新记录</p>
-          <p class="error-message">{{ error }}</p>
-          <p class="fallback-hint">使用本地缓存数据</p>
-        </div>
-        
-        <!-- 提交记录列表 -->
-        <div v-else class="changelog-list">
-          <div v-for="(group, date) in groupedCommits" :key="date" class="date-group">
-            <div class="date-header">{{ date }}</div>
-            <div 
-              v-for="(commit, index) in group" 
-              :key="commit.hash"
-              class="changelog-item"
-              :class="getCommitTypeClass(commit.message)"
-            >
-              <div class="commit-header">
-                <span class="commit-number">{{ commit.number }}</span>
-                <span class="commit-type-badge">{{ getCommitTypeLabel(commit.message) }}</span>
-              </div>
-              <div class="commit-message">{{ getCommitMessage(commit.message) }}</div>
-              <div v-if="commit.body" class="commit-body">
-                <div class="markdown-content" v-html="renderMarkdown(commit.body)"></div>
-              </div>
+      <!-- 加载状态 -->
+      <div v-if="loading" class="loading-state">
+        <div class="loading-spinner"></div>
+        <p>正在从GitHub加载更新记录...</p>
+      </div>
+
+      <!-- 错误提示 -->
+      <div v-else-if="error" class="error-state">
+        <p>⚠️ 无法从GitHub获取最新记录</p>
+        <p class="error-message">{{ error }}</p>
+        <p class="fallback-hint">使用本地缓存数据</p>
+      </div>
+
+      <!-- 提交记录列表 -->
+      <div v-else class="changelog-list">
+        <div v-for="(group, date) in groupedCommits" :key="date" class="date-group">
+          <div class="date-header">{{ date }}</div>
+          <div v-for="(commit, index) in group" :key="commit.hash" class="changelog-item"
+            :class="getCommitTypeClass(commit.message)">
+            <div class="commit-header">
+              <span class="commit-number">{{ commit.number }}</span>
+              <span class="commit-type-badge">{{ getCommitTypeLabel(commit.message) }}</span>
+            </div>
+            <div class="commit-message">{{ getCommitMessage(commit.message) }}</div>
+            <div v-if="commit.body" class="commit-body">
+              <div class="markdown-content" v-html="renderMarkdown(commit.body)"></div>
             </div>
           </div>
         </div>
+      </div>
     </template>
   </BaseModal>
 </template>
@@ -89,10 +75,10 @@ const commits = ref([])
  */
 const formattedCooldownTime = computed(() => {
   if (cooldownTime.value <= 0) return '🔄'
-  
+
   const minutes = Math.floor(cooldownTime.value / 60)
   const seconds = cooldownTime.value % 60
-  
+
   if (minutes > 0) {
     return `${minutes}:${seconds.toString().padStart(2, '0')}`
   }
@@ -105,10 +91,10 @@ const formattedCooldownTime = computed(() => {
 const cooldownTooltip = computed(() => {
   if (loading.value) return '加载中...'
   if (cooldownTime.value <= 0) return '刷新更新记录'
-  
+
   const minutes = Math.floor(cooldownTime.value / 60)
   const seconds = cooldownTime.value % 60
-  
+
   if (minutes > 0) {
     return `请等待 ${minutes} 分 ${seconds} 秒后再刷新`
   }
@@ -127,7 +113,7 @@ const groupedCommits = computed(() => {
     }
     groups[commit.date].push(commit)
   })
-  
+
   // 为每个日期组内的提交添加序号（每天降序，最新的序号最大）
   Object.keys(groups).forEach(date => {
     const groupCommits = groups[date]
@@ -135,7 +121,7 @@ const groupedCommits = computed(() => {
       commit.number = groupCommits.length - index // 降序编号
     })
   })
-  
+
   return groups
 })
 
@@ -178,7 +164,7 @@ function restoreCooldownState() {
   if (lastRefreshTime) {
     const elapsed = Math.floor((Date.now() - parseInt(lastRefreshTime)) / 1000)
     const remaining = COOLDOWN_DURATION - elapsed
-    
+
     if (remaining > 0) {
       console.log(`⏱️ 恢复冷却状态，剩余 ${remaining} 秒`)
       cooldownTime.value = remaining
@@ -200,7 +186,7 @@ function startCooldownTimer() {
   if (cooldownTimer) {
     clearInterval(cooldownTimer)
   }
-  
+
   // 开始倒计时
   cooldownTimer = setInterval(() => {
     cooldownTime.value--
@@ -218,10 +204,10 @@ function startCooldownTimer() {
  */
 function startCooldown() {
   cooldownTime.value = COOLDOWN_DURATION
-  
+
   // 保存当前时间到localStorage
   localStorage.setItem(COOLDOWN_STORAGE_KEY, Date.now().toString())
-  
+
   // 开始倒计时
   startCooldownTimer()
 }
@@ -232,23 +218,23 @@ async function fetchCommitsFromGitHub(isInitialLoad = false) {
     console.warn(`⏱️ 刷新冷却中，请等待 ${cooldownTime.value} 秒`)
     return
   }
-  
+
   loading.value = true
   error.value = null
-  
+
   try {
     const response = await fetch(`${GITHUB_API}?per_page=50`, {
       headers: {
         'Accept': 'application/vnd.github.v3+json'
       }
     })
-    
+
     if (!response.ok) {
       throw new Error(`GitHub API error: ${response.status}`)
     }
-    
+
     const data = await response.json()
-    
+
     // 转换GitHub API数据格式为我们的格式
     const fetchedCommits = data.map(commit => {
       const message = commit.commit.message.split('\n')[0] // 第一行作为message
@@ -257,7 +243,7 @@ async function fetchCommitsFromGitHub(isInitialLoad = false) {
       const utcDate = new Date(commit.commit.author.date)
       const beijingDate = new Date(utcDate.getTime() + 8 * 60 * 60 * 1000)
       const date = beijingDate.toISOString().split('T')[0]
-      
+
       return {
         hash: commit.sha.substring(0, 7),
         date: date,
@@ -266,19 +252,19 @@ async function fetchCommitsFromGitHub(isInitialLoad = false) {
         author: commit.commit.author.name
       }
     })
-    
+
     commits.value = fetchedCommits
     console.log('✅ 成功从GitHub获取提交记录:', fetchedCommits.length, '条')
-    
+
     // 保存到缓存
     saveCachedCommits(fetchedCommits)
-    
+
     // 启动冷却倒计时（无论是否首次加载）
     startCooldown()
   } catch (err) {
     console.warn('⚠️ 从GitHub获取提交记录失败:', err.message)
     error.value = err.message
-    
+
     // 尝试从缓存加载数据
     const hasCached = loadCachedCommits()
     if (hasCached) {
@@ -311,7 +297,7 @@ function handleClose() {
 onMounted(() => {
   // 先恢复冷却状态
   const isInCooldown = restoreCooldownState()
-  
+
   if (isInCooldown) {
     // 在冷却期内，从缓存加载数据
     console.log('⏱️ 在冷却期内，从缓存加载数据')
@@ -399,15 +385,15 @@ function parseListsInMarkdown(html) {
   const lines = html.split('\n')
   const result = []
   let i = 0
-  
+
   while (i < lines.length) {
     const line = lines[i]
     const isListLine = /^\s*([-*+]|\d+\.)\s+/.test(line)
-    
+
     if (isListLine) {
       const listLines = []
       const isOrdered = /^\s*\d+\./.test(line)
-      
+
       while (i < lines.length && /^\s*([-*+]|\d+\.)\s+/.test(lines[i])) {
         const match = lines[i].match(/^\s*([-*+]|\d+\.)\s+(\[([ xX])\]\s*)?(.*)$/)
         if (match) {
@@ -420,14 +406,14 @@ function parseListsInMarkdown(html) {
         }
         i++
       }
-      
+
       result.push(isOrdered ? `<ol>${listLines.join('')}</ol>` : `<ul>${listLines.join('')}</ul>`)
     } else {
       result.push(line)
       i++
     }
   }
-  
+
   return result.join('\n')
 }
 
@@ -436,9 +422,9 @@ function parseListsInMarkdown(html) {
  */
 function renderMarkdown(text) {
   if (!text) return ''
-  
+
   let html = text.replace(/\r\n/g, '\n')
-  
+
   // 提取代码块
   const codeBlocks = []
   html = html.replace(/```(\w+)?\s*\n([\s\S]*?)```/g, (match, lang, code) => {
@@ -446,7 +432,7 @@ function renderMarkdown(text) {
     codeBlocks.push(`<pre><code class="language-${lang || 'plaintext'}">${escapeHtml(code)}</code></pre>`)
     return placeholder
   })
-  
+
   // 提取行内代码
   const inlineCodes = []
   html = html.replace(/`([^`\n]+)`/g, (match, code) => {
@@ -454,38 +440,38 @@ function renderMarkdown(text) {
     inlineCodes.push(`<code>${escapeHtml(code)}</code>`)
     return placeholder
   })
-  
+
   // 转义HTML
   html = escapeHtml(html)
-  
+
   // 图片和链接
   html = html.replace(/!\[([^\]]*)\]\(([^)\s]+)(?:\s+"([^"]*)")?\)/g, '<img src="$2" alt="$1" title="$3" />')
   html = html.replace(/\[([^\]]+)\]\(([^)\s]+)(?:\s+"([^"]*)")?\)/g, '<a href="$2" title="$3" target="_blank" rel="noopener noreferrer">$1</a>')
-  
+
   // 标题
   for (let i = 6; i >= 1; i--) {
     const regex = new RegExp(`^#{${i}}\\s+(.+)$`, 'gim')
     html = html.replace(regex, `<h${i}>$1</h${i}>`)
   }
-  
+
   // 水平线
   html = html.replace(/^(?:---|\\*\\*\\*|___)$/gim, '<hr>')
-  
+
   // 引用块
   html = html.replace(/(^&gt;[\s\S]+?(?=\n{2,}|$))/gm, (match) => {
     const lines = match.split('\n').map(line => line.replace(/^&gt;\s?/, '')).join('<br>')
     return `<blockquote>${lines}</blockquote>`
   })
-  
+
   // 列表解析
   html = parseListsInMarkdown(html)
-  
+
   // 加粗、斜体、删除线
   html = html.replace(/\*\*\*([^\*\n]+?)\*\*\*/g, '<strong><em>$1</em></strong>')
   html = html.replace(/\*\*([^\*\n]+?)\*\*/g, '<strong>$1</strong>')
   html = html.replace(/\*([^\*\n]+?)\*/g, '<em>$1</em>')
   html = html.replace(/~~([^~\n]+?)~~/g, '<del>$1</del>')
-  
+
   // 段落处理
   const blockRegex = /^(<h\d>|<ul>|<ol>|<pre>|<hr>|<blockquote>|<table>|<img>|CODEBLOCK|INLINECODE)/i
   html = html.split(/\n{2,}/).map(block => {
@@ -494,7 +480,7 @@ function renderMarkdown(text) {
     if (blockRegex.test(trimmed)) return block
     return `<p>${block}</p>`
   }).filter(Boolean).join('\n\n')
-  
+
   // 段落内换行
   html = html.replace(/<p(?:\s+class="[^"]*")?>([\s\S]*?)<\/p>/g, (m, c) => {
     const cls = m.match(/class="([^"]*)"/)?.[1] || ''
@@ -502,7 +488,7 @@ function renderMarkdown(text) {
     return `<p${classAttr}>${c.replace(/\n/g, '<br>')}</p>`
   })
   html = html.replace(/<li>([\s\S]*?)<\/li>/g, (m, c) => `<li>${c.replace(/\n/g, '<br>')}</li>`)
-  
+
   // 恢复代码块和行内代码
   codeBlocks.forEach((code, idx) => {
     html = html.replace(new RegExp(`CODEBLOCK${idx}PLACEHOLDER`, 'g'), code)
@@ -510,7 +496,7 @@ function renderMarkdown(text) {
   inlineCodes.forEach((code, idx) => {
     html = html.replace(new RegExp(`INLINECODE${idx}PLACEHOLDER`, 'g'), code)
   })
-  
+
   return html
 }
 
@@ -535,30 +521,30 @@ defineExpose({
 }
 
 .refresh-btn {
-    background: none;
-    border: none;
-    font-size: 20px;
-    cursor: pointer;
-    color: var(--text-secondary);
-    padding: 4px 8px;
-    border-radius: 6px;
-    transition: all 0.2s ease;
-    
-    &:hover:not(:disabled) {
-      background: var(--bg-hover);
-      color: var(--primary-color);
-    }
-    
-    &:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-    
-    .spinning {
-      display: inline-block;
-      animation: spin 1s linear infinite;
-    }
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background: var(--bg-hover);
+    color: var(--primary-color);
   }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .spinning {
+    display: inline-block;
+    animation: spin 1s linear infinite;
+  }
+}
 
 .close-btn {
   background: none;
@@ -584,7 +570,7 @@ defineExpose({
 
 .date-group {
   margin-bottom: 32px;
-  
+
   &:last-child {
     margin-bottom: 0;
   }
@@ -610,14 +596,14 @@ defineExpose({
   padding: 16px 20px;
   border-left: 4px solid var(--primary-color);
   transition: all 0.3s ease;
-  
+
   &:last-child {
     margin-bottom: 0;
   }
 
   &:hover {
     transform: translateX(4px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   }
 
   &.type-feat {
@@ -675,27 +661,28 @@ defineExpose({
   padding: 12px;
   background: var(--bg-card);
   border-radius: 8px;
-  
+
   .markdown-content {
     color: var(--text-primary);
     line-height: 1.6;
     font-size: 0.9rem;
-    
+
     :deep(p) {
       margin: 0.5em 0;
       line-height: 1.6;
     }
-    
-    :deep(ul), :deep(ol) {
+
+    :deep(ul),
+    :deep(ol) {
       margin: 0.5em 0;
       padding-left: 1.5em;
-      
+
       li {
         margin: 0.2em 0;
         line-height: 1.5;
       }
     }
-    
+
     :deep(code) {
       background: var(--bg-input);
       padding: 2px 6px;
@@ -705,7 +692,7 @@ defineExpose({
       color: var(--danger-color);
       border: 1px solid var(--border-color);
     }
-    
+
     :deep(pre) {
       background: var(--bg-input);
       padding: 12px;
@@ -713,7 +700,7 @@ defineExpose({
       overflow-x: auto;
       margin: 0.8em 0;
       border: 1px solid var(--border-color);
-      
+
       code {
         background: none;
         padding: 0;
@@ -722,27 +709,27 @@ defineExpose({
         border: none;
       }
     }
-    
+
     :deep(strong) {
       font-weight: 700;
       color: var(--text-primary);
     }
-    
+
     :deep(em) {
       font-style: italic;
       color: var(--text-secondary);
     }
-    
+
     :deep(a) {
       color: var(--primary-color);
       text-decoration: none;
       border-bottom: 1px dashed var(--primary-color);
-      
+
       &:hover {
         border-bottom-style: solid;
       }
     }
-    
+
     :deep(blockquote) {
       border-left: 3px solid var(--primary-color);
       background: var(--bg-input);
@@ -752,36 +739,36 @@ defineExpose({
       font-style: italic;
       border-radius: 0 4px 4px 0;
     }
-    
+
     :deep(hr) {
       border: none;
       height: 1px;
       background: var(--border-color);
       margin: 1em 0;
     }
-    
+
     :deep(li.task-item) {
       list-style: none;
-      
+
       input[type="checkbox"] {
         margin-right: 0.5em;
         cursor: not-allowed;
       }
     }
   }
-  
+
   ul {
     margin: 0;
     padding-left: 20px;
     list-style-type: none;
-    
+
     li {
       position: relative;
       font-size: 14px;
       color: var(--text-secondary);
       line-height: 1.8;
       padding-left: 8px;
-      
+
       &::before {
         content: '•';
         position: absolute;
@@ -816,7 +803,7 @@ defineExpose({
   justify-content: center;
   padding: 60px 20px;
   color: var(--text-secondary);
-  
+
   p {
     margin-top: 16px;
     font-size: 14px;
@@ -843,11 +830,11 @@ defineExpose({
   text-align: center;
   padding: 40px 20px;
   color: var(--text-secondary);
-  
+
   p {
     margin: 8px 0;
   }
-  
+
   .error-message {
     font-size: 12px;
     color: #f5222d;
@@ -857,7 +844,7 @@ defineExpose({
     border-radius: 6px;
     display: inline-block;
   }
-  
+
   .fallback-hint {
     margin-top: 16px;
     font-size: 13px;
@@ -885,4 +872,3 @@ defineExpose({
   }
 }
 </style>
-

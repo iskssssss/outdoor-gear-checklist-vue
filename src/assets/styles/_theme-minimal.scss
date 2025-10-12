@@ -425,5 +425,64 @@ body.theme-minimal {
       text-decoration: underline;
     }
   }
+  
+  /* 智能推荐按钮极简风格 */
+  .btn-recommendation {
+    background: transparent !important;
+    color: #000000 !important;
+    border: 1px solid #000000 !important;
+    box-shadow: none;
+    
+    &:hover:not(:disabled) {
+      background: #000000 !important;
+      color: #ffffff !important;
+      border-color: #000000 !important;
+      box-shadow: none;
+    }
+  }
+  
+  /* 撤销按钮极简风格 */
+  .btn-undo {
+    background: transparent !important;
+    color: #000000 !important;
+    border: 1px solid #000000 !important;
+    box-shadow: none;
+    
+    &:hover:not(:disabled) {
+      background: #000000 !important;
+      color: #ffffff !important;
+      border-color: #000000 !important;
+      box-shadow: none;
+    }
+    
+    &:disabled {
+      background: transparent !important;
+      color: #cccccc !important;
+      border-color: #cccccc !important;
+    }
+  }
+  
+  /* 添加分类卡片极简风格 */
+  .add-category-card {
+    border: 1px dashed var(--border-color) !important;
+    box-shadow: none !important;
+    
+    &:hover {
+      border-color: var(--primary-color) !important;
+      border-style: solid !important;
+      background: var(--bg-hover) !important;
+      box-shadow: none !important;
+    }
+  }
+  
+  .add-category-input-card {
+    border: 1px solid var(--primary-color) !important;
+    box-shadow: none !important;
+  }
+
+  .category-input:focus {
+    border-color: var(--primary-color) !important;
+    box-shadow: none !important;
+  }
 }
 

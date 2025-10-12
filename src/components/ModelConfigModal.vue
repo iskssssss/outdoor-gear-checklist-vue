@@ -1,9 +1,10 @@
 <template>
   <BaseModal
     ref="modalRef"
-    title="⚙️ 大模型配置"
+    title="⚙️ 模型配置"
     width="800px"
     max-height="90vh"
+    :close-on-overlay-click="false"
     @close="handleClose"
   >
         <div class="config-tabs">

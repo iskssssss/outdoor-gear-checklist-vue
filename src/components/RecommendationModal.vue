@@ -4,6 +4,7 @@
     title="🤖 智能装备推荐"
     width="800px"
     max-height="90vh"
+    :close-on-overlay-click="false"
     @close="handleClose"
   >
         <div class="recommendation-settings">
