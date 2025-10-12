@@ -139,25 +139,6 @@ defineExpose({
   overflow-y: auto;
 }
 
-/* 美化滚动条 */
-.modal-body::-webkit-scrollbar {
-  width: 8px;
-}
-
-.modal-body::-webkit-scrollbar-track {
-  background: var(--bg-input, #f5f5f5);
-  border-radius: 4px;
-}
-
-.modal-body::-webkit-scrollbar-thumb {
-  background: var(--border-color, #ddd);
-  border-radius: 4px;
-}
-
-.modal-body::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted, #999);
-}
-
 .confirm-message {
   font-size: 1rem;
   color: var(--text-primary);

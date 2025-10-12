@@ -1,11 +1,9 @@
 <template>
-  <MarkdownPage
-    title="📚 使用指南"
+  <MarkdownPage 
+    title="使用指南"
     :source-url="sourceUrl"
     cache-key-prefix="outdoor-gear-doc"
-    :show-refresh-button="true"
-    :cooldown-duration="30"
-    @close="$emit('close')"
+    @close="$router.push('/')"
   />
 </template>
 

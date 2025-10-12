@@ -279,25 +279,6 @@ defineExpose({
   overflow: hidden;
 }
 
-/* 美化滚动条 */
-.base-modal-body::-webkit-scrollbar {
-  width: 8px;
-}
-
-.base-modal-body::-webkit-scrollbar-track {
-  background: var(--bg-input, #f5f5f5);
-  border-radius: 4px;
-}
-
-.base-modal-body::-webkit-scrollbar-thumb {
-  background: var(--border-color, #ddd);
-  border-radius: 4px;
-}
-
-.base-modal-body::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted, #999);
-}
-
 /* 底部 */
 .base-modal-footer {
   display: flex;

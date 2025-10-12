@@ -1,12 +1,16 @@
 <template>
-  <!-- 使用指南页面 -->
-  <DocPage v-if="showDocPage" @close="closeDocPage" />
-  
-  <!-- 更新日志页面 -->
-  <ChangelogPage v-else-if="showChangelogPage" @close="closeChangelogPage" />
-  
-  <!-- 主页面 -->
-  <div v-else class="app-container" @click="handleClickOutside">
+  <div class="app-container" @click="handleClickOutside">
+    <AppHeader 
+      @show-model-config="showModelConfig"
+    />
+    <div class="router-view-wrapper">
+      <router-view
+        @show-recommendation="showRecommendation"
+        @show-operation-log="showOperationLog"
+      />
+    </div>
+    <AppFooter />
+
     <!-- 固定在右上角的主题切换器 -->
     <div class="theme-switcher-fixed" :class="{ expanded: themeSwitcherExpanded }">
       <button 
@@ -31,56 +35,37 @@
       </div>
     </div>
 
-    <AppHeader 
-      @show-model-config="showModelConfig"
-      @show-changelog="showChangelog"
-      @show-doc="openDocPage"
-    />
-    <div class="main-content">
-      <StatsPanel />
-      <CategoryList 
-        @show-recommendation="showRecommendation" 
-        @show-operation-log="showOperationLog"
-      />
-    </div>
+    <!-- 模态框组件 -->
+    <RecommendationModal ref="recommendationModalRef" />
+    <ModelConfigModal ref="modelConfigModalRef" />
+    <OperationLogModal ref="operationLogModalRef" />
+    
+    <!-- Toast 通知组件 -->
+    <ToastNotification ref="toastRef" />
 
-    <AppFooter 
-      @show-changelog="showChangelog"
-      @show-doc="openDocPage"
-    />
+    <!-- 自定义确认模态框 -->
+    <BaseConfirm ref="confirmModalRef" />
 
-    <!-- 主题选择按钮已移除 -->
+    <!-- 回到顶部按钮 -->
+    <BackToTopButton />
   </div>
-
-  <!-- 模态框组件 -->
-  <RecommendationModal ref="recommendationModalRef" />
-  <ModelConfigModal ref="modelConfigModalRef" />
-  <OperationLogModal ref="operationLogModalRef" />
-  
-  <!-- Toast 通知组件 -->
-  <ToastNotification ref="toastRef" />
-
-  <!-- 自定义确认模态框 -->
-  <BaseConfirm ref="confirmModalRef" />
 </template>
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted, provide } from 'vue'
 import AppHeader from './components/layout/AppHeader.vue'
-import CategoryList from './components/views/CategoryList.vue'
-import StatsPanel from './components/views/StatsPanel.vue'
 import AppFooter from './components/layout/AppFooter.vue'
 import RecommendationModal from './components/modals/RecommendationModal.vue'
 import ModelConfigModal from './components/modals/ModelConfigModal.vue'
 import OperationLogModal from './components/modals/OperationLogModal.vue'
-import DocPage from './components/views/DocPage.vue'
-import ChangelogPage from './components/views/ChangelogPage.vue'
 import ToastNotification from './components/common/ToastNotification.vue'
-import BaseConfirm from './components/common/BaseConfirm.vue' // 引入自定义确认框
+import BaseConfirm from './components/common/BaseConfirm.vue'
+import BackToTopButton from './components/common/BackToTopButton.vue'
 import { useEquipmentStore } from './stores/equipment'
 import { useModelConfigStore } from './stores/modelConfig'
 import { useThemeStore } from './stores/themeStore'
 import { toast as toastService } from './utils/toast'
+import { eventBus } from './utils/eventBus'; // 1. 导入 eventBus
 
 // 初始化stores
 const equipmentStore = useEquipmentStore()
@@ -106,10 +91,6 @@ provide('showConfirm', (options) => confirmModalRef.value?.show(options))
 const recommendationModalRef = ref(null)
 const modelConfigModalRef = ref(null)
 const operationLogModalRef = ref(null)
-
-// 页面状态
-const showDocPage = ref(false)
-const showChangelogPage = ref(false)
 
 // 主题切换器状态
 const themeSwitcherExpanded = ref(false)
@@ -174,6 +155,9 @@ onMounted(() => {
   // 添加键盘快捷键监听
   window.addEventListener('keydown', handleKeyboardShortcut)
   
+  // 2. 添加全局滚动监听
+  window.addEventListener('scroll', handleGlobalScroll, { passive: true });
+  
   console.log('🚀 户外装备清单系统已初始化 (Vue 3版本)')
   console.log('💡 提示: 按 Ctrl+Z (或 Cmd+Z) 可以撤销最近的操作')
 })
@@ -181,7 +165,16 @@ onMounted(() => {
 // 组件卸载时移除事件监听
 onUnmounted(() => {
   window.removeEventListener('keydown', handleKeyboardShortcut)
+  
+  // 3. 移除全局滚动监听
+  window.removeEventListener('scroll', handleGlobalScroll);
 })
+
+// 4. 定义全局滚动处理函数
+function handleGlobalScroll(event) {
+  // 通过事件总线广播滚动事件
+  eventBus.emit('scroll', event);
+}
 
 // 监听页面可见性变化,实现多标签页同步
 document.addEventListener('visibilitychange', () => {
@@ -203,22 +196,6 @@ function showModelConfig() {
 function showOperationLog() {
   operationLogModalRef.value?.show()
 }
-
-function showChangelog() {
-  showChangelogPage.value = true
-}
-
-function openDocPage() {
-  showDocPage.value = true
-}
-
-function closeDocPage() {
-  showDocPage.value = false
-}
-
-function closeChangelogPage() {
-  showChangelogPage.value = false
-}
 </script>
 
 <style lang="scss">
@@ -227,7 +204,27 @@ function closeChangelogPage() {
 /* 背景由主题系统控制，在 styles/themes.scss 中定义 */
 .app-container {
   min-height: 100vh;
-  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.router-view-wrapper {
+  flex-grow: 1;
+  min-height: 100vh; /* 确保内容区域至少占满整个屏幕 */
+  padding-top: 32px;
+}
+
+.main-section {
+  padding: 20px;
+}
+
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 20px;
+  padding-left: 10px;
+  border-left: 4px solid var(--primary-color);
 }
 
 .main-content {
@@ -242,11 +239,11 @@ function closeChangelogPage() {
 /* ===== 固定主题切换器 ===== */
 .theme-switcher-fixed {
   position: fixed;
-  top: 12px;
-  right: 18px;
+  bottom: 50px; /* 与回到顶部按钮对齐 */
+  right: 120px; /* 在回到顶部按钮左侧，留出足够间距 */
   z-index: 999;
   display: flex;
-  flex-direction: column;
+  flex-direction: column-reverse; /* 反向排列，按钮在下，选项在上 */
   align-items: flex-end;
   gap: 8px;
 }
@@ -329,11 +326,11 @@ function closeChangelogPage() {
 @keyframes slideInRight {
   from {
     opacity: 0;
-    transform: translateX(20px);
+    transform: translateY(20px); /* 从下往上滑入 */
   }
   to {
     opacity: 1;
-    transform: translateX(0);
+    transform: translateY(0);
   }
 }
 
@@ -342,8 +339,8 @@ function closeChangelogPage() {
 /* 移动端适配 */
 @media (max-width: 768px) {
   .theme-switcher-fixed {
-    top: 10px;
-    right: 10px;
+    bottom: 30px; /* 与移动端回到顶部按钮对齐 */
+    right: 85px; /* 在回到顶部按钮左侧，移动端间距较小 */
   }
   
   .theme-toggle-btn {

@@ -921,25 +921,6 @@ const debouncedToggleGroupByStatus = debounce(toggleGroupByStatus, 300)
   align-items: flex-start;
 }
 
-/* 美化预览框滚动条 */
-.preview-body::-webkit-scrollbar {
-  width: 10px;
-}
-
-.preview-body::-webkit-scrollbar-track {
-  background: var(--bg-input, #f5f5f5);
-  border-radius: 5px;
-}
-
-.preview-body::-webkit-scrollbar-thumb {
-  background: var(--border-color, #ddd);
-  border-radius: 5px;
-}
-
-.preview-body::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted, #999);
-}
-
 .preview-image {
   display: block;
   width: 100%;

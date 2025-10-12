@@ -1,23 +1,23 @@
 <template>
   <div class="markdown-viewer">
-    <!-- 加载状态 -->
-    <div v-if="loading" class="loading-state">
-      <div class="loading-spinner"></div>
-      <p>正在加载内容...</p>
-    </div>
-
-    <!-- 错误提示 -->
-    <div v-else-if="error" class="error-state">
-      <p>⚠️ 加载失败</p>
-      <p class="error-message">{{ error }}</p>
-      <p v-if="hasCachedContent" class="fallback-hint">使用本地缓存数据</p>
-    </div>
-
-    <!-- 内容区域 -->
-    <div v-else class="markdown-layout">
+    <div class="markdown-layout">
       <!-- 左侧：文档内容 -->
       <div class="markdown-content-wrapper" ref="contentRef">
-        <div class="markdown-content" @click="handleLinkClick">
+        <!-- 加载状态 -->
+        <div v-if="loading" class="loading-state">
+          <div class="loading-spinner"></div>
+          <p>正在加载内容...</p>
+        </div>
+
+        <!-- 错误提示 -->
+        <div v-else-if="error" class="error-state">
+          <p>⚠️ 加载失败</p>
+          <p class="error-message">{{ error }}</p>
+          <p v-if="hasCachedContent" class="fallback-hint">使用本地缓存数据</p>
+        </div>
+        
+        <!-- 内容 -->
+        <div v-else class="markdown-content" @click="handleLinkClick">
           <div class="markdown-body" v-html="renderedContent"></div>
         </div>
       </div>
@@ -26,6 +26,17 @@
       <aside v-if="showToc && tableOfContents.length > 0" class="markdown-toc">
         <div class="toc-header">
           <h3>📑 目录</h3>
+          <button 
+            v-if="showRefreshButton"
+            class="refresh-btn" 
+            @click="$emit('refresh')"
+            :disabled="loading || cooldownTime > 0"
+            :title="loading ? '加载中...' : cooldownTime > 0 ? `请等待 ${cooldownTime} 秒后再刷新` : '刷新内容'"
+          >
+            <span :class="{ 'spinning': loading }">
+              {{ cooldownTime > 0 ? cooldownTime : '🔄' }}
+            </span>
+          </button>
         </div>
         <nav class="toc-nav">
           <ul class="toc-list">
@@ -50,7 +61,8 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, nextTick, onUnmounted } from 'vue'
+import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
+import { eventBus } from '../../utils/eventBus'; // 1. 导入 eventBus
 
 const props = defineProps({
   content: {
@@ -73,12 +85,22 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
+  showRefreshButton: {
+    type: Boolean,
+    default: true
+  },
+  cooldownTime: {
+    type: Number,
+    default: 0
+  },
   // 外部滚动容器（可选，如果不提供则使用内部滚动）
   scrollContainer: {
     type: Object,
     default: null
   }
 })
+
+const emit = defineEmits(['refresh']);
 
 const contentRef = ref(null)
 const tableOfContents = ref([])
@@ -160,45 +182,49 @@ function setupHeadingIds() {
  * 获取滚动容器
  */
 function getScrollContainer() {
-  return props.scrollContainer || contentRef.value
+  return props.scrollContainer || window
 }
 
 /**
  * 点击目录滚动
  */
 function scrollToHeading(headingId) {
-  const wrapper = getScrollContainer()
-  if (!wrapper) return
-  
-  const target = wrapper.querySelector ? wrapper.querySelector(`#${CSS.escape(headingId)}`) : document.querySelector(`#${CSS.escape(headingId)}`)
-  
+  // ID 在文档中是唯一的，所以直接从 document 查找
+  const target = document.getElementById(headingId);
   if (!target) {
-    console.warn('scrollToHeading: 未找到目标标题', headingId)
-    return
+    console.warn('scrollToHeading: 未找到目标标题', headingId);
+    return;
   }
 
-  isProgrammaticScroll = true
+  isProgrammaticScroll = true;
   if (scrollUnlockTimer) {
-    clearTimeout(scrollUnlockTimer)
-    scrollUnlockTimer = null
+    clearTimeout(scrollUnlockTimer);
   }
 
-  const wrapperRect = wrapper.getBoundingClientRect()
-  const targetRect = target.getBoundingClientRect()
-  const targetOffset = targetRect.top - wrapperRect.top + wrapper.scrollTop
+  const container = getScrollContainer();
+  let top = 0;
 
-  wrapper.scrollTo({
-    top: Math.max(0, targetOffset - 80),
-    behavior: 'smooth'
-  })
+  if (container === window) {
+    // 对于 window 滚动，需要结合 getBoundingClientRect 和 window.scrollY 来计算绝对位置
+    top = target.getBoundingClientRect().top + window.scrollY - 80;
+  } else {
+    // 对于元素内滚动，计算相对于该元素的偏移
+    const containerRect = container.getBoundingClientRect();
+    const targetRect = target.getBoundingClientRect();
+    top = targetRect.top - containerRect.top + container.scrollTop - 80;
+  }
 
-  activeHeadingId.value = headingId
-  highlightHeading(target)
+  container.scrollTo({
+    top: Math.max(0, top),
+    behavior: 'smooth',
+  });
+
+  activeHeadingId.value = headingId;
+  highlightHeading(target);
 
   scrollUnlockTimer = setTimeout(() => {
-    isProgrammaticScroll = false
-    scrollUnlockTimer = null
-  }, 600)
+    isProgrammaticScroll = false;
+  }, 600);
 }
 
 /**
@@ -226,29 +252,27 @@ function highlightHeading(heading) {
  * 基于 scrollTop 计算当前高亮标题
  */
 function handleScrollThrottled() {
-  if (isProgrammaticScroll) return
-  
-  const wrapper = getScrollContainer()
-  if (!wrapper) return
+  if (isProgrammaticScroll || !contentRef.value) return;
 
-  const scrollTop = wrapper.scrollTop
-  const headings = wrapper.querySelectorAll ? [...wrapper.querySelectorAll('h1, h2, h3, h4, h5, h6')] : [...document.querySelectorAll('.markdown-body h1, .markdown-body h2, .markdown-body h3, .markdown-body h4, .markdown-body h5, .markdown-body h6')]
+  const headings = [...contentRef.value.querySelectorAll('h1, h2, h3, h4, h5, h6')];
+  if (headings.length === 0) return;
 
-  if (headings.length === 0) return
+  let currentActiveId = '';
+  const topOffset = 81; // 顶部偏移量
 
-  let currentId = headings[0]?.id
-
-  for (let i = 0; i < headings.length; i++) {
-    const h = headings[i]
-    if (h.offsetTop - 80 <= scrollTop) {
-      currentId = h.id
+  // 查找最后一个顶部在视口参考线之上的标题
+  // getBoundingClientRect().top 是元素顶部相对于视口顶部的距离
+  for (const heading of headings) {
+    if (heading.getBoundingClientRect().top <= topOffset) {
+      currentActiveId = heading.id;
     } else {
-      break
+      // 一旦有标题在参考线之下，后面的肯定都在下面，直接中断循环
+      break;
     }
   }
 
-  if (currentId && currentId !== activeHeadingId.value) {
-    activeHeadingId.value = currentId
+  if (activeHeadingId.value !== currentActiveId) {
+    activeHeadingId.value = currentActiveId;
   }
 }
 
@@ -258,10 +282,10 @@ function handleScrollThrottled() {
 function handleScroll() {
   if (!ticking) {
     window.requestAnimationFrame(() => {
-      handleScrollThrottled()
-      ticking = false
-    })
-    ticking = true
+      handleScrollThrottled();
+      ticking = false;
+    });
+    ticking = true;
   }
 }
 
@@ -303,6 +327,9 @@ const renderedContent = computed(() => {
 
   // 转义 HTML
   html = html.replace(/&(?!amp;)/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+
+  // 移除可能存在的 ## 目录 标题
+  html = html.replace(/^##\s+目录\s*$/gim, '');
 
   // 图片和链接
   html = html.replace(/!\[([^\]]*)\]\(([^)\s]+)(?:\s+"([^"]*)")?\)/g, '<img src="$2" alt="$1" title="$3" />')
@@ -481,12 +508,20 @@ watch(() => props.content, () => {
   extractTableOfContents()
   nextTick(() => {
     setupHeadingIds()
+    // 立即执行一次以设置初始状态
     handleScrollThrottled()
   })
 }, { immediate: true })
 
+// 2. 在组件挂载时订阅事件
+onMounted(() => {
+  eventBus.on('scroll', handleScroll);
+});
+
 // 组件卸载时清理
 onUnmounted(() => {
+  eventBus.off('scroll', handleScroll); // 3. 取消订阅
+  
   if (scrollUnlockTimer) {
     clearTimeout(scrollUnlockTimer)
     scrollUnlockTimer = null
@@ -530,36 +565,21 @@ defineExpose({
   width: 260px;
   flex-shrink: 0;
   position: sticky;
-  top: 20px;
+  top: 120px; /* 增加顶部偏移量，确保在导航栏下方并留出间距 */
   align-self: flex-start;
-  max-height: calc(100vh - 180px);
+  max-height: calc(100vh - 180px); /* 限制最大高度，防止目录过长 */
   overflow-y: auto;
   background: var(--bg-card);
   border: 2px solid var(--border-color);
   border-radius: var(--border-radius);
   padding: 16px;
   box-shadow: var(--shadow-sm);
-  
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-  
-  &::-webkit-scrollbar-track {
-    background: var(--bg-input, #f5f5f5);
-    border-radius: 3px;
-  }
-  
-  &::-webkit-scrollbar-thumb {
-    background: var(--border-color, #ddd);
-    border-radius: 3px;
-    
-    &:hover {
-      background: var(--text-muted, #999);
-    }
-  }
 }
 
 .toc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 12px;
   padding-bottom: 10px;
   border-bottom: 2px solid var(--border-color);
@@ -570,6 +590,38 @@ defineExpose({
     font-weight: 600;
     color: var(--text-primary);
   }
+}
+
+.refresh-btn {
+  padding: 6px 10px;
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  
+  &:hover:not(:disabled) {
+    background: var(--bg-hover);
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  .spinning {
+    display: inline-block;
+    animation: spin 1s linear infinite;
+  }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 .toc-nav {
@@ -651,6 +703,7 @@ defineExpose({
   justify-content: center;
   padding: 80px 20px;
   color: var(--text-secondary);
+  min-height: 300px; /* 保证加载状态有一定高度 */
   
   p {
     margin-top: 20px;

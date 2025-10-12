@@ -705,16 +705,5 @@ const debouncedShowAddItemInput = debounce(showAddItemInput, 300)
   border-color: var(--primary-color);
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
-
-@media (max-width: 768px) {
-  .category-header {
-    flex-wrap: wrap;
-  }
-  
-  .category-actions {
-    width: 100%;
-    justify-content: flex-end;
-  }
-}
 </style>
 

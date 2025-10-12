@@ -626,25 +626,6 @@ defineExpose({ show, close });
   background: var(--bg-card);
 }
 
-/* 美化滚动条 */
-.item-list::-webkit-scrollbar {
-  width: 8px;
-}
-
-.item-list::-webkit-scrollbar-track {
-  background: var(--bg-input, #f5f5f5);
-  border-radius: 4px;
-}
-
-.item-list::-webkit-scrollbar-thumb {
-  background: var(--border-color, #ddd);
-  border-radius: 4px;
-}
-
-.item-list::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted, #999);
-}
-
 .select-all-controls {
   display: flex;
   align-items: center;

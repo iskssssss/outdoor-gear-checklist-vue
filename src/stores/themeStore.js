@@ -87,17 +87,20 @@ export const useThemeStore = defineStore('theme', () => {
    * @param {string} themeId - 主题ID
    */
   function applyTheme(themeId) {
-    const body = document.body
+    const html = document.documentElement; // 获取 <html> 元素
+    const body = document.body;
     
     // 移除所有主题 class
     themes.value.forEach(theme => {
-      body.classList.remove(`theme-${theme.id}`)
+      html.classList.remove(`theme-${theme.id}`);
+      body.classList.remove(`theme-${theme.id}`);
     })
     
     // 添加新主题 class
-    body.classList.add(`theme-${themeId}`)
+    html.classList.add(`theme-${themeId}`);
+    body.classList.add(`theme-${themeId}`);
     
-    console.log(`🎨 已应用主题 class: theme-${themeId}`)
+    console.log(`🎨 已应用主题 class: theme-${themeId} 到 <html> 和 <body>`);
   }
 
   /**

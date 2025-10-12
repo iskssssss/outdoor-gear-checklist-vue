@@ -1,11 +1,9 @@
 <template>
-  <MarkdownPage
-    title="📝 更新日志"
+  <MarkdownPage 
+    title="更新日志"
     :source-url="sourceUrl"
     cache-key-prefix="outdoor-gear-changelog"
-    :show-refresh-button="true"
-    :cooldown-duration="30"
-    @close="$emit('close')"
+    @close="$router.push('/')"
   />
 </template>
 

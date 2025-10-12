@@ -3,7 +3,7 @@
     <div class="footer-content">
       <div class="footer-section">
         <div class="footer-logo">
-          <span class="logo-icon">🏕️</span>
+          <span class="logo-icon">🏔️</span>
           <span class="logo-text">户外装备清单</span>
         </div>
         <p class="footer-description">专业的户外装备管理工具，让每次出行都有备无患</p>
@@ -52,7 +52,7 @@ const currentYear = computed(() => new Date().getFullYear())
 .app-footer {
   background: var(--bg-card);
   border-top: var(--border-width, 1px) solid var(--border-color);
-  margin-top: 60px;
+  // margin-top: 60px;
   padding: 40px 20px 20px;
   box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
 }
@@ -74,7 +74,7 @@ const currentYear = computed(() => new Date().getFullYear())
 
 .footer-logo {
   display: flex;
-  align-items: center;
+  align-items: baseline; // 改为 baseline 对齐
   gap: 10px;
   margin-bottom: 8px;
 }
@@ -87,6 +87,8 @@ const currentYear = computed(() => new Date().getFullYear())
   font-size: 1.2rem;
   font-weight: 700;
   color: var(--text-primary);
+  position: relative;
+  top: 3px; // 向下微调 3px
 }
 
 .footer-description {

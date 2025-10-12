@@ -1,30 +1,30 @@
 <template>
   <div class="header">
     <div class="container">
-      <div 
-        class="header-title-group"
-      >
+      <div class="header-left">
         <h1 class="header-icon">🏔️</h1>
-        <h1 class="header-title-text">户外装备清单</h1>
       </div>
-      <p class="header-slogan">为您的户外探险做好充分准备</p> <!-- 恢复 Slogan 内容 -->
-      <div class="header-content-wrapper">
+      <div class="header-right">
         <!-- 导航栏风格的功能菜单 -->
         <nav class="nav-menu">
+          <!-- 装备管理 -->
+          <router-link to="/" class="nav-link">
+            🗂️ 装备管理
+          </router-link>
           <!-- 模型配置 -->
           <a class="nav-link" @click="showModelConfig">
             ⚙️ 模型配置
           </a>
           
           <!-- 使用指南 -->
-          <a class="nav-link" @click="showDoc">
+          <router-link to="/doc" class="nav-link">
             📚 使用指南
-          </a>
+          </router-link>
 
           <!-- 更新日志 -->
-          <a class="nav-link" @click="showChangelog">
+          <router-link to="/changelog" class="nav-link">
             📝 更新日志
-          </a>
+          </router-link>
           
           <!-- 联系我们（开发中） -->
           <a class="nav-link disabled">
@@ -40,31 +40,15 @@
 import { debounce } from '../../utils/debounce';
 
 // 事件定义
-const emit = defineEmits(['show-model-config', 'show-changelog', 'show-doc'])
+const emit = defineEmits(['show-model-config'])
 
 const debouncedShowModelConfig = debounce(() => emit('show-model-config'), 300);
-const debouncedShowDoc = debounce(() => emit('show-doc'), 300);
-const debouncedShowChangelog = debounce(() => emit('show-changelog'), 300);
 
 /**
  * 显示模型配置模态框
  */
 function showModelConfig() {
   debouncedShowModelConfig();
-}
-
-/**
- * 显示更新日志模态框
- */
-function showChangelog() {
-  debouncedShowChangelog();
-}
-
-/**
- * 显示使用文档模态框
- */
-function showDoc() {
-  debouncedShowDoc();
 }
 </script>
 
@@ -75,10 +59,10 @@ function showDoc() {
   top: 0;
   z-index: 100;
   background: var(--bg-header);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); // 恢复展开时的阴影
-  margin-bottom: 30px;
-  padding: 30px 0; // 恢复展开时的 padding
-  transition: none; // 移除所有过渡效果
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 5px;
+  padding: 4px 0;
+  transition: none;
 }
 
 // ==================== 容器布局 ====================
@@ -87,22 +71,21 @@ function showDoc() {
   margin: 0 auto;
   padding: 0 20px;
   display: flex;
-  flex-direction: column; // 恢复展开时的布局
-  justify-content: center; // 恢复展开时的布局
+  justify-content: space-between;
   align-items: center;
-  transition: none; // 移除所有过渡效果
-  overflow: visible; // 确保下拉菜单可见
 }
 
-.header-content-wrapper {
-  width: 100%; // 恢复展开时的宽度
+.header-left, .header-right {
   display: flex;
-  justify-content: center;
   align-items: center;
-  transition: none; // 移除所有过渡效果
-  overflow: visible; // 确保下拉菜单可见
-  // flex-shrink: 1;
-  // min-width: 0;
+}
+
+.header-left {
+  /* 样式可根据需要添加 */
+}
+
+.header-right {
+  /* 样式可根据需要添加 */
 }
 
 // ==================== 标题样式 ====================
@@ -113,45 +96,18 @@ h1 {
 }
 
 .header-icon {
-  font-size: 2.25rem; // 恢复展开时的字体大小
-  transition: none; // 移除所有过渡效果
-}
-
-.header-title-group {
-  display: flex;
-  justify-content: center; // 恢复展开时的布局
-  align-items: center;
-  transition: none; // 移除所有过渡效果
-  flex-shrink: 0;
-  gap: 8px;
-}
-
-.header-title-text {
-  font-size: 2.5rem; // 恢复展开时的字体大小
-  overflow: hidden;
-  white-space: nowrap;
-  max-width: 300px; // 恢复展开时的宽度
-  opacity: 1; // 恢复展开时的透明度
-  transform: translateX(0); // 恢复展开时的位置
-  margin-left: 8px; // 恢复展开时的 margin
-  transition: none; // 移除所有过渡效果
+  font-size: 1.75rem;
+  transition: none;
 }
 
 // ==================== 副标题（Slogan）样式 ====================
-p {
-  text-align: center;
-  color: var(--text-secondary);
-  font-size: 1.1rem;
-  margin: 0;
-}
-
 .header-slogan {
   overflow: hidden;
   width: 100%;
   text-align: center;
   max-height: 50px; // 恢复展开时的高度
   opacity: 1; // 恢复展开时的透明度
-  margin: 10px 0 15px 0; // 恢复展开时的 margin
+  margin: 4px 0 0 0; // 减小 margin
   transition: none; // 移除所有过渡效果
 }
 
@@ -160,8 +116,8 @@ p {
   display: flex;
   align-items: center;
   gap: 15px;
-  padding: 12px 0;
-  margin-top: 20px;
+  padding: 8px 0; // 减小 padding
+  margin-top: 10px; // 减小 margin
   flex-shrink: 1;
   min-width: 0;
   white-space: nowrap;
@@ -173,8 +129,8 @@ p {
 // 一级菜单链接
 .nav-link {
   position: relative;
-  padding: 8px 16px;
-  font-size: 0.9rem;
+  padding: 6px 12px; // 减小内边距
+  font-size: 0.85rem; // 减小字体大小
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -187,6 +143,12 @@ p {
   &:hover:not(.disabled) {
     border-bottom-color: var(--primary-color);
     color: var(--primary-color);
+  }
+  
+  &.router-link-active {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+    font-weight: 700;
   }
   
   &.disabled {
@@ -205,51 +167,11 @@ p {
   .container {
     flex-direction: column;
     align-items: center;
-  }
-
-  .header-title-group {
-    justify-content: center;
-  }
-
-  .header-icon {
-    font-size: 2.25rem; // 移动端图标大小与桌面端一致
-  }
-
-  .header-title-text {
-    font-size: 2rem; // 移动端标题字体大小
-    transform: translateX(0); 
-    opacity: 1;
-    max-width: none; 
+    gap: 5px;
   }
 
   .nav-menu {
-    gap: 10px;
-    padding: 12px 0;
-    margin-top: 20px;
     justify-content: center;
-  }
-
-  .nav-dropdown {
-    flex-shrink: 0;
-  }
-
-  .nav-link {
-    font-size: 0.85rem;
-    padding: 6px 12px;
-  }
-
-  .dropdown-menu {
-    left: 50%;
-    transform: translateX(-50%);
-    min-width: 160px;
-  }
-
-  .preview-image {
-    width: 100%;
-  }
-
-  .btn {
-    width: 100%;
   }
 }
 </style>
