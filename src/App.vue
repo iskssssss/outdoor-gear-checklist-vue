@@ -2,6 +2,9 @@
   <!-- 使用指南页面 -->
   <DocPage v-if="showDocPage" @close="closeDocPage" />
   
+  <!-- 更新日志页面 -->
+  <ChangelogPage v-else-if="showChangelogPage" @close="closeChangelogPage" />
+  
   <!-- 主页面 -->
   <div v-else class="app-container" @click="handleClickOutside">
     <!-- 固定在右上角的主题切换器 -->
@@ -53,7 +56,6 @@
   <RecommendationModal ref="recommendationModalRef" />
   <ModelConfigModal ref="modelConfigModalRef" />
   <OperationLogModal ref="operationLogModalRef" />
-  <ChangelogModal ref="changelogModalRef" />
   
   <!-- Toast 通知组件 -->
   <ToastNotification ref="toastRef" />
@@ -71,8 +73,8 @@ import AppFooter from './components/layout/AppFooter.vue'
 import RecommendationModal from './components/modals/RecommendationModal.vue'
 import ModelConfigModal from './components/modals/ModelConfigModal.vue'
 import OperationLogModal from './components/modals/OperationLogModal.vue'
-import ChangelogModal from './components/modals/ChangelogModal.vue'
 import DocPage from './components/views/DocPage.vue'
+import ChangelogPage from './components/views/ChangelogPage.vue'
 import ToastNotification from './components/common/ToastNotification.vue'
 import BaseConfirm from './components/common/BaseConfirm.vue' // 引入自定义确认框
 import { useEquipmentStore } from './stores/equipment'
@@ -104,10 +106,10 @@ provide('showConfirm', (options) => confirmModalRef.value?.show(options))
 const recommendationModalRef = ref(null)
 const modelConfigModalRef = ref(null)
 const operationLogModalRef = ref(null)
-const changelogModalRef = ref(null)
 
-// 使用指南页面状态
+// 页面状态
 const showDocPage = ref(false)
+const showChangelogPage = ref(false)
 
 // 主题切换器状态
 const themeSwitcherExpanded = ref(false)
@@ -203,7 +205,7 @@ function showOperationLog() {
 }
 
 function showChangelog() {
-  changelogModalRef.value?.show()
+  showChangelogPage.value = true
 }
 
 function openDocPage() {
@@ -212,6 +214,10 @@ function openDocPage() {
 
 function closeDocPage() {
   showDocPage.value = false
+}
+
+function closeChangelogPage() {
+  showChangelogPage.value = false
 }
 </script>
 

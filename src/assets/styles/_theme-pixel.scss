@@ -77,8 +77,10 @@ body.theme-pixel {
     background: var(--bg-gradient);
   }
   
-  /* 使用指南页面特殊处理 - 覆盖所有变量 */
-  .doc-page {
+  /* 使用指南页面和更新日志页面特殊处理 - 覆盖所有变量 */
+  .doc-page,
+  .markdown-page,
+  .changelog-page {
     // 覆盖CSS变量，确保浅色文字
     --text-primary: #f0f0f0;
     --text-secondary: #c0c0c0;
@@ -90,12 +92,16 @@ body.theme-pixel {
     
     background: #404040 !important; /* 深灰色背景 */
     
-    .doc-header {
+    .doc-header,
+    .markdown-header,
+    .changelog-header {
       background: #606060 !important; /* 中灰色头部 */
       border-bottom: var(--pixel-size) solid #202020;
     }
     
-    .doc-page-title {
+    .doc-page-title,
+    .markdown-page-title,
+    .changelog-page-title {
       color: #f0f0f0 !important;
     }
     
@@ -111,19 +117,25 @@ body.theme-pixel {
       border: var(--pixel-size) solid #005f5f;
     }
     
-    .doc-main {
+    .doc-main,
+    .markdown-main,
+    .changelog-main {
       background: #404040;
     }
     
-    .doc-container {
+    .doc-container,
+    .markdown-container,
+    .changelog-container {
       background: transparent;
     }
     
-    .doc-content-wrapper {
+    .doc-content-wrapper,
+    .markdown-content-wrapper {
       background: transparent;
     }
     
-    .doc-toc {
+    .doc-toc,
+    .markdown-toc {
       background: #505050 !important; /* 深灰色目录背景 */
       border: var(--pixel-size) solid #202020 !important;
       
