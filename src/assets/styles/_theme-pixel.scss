@@ -47,6 +47,7 @@ body.theme-pixel {
   --text-muted: #5a5a5a;
   // 纯白色文本
   --text-white: #ffffff;
+  --text-link-footer: #c0c0c0;
 
   --btn-primary-text: #ffffff;
   --btn-success-text: #ffffff;
@@ -838,8 +839,14 @@ body.theme-pixel .footer-title {
                0 0 10px #00d9ff;
 }
 
+body.theme-pixel .footer-description,
+body.theme-pixel .copyright,
+body.theme-pixel .footer-meta {
+  color: #a9a9a9;
+}
+
 body.theme-pixel .footer-links a {
-  color: #c0c0c0;
+  color: var(--text-link-footer);
   font-family: var(--font-family-base);
   font-size: 0.7rem;
   
@@ -851,9 +858,9 @@ body.theme-pixel .footer-links a {
 }
 
 body.theme-pixel .version-tag {
+  color: #a9a9a9;
   background: #008080;
   border: 2px solid #00d9ff;
-  color: #ffffff;
   box-shadow: 2px 2px 0 #000,
               inset 1px 1px 0 #00a0a0,
               0 0 10px #00d9ff;

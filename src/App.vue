@@ -250,8 +250,8 @@ function showOperationLog() {
 /* ===== 浮动操作按钮组 (FAB Group) ===== */
 .fab-group {
   position: fixed;
-  bottom: 40px;
-  right: 40px;
+  bottom: 16px;
+  right: 8px;
   z-index: 998;
   display: flex;
   flex-direction: column;

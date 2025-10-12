@@ -11,33 +11,33 @@
         </button>
 
         <!-- 导入下拉菜单 -->
-        <div class="action-dropdown" :ref="el => menuRefs.import.trigger.value = el">
-          <button class="btn btn-primary btn-sm" @click.stop="toggleMenu('import')">
+        <div class="action-dropdown">
+          <button class="btn btn-primary btn-sm">
             📥 导入
           </button>
-          <div class="action-menu" :ref="el => menuRefs.import.menu.value = el" :style="importMenuStyle">
+          <div class="action-menu">
             <a class="menu-item" @click.prevent="debouncedImportData">📄 导入 JSON</a>
             <a class="menu-item" @click.prevent="debouncedImportFromCart">🛒 导入购物车</a>
           </div>
         </div>
 
         <!-- 导出下拉菜单 -->
-        <div class="action-dropdown" :ref="el => menuRefs.export.trigger.value = el">
-          <button class="btn btn-primary btn-sm" @click.stop="toggleMenu('export')">
+        <div class="action-dropdown">
+          <button class="btn btn-primary btn-sm">
             📤 导出
           </button>
-          <div class="action-menu" :ref="el => menuRefs.export.menu.value = el" :style="exportMenuStyle">
+          <div class="action-menu">
             <a class="menu-item" @click.prevent="debouncedExportData">📄 导出 JSON</a>
             <a class="menu-item" @click.prevent="debouncedExportToImage">🖼️ 导出图片</a>
           </div>
         </div>
 
         <!-- 分类管理下拉菜单 -->
-        <div class="action-dropdown" :ref="el => menuRefs.manage.trigger.value = el">
-          <button class="btn btn-secondary btn-sm" @click.stop="toggleMenu('manage')">
+        <div class="action-dropdown">
+          <button class="btn btn-secondary btn-sm">
             📂 分类管理
           </button>
-          <div class="action-menu" :ref="el => menuRefs.manage.menu.value = el" :style="manageMenuStyle">
+          <div class="action-menu">
             <a class="menu-item" @click.prevent="debouncedInitializeCategories">✨ 初始化分类</a>
             <a class="menu-item danger" @click.prevent="debouncedClearAllData">🗑️ 清空所有数据</a>
           </div>
@@ -54,22 +54,34 @@
           <span v-if="undoableCount > 0" class="undo-count">{{ undoableCount }}</span>
         </button>
 
-        <button class="btn btn-secondary btn-sm" @click="toggleAllCategories"
-          :title="allCollapsed ? '展开全部分类' : '收起全部分类'">
-          {{ allCollapsed ? '📂 展开全部' : '📁 收起全部' }}
-        </button>
-
         <!-- 更多操作下拉菜单 -->
-        <div class="more-actions-dropdown" :ref="el => menuRefs.more.trigger.value = el">
-          <button class="btn btn-secondary btn-sm" @click.stop="toggleMenu('more')">
+        <div class="more-actions-dropdown">
+          <button class="btn btn-secondary btn-sm">
             ⋯ 更多
           </button>
-          <div class="more-actions-menu" :ref="el => menuRefs.more.menu.value = el" :style="moreMenuStyle">
-            <a class="menu-item" @click.prevent="debouncedToggleLayout">
-              {{ layoutMode === 'grid' ? '💧 切换到瀑布流' : '🔲 切换到网格' }}
-            </a>
+          <div class="more-actions-menu">
+            <div class="menu-item has-submenu">
+              <span>{{ currentViewInfo.icon }} {{ currentViewInfo.name }}</span>
+              <div class="submenu">
+                <a class="submenu-item" :class="{ active: layoutMode === 'grid' }" @click.prevent="setLayoutMode('grid')">
+                  <span class="icon">🔲</span> 网格
+                </a>
+                <a class="submenu-item" :class="{ active: layoutMode === 'waterfall' }"
+                  @click.prevent="setLayoutMode('waterfall')">
+                  <span class="icon">💧</span> 瀑布流
+                </a>
+                <a class="submenu-item" :class="{ active: layoutMode === 'table' }" @click.prevent="setLayoutMode('table')">
+                  <span class="icon">📋</span> 表格
+                </a>
+              </div>
+            </div>
             <a class="menu-item" @click.prevent="debouncedShowCategorySort">🔀 排序分类</a>
-            <a class="menu-item" @click.prevent="debouncedToggleGroupByStatus">
+            <a class="menu-item" :class="{ 'disabled': layoutMode === 'table' }"
+              @click.prevent="layoutMode !== 'table' && debouncedToggleAllCategories()">
+              {{ allCollapsed ? '📂 展开全部' : '📁 收起全部' }}
+            </a>
+            <a class="menu-item" :class="{ 'disabled': layoutMode === 'table' }"
+              @click.prevent="layoutMode !== 'table' && debouncedToggleGroupByStatus()">
               {{ equipmentStore.groupByStatus ? '📊 取消状态分栏' : '📋 启用状态分栏' }}
             </a>
             <a class="menu-item" @click.prevent="debouncedShowOperationLog">📋 操作日志</a>
@@ -146,6 +158,8 @@
         </div>
       </div>
     </div>
+    <!-- 表格视图 -->
+    <CategoryTableView v-if="layoutMode === 'table'" :categories="equipmentStore.categories" />
   </div>
 </template>
 
@@ -154,13 +168,13 @@ import { ref, computed, nextTick, watch, onMounted, onUnmounted, inject } from '
 import { useEquipmentStore } from '../../stores/equipment'
 import { useOperationLogStore } from '../../stores/operationLog'
 // 引入
-import { useResponsiveMenu } from '../../composables/useResponsiveMenu'
 import CategoryItem from './CategoryItem.vue'
 import WaterfallLayout from '../layout/WaterfallLayout.vue'
 import CategorySortModal from '../modals/CategorySortModal.vue'
 import BaseModal from '../common/BaseModal.vue'
 import ExportPreview from './ExportPreview.vue'
 import ImportCartModal from '../modals/ImportCartModal.vue'
+import CategoryTableView from './CategoryTableView.vue'
 // 引入自定义确认框
 import BaseConfirm from '../common/BaseConfirm.vue'
 import html2canvas from 'html2canvas'
@@ -180,8 +194,8 @@ const showConfirm = inject('showConfirm')
 const newCategoryName = ref('')
 const isAdding = ref(false)
 const categoryInput = ref(null)
-// 'grid' 或 'waterfall'
-const layoutMode = ref('grid')
+// 'grid', 'waterfall', 'table'
+const layoutMode = ref('table')
 const categorySortModalRef = ref(null)
 
 // 图片预览相关状态
@@ -196,49 +210,46 @@ const importCartModalRef = ref(null)
 // 新增确认模态框引用
 const confirmModalRef = ref(null)
 
-// --- 响应式下拉菜单 ---
-// 当前激活的菜单
-const activeMenu = ref(null)
-const menuRefs = {
-  import: { trigger: ref(null), menu: ref(null), isOpen: ref(false) },
-  export: { trigger: ref(null), menu: ref(null), isOpen: ref(false) },
-  manage: { trigger: ref(null), menu: ref(null), isOpen: ref(false) },
-  more: { trigger: ref(null), menu: ref(null), isOpen: ref(false) },
-}
-
-const { menuStyle: importMenuStyle } = useResponsiveMenu(menuRefs.import.trigger, menuRefs.import.menu, { isOpen: menuRefs.import.isOpen })
-const { menuStyle: exportMenuStyle } = useResponsiveMenu(menuRefs.export.trigger, menuRefs.export.menu, { isOpen: menuRefs.export.isOpen })
-const { menuStyle: manageMenuStyle } = useResponsiveMenu(menuRefs.manage.trigger, menuRefs.manage.menu, { isOpen: menuRefs.manage.isOpen })
-const { menuStyle: moreMenuStyle } = useResponsiveMenu(menuRefs.more.trigger, menuRefs.more.menu, { isOpen: menuRefs.more.isOpen })
-
-function toggleMenu(menuName) {
-  if (activeMenu.value && activeMenu.value !== menuName) {
-    menuRefs[activeMenu.value].isOpen.value = false
+const currentViewInfo = computed(() => {
+  switch (layoutMode.value) {
+    case 'grid':
+      return { icon: '🔲', name: '网格' }
+    case 'waterfall':
+      return { icon: '💧', name: '瀑布流' }
+    case 'table':
+      return { icon: '📋', name: '表格' }
+    default:
+      return { icon: '🔲', name: '切换视图' }
   }
+})
 
-  if (menuRefs[menuName]) {
-    menuRefs[menuName].isOpen.value = !menuRefs[menuName].isOpen.value
-    activeMenu.value = menuRefs[menuName].isOpen.value ? menuName : null
-  }
-}
+function setLayoutMode(mode) {
+  if (['grid', 'waterfall', 'table'].includes(mode)) {
+    layoutMode.value = mode
 
-function handleClickOutside(event) {
-  if (activeMenu.value) {
-    const trigger = menuRefs[activeMenu.value].trigger.value
-    const menu = menuRefs[activeMenu.value].menu.value
-    if (trigger && !trigger.contains(event.target) && menu && !menu.contains(event.target)) {
-      menuRefs[activeMenu.value].isOpen.value = false
-      activeMenu.value = null
+    // 切换到瀑布流模式时，延迟触发布局计算
+    if (layoutMode.value === 'waterfall') {
+      nextTick(() => {
+        setTimeout(() => {
+          // 触发resize事件，强制WaterfallLayout重新计算
+          window.dispatchEvent(new Event('resize'))
+        }, 150)
+      })
     }
   }
 }
 
 onMounted(() => {
-  document.addEventListener('click', handleClickOutside)
+  // 从 localStorage 恢复布局模式
+  const savedLayoutMode = localStorage.getItem('layoutMode')
+  if (savedLayoutMode) {
+    layoutMode.value = savedLayoutMode
+  }
 })
 
-onUnmounted(() => {
-  document.removeEventListener('click', handleClickOutside)
+// 监听 layoutMode 的变化并保存到 localStorage
+watch(layoutMode, (newMode) => {
+  localStorage.setItem('layoutMode', newMode)
 })
 
 
@@ -284,23 +295,6 @@ function cancelAdd() {
     newCategoryName.value = ''
     isAdding.value = false
   }, 200)
-}
-
-/**
- * 切换布局模式
- */
-function toggleLayout() {
-  layoutMode.value = layoutMode.value === 'grid' ? 'waterfall' : 'grid'
-
-  // 切换到瀑布流模式时，延迟触发布局计算
-  if (layoutMode.value === 'waterfall') {
-    nextTick(() => {
-      setTimeout(() => {
-        // 触发resize事件，强制WaterfallLayout重新计算
-        window.dispatchEvent(new Event('resize'))
-      }, 150)
-    })
-  }
 }
 
 /**
@@ -567,7 +561,7 @@ const debouncedShowRecommendation = debounce(() => emit('show-recommendation'), 
 const debouncedShowModelConfig = debounce(() => emit('show-model-config'), 300)
 const debouncedShowOperationLog = debounce(() => emit('show-operation-log'), 300)
 const debouncedShowCategorySort = debounce(() => categorySortModalRef.value.show(), 300)
-const debouncedToggleLayout = debounce(toggleLayout, 300)
+const debouncedToggleAllCategories = debounce(toggleAllCategories, 300)
 const debouncedToggleGroupByStatus = debounce(toggleGroupByStatus, 300)
 
 </script>
@@ -648,6 +642,35 @@ const debouncedToggleGroupByStatus = debounce(toggleGroupByStatus, 300)
   .more-actions-dropdown {
     position: relative;
     display: inline-block;
+
+    /* 扩展hover区域，确保鼠标在按钮和菜单之间移动时不会断开 */
+    &::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 100%;
+      height: 4px; /* 覆盖按钮和菜单之间的间隙 */
+      background: transparent;
+    }
+
+    .action-menu,
+    .more-actions-menu {
+      display: none;
+      position: absolute;
+      left: 0;
+      top: 100%;
+      margin-top: 4px;
+      z-index: 1000;
+      animation: dropdownFadeIn 0.2s ease-out;
+    }
+
+    &:hover {
+      .action-menu,
+      .more-actions-menu {
+        display: block;
+      }
+    }
   }
 
   // 撤销按钮样式
@@ -712,22 +735,19 @@ const debouncedToggleGroupByStatus = debounce(toggleGroupByStatus, 300)
 // 下拉菜单样式
 .action-menu,
 .more-actions-menu {
-  /* 移除 display, position, left, top, margin-top, z-index */
   background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
   box-shadow: var(--shadow-lg);
   min-width: 160px;
-  overflow: hidden;
+  overflow: visible; /* 修复子菜单被遮挡的问题 */
   padding: 4px 0;
-  z-index: 1000;
 }
 
 .more-actions-dropdown .more-actions-menu {
-  /* 移除 right, left, auto */
+  right: 0;
+  left: auto;
 }
-
-/* 移除所有 :hover 触发的样式 */
 
 @keyframes dropdownFadeIn {
   from {
@@ -750,10 +770,27 @@ const debouncedToggleGroupByStatus = debounce(toggleGroupByStatus, 300)
   transition: all 0.2s ease;
   font-size: 0.85rem;
   white-space: nowrap;
+  position: relative;
 
   &:hover {
     background: var(--bg-hover);
     color: var(--primary-color);
+  }
+
+  &.has-submenu:hover .submenu {
+    display: block;
+  }
+
+  &.disabled {
+    color: var(--text-muted);
+    cursor: not-allowed;
+    background-color: transparent;
+
+    &:hover {
+      color: var(--text-muted);
+      cursor: not-allowed;
+      background-color: transparent;
+    }
   }
 
   &.danger {
@@ -763,6 +800,48 @@ const debouncedToggleGroupByStatus = debounce(toggleGroupByStatus, 300)
       background: var(--danger-light);
     }
   }
+}
+
+.submenu {
+  display: none;
+  position: absolute;
+  left: 100%;
+  top: 0;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-lg);
+  min-width: 160px;
+  z-index: 1100;
+  padding: 4px 0;
+}
+
+.submenu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  color: var(--text-primary);
+  text-decoration: none;
+  cursor: pointer;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: var(--bg-hover);
+    color: var(--primary-color);
+  }
+
+  .icon {
+    font-size: 1rem;
+  }
+}
+
+.submenu-item.active {
+  background-color: var(--primary-color-light);
+  color: var(--primary-color);
+  font-weight: bold;
 }
 
 .categories-container {

@@ -492,6 +492,39 @@ export const useEquipmentStore = defineStore('equipment', () => {
   }
 
   /**
+   * 删除装备项目
+   */
+  async function removeItem(categoryId, itemId) {
+    const category = categories.value.find(cat => cat.id === categoryId)
+    if (!category) return false
+
+    const item = category.items.find(i => i.id === itemId)
+    if (!item) return false
+
+    // 保存操作前的状态
+    const beforeState = {
+      action: 'removeItem',
+      categories: JSON.parse(JSON.stringify(categories.value))
+    }
+
+    category.items = category.items.filter(item => item.id !== itemId)
+
+    // 删除后重新编码
+    reindexCategory(categoryId)
+    saveData()
+
+    const logStore = useOperationLogStore()
+    logStore.log('delete', `删除了装备 #${item.index}：${item.name}`, {
+      category: category.name,
+      item: item.name,
+      index: item.index
+    }, beforeState)
+
+    toast.success(`装备"${item.name}"已删除`)
+    return true
+  }
+
+  /**
    * 编辑装备项目
    */
   function editItem(categoryId, itemId, itemData) {
@@ -542,9 +575,21 @@ export const useEquipmentStore = defineStore('equipment', () => {
   }
 
   /**
+   * 更新装备（专为表格视图设计）
+   */
+  function updateEquipment(categoryId, itemId, itemData) {
+    const category = categories.value.find(cat => cat.id === categoryId);
+    if (!category) return;
+    const itemIndex = category.items.findIndex(i => i.id === itemId);
+    if (itemIndex === -1) return;
+    category.items[itemIndex] = { ...category.items[itemIndex], ...itemData };
+    saveData();
+  }
+
+  /**
    * 切换装备完成状态
    */
-  function toggleItem(categoryId, itemId) {
+  function toggleEquipmentStatus(categoryId, itemId) {
     const category = categories.value.find(cat => cat.id === categoryId)
     if (!category) {
       console.error('❌ 未找到分类:', categoryId)
@@ -559,7 +604,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
 
     // 保存操作前的状态
     const beforeState = {
-      action: 'toggleItem',
+      action: 'toggleEquipmentStatus',
       categories: JSON.parse(JSON.stringify(categories.value))
     }
 
@@ -791,14 +836,17 @@ export const useEquipmentStore = defineStore('equipment', () => {
     addItem,
     deleteItem,
     editItem,
-    toggleItem,
+    updateEquipment, // 暴露更新装备方法
+    toggleEquipmentStatus,
+    toggleItem: toggleEquipmentStatus, // 向后兼容的别名
     toggleGroupByStatus, // 暴露切换分栏显示方法
     importData,
     clearAllData,
     undoOperation, // 撤销指定操作
     quickUndo, // 快速撤销最近操作
     getLatestUndoableLog, // 暴露获取最新可撤销日志方法
-    getOrCreateCategory // 暴露获取或创建分类方法
+    getOrCreateCategory, // 暴露获取或创建分类方法
+    removeItem // 暴露删除装备方法
   }
 })
 

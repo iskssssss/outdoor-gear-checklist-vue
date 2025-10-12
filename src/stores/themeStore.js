@@ -94,8 +94,8 @@ export const useThemeStore = defineStore('theme', () => {
     }
   ])
 
-  // 当前激活的主题 (默认为手绘风格)
-  const currentTheme = ref('paper')
+  // 当前激活的主题 (默认为默认风格)
+  const currentTheme = ref('default')
 
   /**
    * 从 localStorage 加载主题设置
