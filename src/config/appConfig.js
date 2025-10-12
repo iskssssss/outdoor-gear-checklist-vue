@@ -1,4 +1,9 @@
 /**
+ * 应用版本号
+ */
+export const APP_VERSION = '1.2.0';
+
+/**
  * 默认模型设置
  * 包含API密钥、URL、模型名称、最大Token、温度等
  */

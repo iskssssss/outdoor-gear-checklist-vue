@@ -32,7 +32,7 @@
       </div>
       <div class="footer-meta">
         <span>Made with ❤️ for outdoor enthusiasts</span>
-        <span class="version-tag">v1.1.0</span>
+        <span class="version-tag">v{{ APP_VERSION }}</span>
       </div>
     </div>
   </footer>
@@ -40,6 +40,7 @@
 
 <script setup>
 import { computed } from 'vue'
+import { APP_VERSION } from '../../config/appConfig'
 
 // 定义事件
 defineEmits(['show-changelog', 'show-doc'])
