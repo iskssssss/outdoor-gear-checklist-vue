@@ -37,19 +37,22 @@ body.theme-paper {
 
   --text-primary: #3d352a;
   --text-secondary: #5a5a5a;
-  --text-muted: #888;
+  --text-muted: #767676;
   --text-white: #ffffff;
 
   --btn-primary-text: #ffffff;
   --btn-success-text: #ffffff;
   --btn-danger-text: #ffffff;
 
-  --border-color: #333;
+  --border-color: #41403e;
   --border-light: #d4c4b0;
   --border-radius: 4px;
+  --border-radius-sm: 2px;
+  --border-radius-lg: 8px;
+  --border-radius-xl: 12px;
   --border-width: 2px;
 
-  --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-card: 4px 4px 0 rgba(0, 0, 0, 0.1);
   --shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
@@ -71,6 +74,30 @@ body.theme-paper {
   color: var(--text-primary);
   // 防止不规则边框和阴影导致的水平溢出
   overflow-x: hidden;
+
+  &, * {
+    &::-webkit-scrollbar {
+      width: 14px;
+      background: transparent;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: var(--primary-color);
+      // 不规则圆角模拟手绘感
+      border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+      border: var(--border-width) solid var(--border-color);
+      opacity: 0.6;
+
+      &:hover {
+        background: var(--primary-dark);
+        opacity: 0.9;
+      }
+    }
+  }
 
   .app-container {
     background: linear-gradient(135deg, #f4e7d7 0%, #e8d5c4 100%);
@@ -179,10 +206,10 @@ body.theme-paper {
   .category::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
     border: 2px solid var(--border-light);
     border-radius: inherit;
     transform: rotate(-0.5deg);
@@ -225,6 +252,24 @@ body.theme-paper {
       background: var(--success-light);
       border-color: var(--success-color);
     }
+  }
+
+  .item-index {
+    background: #fffef9;
+    border: 2px solid #41403e;
+    border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+    color: #2c2416;
+    font-family: 'Patrick Hand', cursive, sans-serif;
+    font-weight: 400;
+    box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.1);
+  }
+
+  .item:hover .item-index {
+    background: #86a361;
+    color: #fffef9;
+    border-color: #2c2416;
+    transform: scale(1.08);
+    box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.15);
   }
 
   /* 区域分隔 */
@@ -432,6 +477,331 @@ body.theme-paper {
       border-color: var(--primary-color) !important;
       // 使用一个更通用的柔和阴影
       box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1) !important;
+    }
+  }
+
+  .export-preview {
+    font-family: 'Patrick Hand', cursive;
+    --bg-main-export: #fdf6e3;
+
+    .category {
+      border: 2px solid #41403e;
+    }
+  }
+
+  .stats {
+    .completion-badge {
+      background: linear-gradient(135deg, #86a361 0%, #6b8a4f 100%);
+      border: 2px solid var(--border-color);
+      box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.1);
+
+      &.completed {
+        background: linear-gradient(135deg, #6b8a4f 0%, #86a361 100%);
+        border-color: #374427;
+      }
+    }
+
+    .progress-bar-container {
+      border-radius: 15px 255px 225px 15px / 255px 15px 15px 225px;
+      background: #f5f0e6;
+      border: 2px solid var(--border-color);
+    }
+
+    .progress-bar {
+      background: linear-gradient(90deg, #86a361 0%, #6b8a4f 100%);
+      border-radius: 15px 255px 225px 15px / 255px 15px 15px 225px;
+
+      &::after {
+        display: none;
+      }
+    }
+
+    .info-item {
+      .icon {
+        transform: rotate(-2deg);
+      }
+    }
+
+    .stat-item {
+      background: var(--bg-card);
+      box-shadow: 5px 5px 0 rgba(0, 0, 0, 0.1);
+      border: 2px solid var(--border-color);
+
+      &::before {
+        display: none;
+      }
+
+      &:hover {
+        transform: translateY(-2px) rotate(0.5deg);
+        box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.15);
+      }
+    }
+
+    .stat-categories {
+      background: var(--success-light);
+      border-color: var(--success-color);
+    }
+
+    .stat-items {
+      background: #deefff;
+      border-color: var(--secondary-color);
+    }
+
+    .stat-weight {
+      background: var(--warning-light);
+      border-color: var(--warning-color);
+    }
+
+    .stat-price {
+      background: var(--success-light);
+      border-color: var(--success-color);
+
+      .stat-number {
+        color: var(--success-text);
+        background: none;
+        -webkit-text-fill-color: unset;
+        font-weight: 700;
+      }
+    }
+  }
+
+  /* ===== 导航栏独特风格 - 手绘不规则 ===== */
+  .nav-menu {
+    @include irregular-border(3);
+    background: var(--bg-card);
+    padding: 14px 18px !important;
+    border: var(--border-width) solid var(--border-color);
+    @include paper-shadow;
+    position: relative;
+    
+    // 纸张纹理
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: 
+        repeating-linear-gradient(45deg, 
+          transparent, 
+          transparent 2px, 
+          rgba(197, 145, 46, 0.02) 2px, 
+          rgba(197, 145, 46, 0.02) 4px);
+      pointer-events: none;
+      border-radius: inherit;
+    }
+  }
+
+  .nav-link {
+    font-family: var(--font-family-base);
+    position: relative;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--primary-color);
+      transition: width 0.3s ease;
+      pointer-events: none;
+      // 手绘波浪线
+      border-bottom: 2px dashed var(--primary-color);
+    }
+    
+    &:hover:not(.disabled)::after {
+      width: 100%;
+    }
+    
+    &:hover:not(.disabled) {
+      transform: rotate(-1deg);
+      color: var(--primary-color);
+    }
+    
+    &.router-link-active {
+      @include irregular-border(2);
+      background: rgba(197, 145, 46, 0.08);
+      padding: 6px 12px;
+      border: 1px solid var(--border-color);
+      transform: rotate(-0.5deg);
+      box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.1);
+    }
+  }
+
+  /* ===== 尾部栏独特风格 - 手绘纸张 ===== */
+  .app-footer {
+    @include irregular-border(4);
+    // 使用更温和的阴影，避免抽动
+    box-shadow: 8px 12px 15px -10px rgba(0, 0, 0, 0.15);
+    background: var(--bg-card);
+    border: var(--border-width) solid var(--border-color);
+    position: relative;
+    overflow: hidden; // 防止伪元素导致滚动条抽动
+    
+    // 纸张纹理
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: 
+        repeating-linear-gradient(0deg, 
+          transparent, 
+          transparent 3px, 
+          rgba(197, 145, 46, 0.015) 3px, 
+          rgba(197, 145, 46, 0.015) 6px),
+        repeating-linear-gradient(90deg, 
+          transparent, 
+          transparent 3px, 
+          rgba(197, 145, 46, 0.015) 3px, 
+          rgba(197, 145, 46, 0.015) 6px);
+      pointer-events: none;
+      border-radius: inherit;
+      z-index: 0;
+    }
+    
+    > * {
+      position: relative;
+      z-index: 1;
+    }
+  }
+
+  .footer-title {
+    font-family: var(--font-family-heading);
+    color: var(--primary-color);
+    font-weight: 400;
+    transform: rotate(-0.5deg);
+    display: inline-block;
+  }
+
+  .footer-links a {
+    font-family: var(--font-family-base);
+    
+    &:hover {
+      color: var(--primary-color);
+      transform: translateX(5px) rotate(-1deg);
+    }
+  }
+
+  .version-tag {
+    @include irregular-border(1);
+    background: rgba(197, 145, 46, 0.08);
+    border: var(--border-width) solid var(--border-color);
+    box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.1);
+    font-family: var(--font-family-base);
+    color: var(--primary-color);
+    font-weight: 700;
+    transform: rotate(-1deg);
+  }
+
+  /* ===== Markdown页面独特风格 - 手绘纸张 ===== */
+  .markdown-container {
+    @include irregular-border(5);
+    @include paper-shadow;
+    background: var(--bg-card);
+    border: var(--border-width) solid var(--border-color);
+    position: relative;
+    // 增加内边距，让滚动条远离不规则边框
+    padding: 24px 28px 40px 24px !important;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: 
+        repeating-linear-gradient(0deg, 
+          transparent, 
+          transparent 4px, 
+          rgba(197, 145, 46, 0.02) 4px, 
+          rgba(197, 145, 46, 0.02) 8px),
+        repeating-linear-gradient(90deg, 
+          transparent, 
+          transparent 4px, 
+          rgba(197, 145, 46, 0.02) 4px, 
+          rgba(197, 145, 46, 0.02) 8px);
+      pointer-events: none;
+      border-radius: inherit;
+      z-index: 0;
+    }
+    
+    > * {
+      position: relative;
+      z-index: 1;
+    }
+  }
+  
+  // 手绘风格 - 半透明淡化滚动条
+  .markdown-container :deep(*) {
+    &::-webkit-scrollbar {
+      width: 14px;
+      background: transparent;
+    }
+    
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background: var(--primary-color);
+      // 不规则圆角模拟手绘感
+      border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+      border: var(--border-width) solid var(--border-color);
+      opacity: 0.6;
+      
+      &:hover {
+        background: var(--primary-dark);
+        opacity: 0.9;
+      }
+    }
+  }
+
+  .markdown-toc {
+    @include irregular-border(2);
+    @include paper-shadow;
+    background: var(--bg-card);
+    border: var(--border-width) solid var(--border-color);
+    font-family: var(--font-family-base);
+    // 增加右侧padding让滚动条远离不规则边框
+    padding: 16px 24px 16px 16px !important;
+    
+    // 不规则滚动条
+    &::-webkit-scrollbar {
+      width: 12px;
+    }
+    
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background: var(--primary-color);
+      // 不规则圆角
+      border-radius: 125px 25px 20px 205px / 25px 200px 25px 185px;
+      border: 1px solid var(--border-color);
+      
+      &:hover {
+        background: var(--primary-dark);
+      }
+    }
+  }
+
+  .toc-header h3 {
+    font-family: var(--font-family-heading);
+    color: var(--primary-color);
+    transform: rotate(-0.5deg);
+  }
+
+  .toc-item.active a {
+    background: rgba(197, 145, 46, 0.1);
+    border-left-color: var(--primary-color);
+    border-left-width: 3px;
+    transform: rotate(-0.5deg);
+  }
+
+  .refresh-btn {
+    font-family: var(--font-family-base);
+    
+    &:hover:not(:disabled) {
+      transform: rotate(-1deg) translateY(-1px);
+      box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.1);
     }
   }
 }

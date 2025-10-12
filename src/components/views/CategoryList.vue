@@ -462,7 +462,7 @@ async function exportToImage() {
 
     // 使用 html2canvas 生成高质量图片
     const canvas = await html2canvas(element, {
-      backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--bg-card').trim() || '#ffffff',
+      backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--bg-card').trim(),
       scale: imageExportConfig.scale,
       logging: false,
       useCORS: true,
@@ -585,8 +585,8 @@ const debouncedToggleGroupByStatus = debounce(toggleGroupByStatus, 300)
   gap: 12px;
   padding: 12px;
   background: var(--bg-card);
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-sm);
 
   .actions-left,
   .actions-right {
@@ -605,7 +605,7 @@ const debouncedToggleGroupByStatus = debounce(toggleGroupByStatus, 300)
 
     &:hover:not(:disabled) {
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      box-shadow: var(--shadow-md);
     }
   }
 
@@ -620,7 +620,7 @@ const debouncedToggleGroupByStatus = debounce(toggleGroupByStatus, 300)
     background: var(--primary-color);
     color: var(--btn-primary-text);
     border: var(--border-width, 1px) solid var(--primary-color);
-    border-radius: 6px;
+    border-radius: var(--border-radius-sm);
     font-weight: 600;
     cursor: pointer;
     box-shadow: var(--shadow-sm);
@@ -659,7 +659,7 @@ const debouncedToggleGroupByStatus = debounce(toggleGroupByStatus, 300)
     background: var(--success-color);
     color: var(--btn-success-text);
     border: var(--border-width, 1px) solid var(--success-color);
-    border-radius: 6px;
+    border-radius: var(--border-radius-sm);
     font-weight: 600;
     cursor: pointer;
     box-shadow: var(--shadow-sm);
@@ -701,7 +701,7 @@ const debouncedToggleGroupByStatus = debounce(toggleGroupByStatus, 300)
       min-width: 18px;
       height: 18px;
       padding: 0 5px;
-      background: rgba(255, 255, 255, 0.3);
+      background: var(--bg-mask);
       border-radius: 9px;
       font-size: 0.7rem;
       font-weight: 700;
@@ -715,8 +715,8 @@ const debouncedToggleGroupByStatus = debounce(toggleGroupByStatus, 300)
   /* 移除 display, position, left, top, margin-top, z-index */
   background: var(--bg-card);
   border: 1px solid var(--border-color);
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-lg);
   min-width: 160px;
   overflow: hidden;
   padding: 4px 0;
@@ -752,15 +752,15 @@ const debouncedToggleGroupByStatus = debounce(toggleGroupByStatus, 300)
   white-space: nowrap;
 
   &:hover {
-    background: var(--bg-hover, rgba(102, 126, 234, 0.1));
+    background: var(--bg-hover);
     color: var(--primary-color);
   }
 
   &.danger {
-    color: var(--danger-color, #dc3545);
+    color: var(--danger-color);
 
     &:hover {
-      background: rgba(220, 53, 69, 0.1);
+      background: var(--danger-light);
     }
   }
 }
@@ -860,7 +860,7 @@ const debouncedToggleGroupByStatus = debounce(toggleGroupByStatus, 300)
 .category-input:focus {
   outline: none;
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px var(--primary-color-shadow, rgba(102, 126, 234, 0.1));
+  box-shadow: 0 0 0 3px var(--primary-color-shadow);
 }
 
 .input-actions {
@@ -872,7 +872,7 @@ const debouncedToggleGroupByStatus = debounce(toggleGroupByStatus, 300)
 .btn {
   padding: 10px 24px;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--border-radius);
   font-size: 0.95rem;
   font-weight: 500;
   cursor: pointer;
@@ -886,10 +886,10 @@ const debouncedToggleGroupByStatus = debounce(toggleGroupByStatus, 300)
 
 .btn-primary {
   background: var(--primary-color);
-  color: var(--btn-primary-text, white);
+  color: var(--btn-primary-text);
 
   &:hover {
-    background: var(--primary-dark, #5568d3);
+    background: var(--primary-dark);
   }
 
   &:active {
@@ -899,7 +899,7 @@ const debouncedToggleGroupByStatus = debounce(toggleGroupByStatus, 300)
 
 .btn-secondary {
   background: var(--text-muted);
-  color: var(--text-white, white);
+  color: var(--text-white);
 
   &:hover {
     background: var(--text-secondary);
@@ -912,7 +912,7 @@ const debouncedToggleGroupByStatus = debounce(toggleGroupByStatus, 300)
 
 .btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-md);
 }
 
 /* 响应式布局 */
@@ -938,8 +938,8 @@ const debouncedToggleGroupByStatus = debounce(toggleGroupByStatus, 300)
   display: block;
   width: 100%;
   height: auto;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-md);
   object-fit: contain;
 }
 

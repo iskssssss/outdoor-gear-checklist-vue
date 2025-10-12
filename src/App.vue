@@ -291,7 +291,7 @@ function showOperationLog() {
   z-index: 999;
   background-color: var(--bg-card);
   border: 2px solid var(--border-color);
-  border-radius: 12px;
+  border-radius: var(--border-radius-lg);
   padding: 10px;
   box-shadow: var(--shadow-xl);
   width: 180px;
@@ -311,7 +311,7 @@ function showOperationLog() {
   gap: 8px;
   padding: 8px 12px;
   border: 2px solid transparent;
-  border-radius: 6px;
+  border-radius: var(--border-radius-sm);
   background: transparent;
   cursor: pointer;
   transition: all 0.3s ease;

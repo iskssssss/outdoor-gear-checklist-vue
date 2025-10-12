@@ -82,7 +82,7 @@ defineExpose({
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: var(--bg-overlay, rgba(0, 0, 0, 0.5));
+  background: var(--bg-overlay);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -92,7 +92,7 @@ defineExpose({
 
 .modal-container {
   background: var(--bg-card);
-  border-radius: 12px;
+  border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-xl);
   display: flex;
   flex-direction: column;
@@ -146,14 +146,14 @@ defineExpose({
 }
 
 .danger-warning {
-  background: var(--danger-light, #fdeded);
-  border-left: 4px solid var(--danger-color, #dc3545);
+  background: var(--danger-light);
+  border-left: 4px solid var(--danger-color);
   padding: 10px 15px;
   border-radius: 6px;
   margin-top: 15px;
 
   p {
-    color: var(--danger-color, #dc3545);
+    color: var(--danger-color);
     font-weight: 500;
     margin: 0;
   }
@@ -169,7 +169,7 @@ defineExpose({
 
 .btn {
   padding: 10px 20px;
-  border-radius: 8px;
+  border-radius: var(--border-radius);
   cursor: pointer;
   font-size: 0.95rem;
   font-weight: 500;
@@ -177,14 +177,14 @@ defineExpose({
 }
 
 .btn-danger {
-  background: var(--danger-color, #dc3545);
-  color: var(--btn-danger-text, white);
+  background: var(--danger-color);
+  color: var(--btn-danger-text);
   border: none;
 
   &:hover {
-    background: var(--danger-dark, #c82333);
+    background: var(--danger-dark);
     transform: translateY(-1px);
-    box-shadow: 0 2px 8px var(--danger-shadow, rgba(220, 53, 69, 0.3));
+    box-shadow: 0 2px 8px var(--danger-shadow);
   }
 }
 

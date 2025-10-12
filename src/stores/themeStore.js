@@ -43,6 +43,54 @@ export const useThemeStore = defineStore('theme', () => {
       name: '极简风格',
       icon: '⬜',
       description: '黑白灰极简设计，纯净简约'
+    },
+    {
+      id: 'mountain-sunrise',
+      name: '高山晨光',
+      icon: '🌄',
+      description: '明亮清新'
+    },
+    {
+      id: 'forest-trek',
+      name: '森林探险',
+      icon: '🌲',
+      description: '沉稳自然'
+    },
+    {
+      id: 'snowpeak-aurora',
+      name: '雪峰极光',
+      icon: '🏔️',
+      description: '寒冷专业'
+    },
+    {
+      id: 'desert-sunset',
+      name: '沙漠日落',
+      icon: '🌅',
+      description: '温暖热情'
+    },
+    {
+      id: 'rainforest-expedition',
+      name: '雨林探秘',
+      icon: '🌿',
+      description: '深邃神秘'
+    },
+    {
+      id: 'highland-mist',
+      name: '高原晨雾',
+      icon: '🌫️',
+      description: '清雅朦胧'
+    },
+    {
+      id: 'volcano-adventure',
+      name: '火山熔岩',
+      icon: '🌋',
+      description: '炽热激情'
+    },
+    {
+      id: 'polar-aurora',
+      name: '北极光雪原',
+      icon: '❄️',
+      description: '冰雪纯净'
     }
   ])
 

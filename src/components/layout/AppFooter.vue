@@ -52,8 +52,9 @@ const currentYear = computed(() => new Date().getFullYear())
 <style scoped lang="scss">
 .app-footer {
   background: var(--bg-card);
-  border-top: var(--border-width, 1px) solid var(--border-color);
-  padding: 40px 20px 20px;
+  border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
+  padding: 24px;
+  text-align: center;
   box-shadow: var(--shadow-sm);
   /* 模拟向上阴影 */
   box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.08);

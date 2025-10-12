@@ -577,9 +577,10 @@ defineExpose({ show, close })
   background: var(--primary-color);
   color: var(--btn-primary-text, white);
   border: none;
-  border-radius: 6px;
+  border-radius: var(--border-radius-sm);
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 0.9rem;
+  font-weight: 500;
   transition: all 0.3s ease;
   min-width: 40px;
 
@@ -605,9 +606,10 @@ defineExpose({ show, close })
   background: var(--text-secondary);
   color: var(--btn-danger-text, white);
   border: none;
-  border-radius: 6px;
+  border-radius: var(--border-radius-sm);
   cursor: pointer;
-  font-size: 1.2rem;
+  font-size: 0.9rem;
+  font-weight: 500;
   line-height: 1;
   transition: all 0.3s ease;
 
@@ -635,8 +637,8 @@ defineExpose({ show, close })
 }
 
 .loading-spinner {
-  width: 50px;
-  height: 50px;
+  width: 40px;
+  height: 40px;
   margin: 0 auto 20px;
   border: 4px solid var(--border-color);
   border-top-color: var(--primary-color);
@@ -792,7 +794,7 @@ defineExpose({ show, close })
   :deep(pre) {
     background: var(--bg-input);
     padding: 16px;
-    border-radius: 8px;
+    border-radius: var(--border-radius-sm);
     overflow-x: auto;
     margin: 1em 0;
     border: 1px solid var(--border-color);
@@ -865,7 +867,7 @@ defineExpose({ show, close })
       background: var(--primary-color);
       opacity: 0.25;
       z-index: -1;
-      border-radius: 2px;
+      border-radius: 0 var(--border-radius-sm) var(--border-radius-sm) 0;
     }
   }
 
@@ -930,7 +932,7 @@ defineExpose({ show, close })
     // 普通图片样式
     &:not([src*="shields.io"]):not([src*="badge"]) {
       display: block;
-      border-radius: 8px;
+      border-radius: var(--border-radius);
       margin: 1.2em auto;
       box-shadow: var(--shadow-md);
       border: 2px solid var(--border-color);
@@ -1014,7 +1016,7 @@ defineExpose({ show, close })
     border-collapse: collapse;
     margin: 1em 0;
     box-shadow: var(--shadow-sm);
-    border-radius: 8px;
+    border-radius: var(--border-radius);
     overflow: hidden;
 
     th,
@@ -1029,6 +1031,7 @@ defineExpose({ show, close })
       background: var(--primary-color);
       color: var(--btn-primary-text, white);
       font-weight: 600;
+      border-radius: var(--border-radius) var(--border-radius) 0 0;
     }
 
     tr:nth-child(even) {
@@ -1104,9 +1107,9 @@ defineExpose({ show, close })
   right: 50px;
   width: 50px;
   height: 50px;
-  background: var(--primary-color);
-  color: var(--btn-primary-text, white);
-  border: none;
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  border: 2px solid var(--border-color);
   border-radius: 50%;
   cursor: pointer;
   box-shadow: var(--shadow-lg);

@@ -151,7 +151,7 @@ defineExpose({
 
 .export-preview {
   font-family: var(--font-family-base, 'PingFang SC', 'Microsoft YaHei', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
-  background: var(--bg-main, #f5f5f5);
+  background: var(--bg-main);
   padding: 24px;
   min-height: 100vh;
   background-color: var(--bg-card);
@@ -168,7 +168,7 @@ defineExpose({
   margin-top: 30px;
   margin-bottom: 40px;
   padding-bottom: 20px;
-  border-bottom: 2px solid var(--border-color);
+  border-bottom: var(--border-width-lg) solid var(--border-color);
 
   h1 {
     font-family: var(--font-family-heading, 'PingFang SC', 'Microsoft YaHei');
@@ -183,7 +183,7 @@ defineExpose({
 .export-stats {
   margin-bottom: 32px;
   padding-bottom: 20px;
-  border-bottom: 1px dashed var(--border-color);
+  border-bottom: var(--border-width) dashed var(--border-color);
 }
 
 .stats-grid {
@@ -199,15 +199,6 @@ defineExpose({
   border-radius: var(--border-radius, 8px);
   color: var(--text-white);
   box-shadow: var(--shadow-card);
-
-  /* 极简主题特殊样式 */
-  body.theme-minimal & {
-    background: transparent;
-    color: var(--text-primary);
-    border: none;
-    box-shadow: none;
-    padding: 12px;
-  }
 }
 
 .stat-number {
@@ -219,10 +210,6 @@ defineExpose({
 .stat-label {
   font-size: 0.85rem;
   opacity: 0.9;
-
-  body.theme-minimal & {
-    opacity: 0.6;
-  }
 }
 
 .export-body {
@@ -256,17 +243,11 @@ defineExpose({
 
 .category {
   background: var(--bg-card);
-  border-radius: var(--border-radius, 12px);
-  box-shadow: var(--shadow-card, 0 2px 10px rgba(0, 0, 0, 0.1));
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-card);
   overflow: hidden;
   border: var(--border-width, 1px) solid var(--border-color, transparent);
   margin-bottom: 20px;
-
-  /* 主题特定样式 - 纸张主题 */
-  body.theme-paper & {
-    @include paper-shadow;
-    border: var(--border-width) solid var(--border-color);
-  }
 }
 
 .category-header {
@@ -277,25 +258,6 @@ defineExpose({
   background: var(--bg-gradient, linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%));
   color: var(--text-white);
   margin-bottom: 12px;
-
-  /* 主题特定样式 */
-  body.theme-dark & {
-    background: linear-gradient(135deg, #1a1d29 0%, #0f1419 100%);
-    color: var(--text-primary);
-  }
-
-  body.theme-pixel & {
-    background: var(--primary-color);
-    color: var(--text-white);
-    border: var(--pixel-size, 2px) solid var(--pixel-border-color, #202020);
-    box-shadow: var(--pixel-size, 2px) var(--pixel-size, 2px) var(--pixel-shadow-color, #101010);
-  }
-
-  body.theme-paper & {
-    background: var(--success-color);
-    color: var(--text-white);
-    border-bottom: var(--border-width) solid var(--border-light);
-  }
 }
 
 .category-title {
@@ -341,20 +303,6 @@ defineExpose({
   border: var(--border-width, 1px) solid transparent;
   box-sizing: border-box;
   transition: all 0.3s ease;
-
-  /* 主题特定样式 */
-  body.theme-dark & {
-    border: 1px solid var(--border-color);
-  }
-
-  body.theme-pixel & {
-    border: var(--pixel-size, 2px) solid var(--border-color);
-    border-radius: var(--border-radius);
-  }
-
-  body.theme-paper & {
-    border: 1px solid var(--border-light);
-  }
 }
 
 // 已完成项不再有特殊样式，只通过左边图标区分
@@ -413,15 +361,15 @@ defineExpose({
   font-weight: 500;
 
   &.priority-high {
-    background: rgba(255, 107, 107, 0.15);
-    color: var(--danger-color, #dc3545);
-    border: 1px solid rgba(255, 107, 107, 0.3);
+    background: var(--danger-light);
+    color: var(--danger-color);
+    border: 1px solid var(--danger-color);
   }
 
   &.priority-low {
-    background: rgba(102, 126, 234, 0.1);
-    color: var(--primary-color, #667eea);
-    border: 1px solid rgba(102, 126, 234, 0.25);
+    background: var(--primary-light);
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
   }
 }
 
@@ -433,6 +381,6 @@ defineExpose({
   padding: 20px;
   background: var(--bg-input);
   border-radius: var(--border-radius, 8px);
-  border: 1px dashed var(--border-color);
+  border: var(--border-width) dashed var(--border-color);
 }
 </style>

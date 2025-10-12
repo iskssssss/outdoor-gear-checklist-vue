@@ -205,7 +205,7 @@ defineExpose({
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: var(--bg-overlay, rgba(0, 0, 0, 0.5));
+  background-color: var(--bg-overlay);
   backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
@@ -216,7 +216,7 @@ defineExpose({
 /* 内容容器 */
 .base-modal-content {
   background: var(--bg-card);
-  border-radius: 12px;
+  border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-xl);
   display: flex;
   flex-direction: column;
@@ -229,8 +229,8 @@ defineExpose({
   justify-content: space-between;
   align-items: center;
   padding: 25px 30px;
-  border-bottom: 2px solid var(--border-color);
-  border-radius: 12px 12px 0 0;
+  border-bottom: var(--border-width-lg) solid var(--border-color);
+  border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
   flex-shrink: 0;
   background: var(--bg-card);
   position: sticky;
@@ -252,7 +252,7 @@ defineExpose({
   background: none;
   border: none;
   padding: 4px 8px;
-  border-radius: 6px;
+  border-radius: var(--border-radius-sm);
   transition: all 0.2s ease;
   line-height: 1;
 
@@ -286,7 +286,7 @@ defineExpose({
   justify-content: flex-end;
   gap: 12px;
   padding: 20px 30px;
-  border-top: 2px solid var(--border-color);
+  border-top: var(--border-width-lg) solid var(--border-color);
   flex-shrink: 0;
 }
 

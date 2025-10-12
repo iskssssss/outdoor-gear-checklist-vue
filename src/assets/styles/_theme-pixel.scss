@@ -42,9 +42,9 @@ body.theme-pixel {
   // 纯黑色文本
   --text-primary: #000000;
   // 加深次要文本颜色
-  --text-secondary: #505050;
+  --text-secondary: #444444;
   // 使用与页头相同的灰色
-  --text-muted: #808080;
+  --text-muted: #5a5a5a;
   // 纯白色文本
   --text-white: #ffffff;
 
@@ -56,6 +56,9 @@ body.theme-pixel {
   --border-color: #505050;
   // 像素风无圆角
   --border-radius: 0;
+  --border-radius-sm: 0;
+  --border-radius-lg: 0;
+  --border-radius-xl: 0;
   // 更粗的边框
   --border-width: 2px;
 
@@ -105,12 +108,60 @@ body.theme-pixel {
   // 整体背景
   background-color: #202020;
 
-  /* 全局应用像素化效果 */
-  * {
+  &, * {
+    /* 全局应用像素化效果 */
     // 确保图片和图标像素化
     image-rendering: pixelated;
     // IE兼容
     -ms-interpolation-mode: nearest-neighbor;
+
+    &::-webkit-scrollbar {
+      width: 16px;
+      background: #a0a0a0;
+    }
+
+    &::-webkit-scrollbar-track {
+      border-left: 2px solid #000;
+      border-right: 2px solid #000;
+      // 像素点背景
+      background: #a0a0a0 repeating-linear-gradient(0deg,
+              transparent,
+              transparent 2px,
+              #909090 2px,
+              #909090 4px);
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #008080;
+      border: 2px solid #000;
+      // 完全无圆角
+      border-radius: 0;
+      box-shadow: inset 1px 1px 0 #00a0a0,
+                  inset -1px -1px 0 #005050;
+
+      &:hover {
+        background: #00a0a0;
+        box-shadow: inset 1px 1px 0 #00d0d0,
+                    inset -1px -1px 0 #007070,
+                    0 0 8px #00d9ff;
+      }
+
+      &:active {
+        background: #00d9ff;
+        box-shadow: 0 0 12px #00d9ff;
+      }
+    }
+
+    // 上下按钮
+    &::-webkit-scrollbar-button {
+      height: 16px;
+      background: #606060;
+      border: 2px solid #000;
+
+      &:hover {
+        background: #808080;
+      }
+    }
   }
 
   /* 差异化样式 */
@@ -350,6 +401,7 @@ body.theme-pixel {
     color: var(--text-white);
     border: var(--pixel-size) solid var(--pixel-border-color);
     box-shadow: var(--pixel-size) var(--pixel-size) var(--pixel-shadow-color);
+    border-radius: var(--border-radius);
   }
 
   .item {
@@ -548,5 +600,416 @@ body.theme-pixel {
       // 像素风格的焦点阴影
       box-shadow: var(--pixel-size) var(--pixel-size) var(--primary-color) !important;
     }
+  }
+
+  .export-preview {
+    --bg-main-export: #ffffff;
+
+    .item {
+      border-bottom: 2px solid #4a5568;
+    }
+  }
+
+  .stats {
+    .completion-badge {
+      border-radius: 0;
+      background: linear-gradient(90deg, #008080 0%, #00a0a0 100%);
+      box-shadow: 4px 4px var(--pixel-shadow-color);
+      animation: none;
+      border: 2px solid var(--pixel-border-color);
+
+      &.completed {
+        background: linear-gradient(90deg, #00a000 0%, #00c000 100%);
+        box-shadow: 4px 4px #004000;
+      }
+    }
+
+    .progress-bar-container {
+      border-radius: 0;
+      background: #404040;
+      border: 2px solid var(--pixel-border-color);
+      box-shadow: inset 2px 2px var(--pixel-shadow-color);
+    }
+
+    .progress-bar {
+      border-radius: 0;
+      background: linear-gradient(90deg, #008080 0%, #00a0a0 50%, #008080 100%);
+      box-shadow: 2px 2px var(--pixel-shadow-color);
+
+      &::after {
+        display: none;
+      }
+    }
+
+    .info-item {
+      .icon {
+        image-rendering: pixelated;
+      }
+    }
+
+    .stat-item {
+      background: var(--bg-card);
+      border-radius: 0;
+      border: 2px solid var(--pixel-border-color);
+      box-shadow: 4px 4px var(--pixel-shadow-color);
+
+      &::before {
+        display: none;
+      }
+
+      &:hover {
+        transform: translate(-2px, -2px);
+        box-shadow: 6px 6px var(--pixel-shadow-color);
+      }
+    }
+
+    .stat-categories {
+      background: linear-gradient(135deg, #c0c0c0 0%, #a0a0a0 100%);
+      border-color: var(--primary-color);
+    }
+
+    .stat-items {
+      background: linear-gradient(135deg, #a0ffa0 0%, #80e080 100%);
+      border-color: var(--success-color);
+    }
+
+    .stat-weight {
+      background: linear-gradient(135deg, #ffff80 0%, #e0e060 100%);
+      border-color: var(--warning-color);
+    }
+
+    .stat-price {
+      background: linear-gradient(135deg, #ffa0a0 0%, #e08080 100%);
+      border-color: var(--danger-color);
+
+      .stat-number {
+        color: var(--text-primary);
+        background: none;
+        -webkit-text-fill-color: unset;
+      }
+    }
+  }
+}
+
+.item-name {
+  align-items: normal;
+}
+
+.item-index {
+  background: #008080;
+  border: 2px solid #202020;
+  border-radius: 0;
+  color: #ffffff;
+  font-weight: 700;
+  font-family: 'Courier New', monospace;
+  min-width: 20px;
+  height: 20px;
+  line-height: 20px;
+  padding: 0 6px;
+  box-shadow: 2px 2px 0 #404040;
+  image-rendering: pixelated;
+}
+
+.item:hover .item-index {
+  background: #00a0a0;
+  color: #ffffff;
+  border-color: #000000;
+  transform: scale(1.05);
+  box-shadow: 3px 3px 0 #606060;
+}
+
+/* ===== 导航栏独特风格 - 像素硬边 ===== */
+body.theme-pixel .nav-menu {
+  background: #808080;
+  padding: 8px 12px !important;
+  border: var(--border-width) solid var(--pixel-border-color);
+  box-shadow: 4px 4px 0 #000;
+  margin: 8px 0;
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: -4px;
+    right: -4px;
+    bottom: -4px;
+    border: 1px dashed #00d9ff;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  
+  &:hover::before {
+    opacity: 1;
+    animation: pixel-border-blink 0.5s steps(2) infinite;
+  }
+}
+
+@keyframes pixel-border-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+body.theme-pixel .nav-link {
+  position: relative;
+  font-family: var(--font-family-base);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: #00d9ff;
+    box-shadow: 0 0 4px #00d9ff;
+    transition: width 0.2s steps(5);
+    pointer-events: none;
+  }
+  
+  &:hover:not(.disabled)::after {
+    width: 100%;
+  }
+  
+  &:hover:not(.disabled) {
+    color: #00d9ff;
+    text-shadow: 0 0 8px #00d9ff;
+    background: #606060;
+  }
+  
+  &.router-link-active {
+    background: #00a0a0;
+    color: #ffffff;
+    box-shadow: inset 2px 2px 0 #006060;
+    text-shadow: 1px 1px 0 #000000;
+  }
+}
+
+/* ===== 尾部栏独特风格 - 像素底栏 ===== */
+body.theme-pixel .app-footer {
+  background: #505050;
+  border-top: var(--border-width) solid var(--pixel-border-color);
+  // 移除可能导致抽动的外部阴影，改为内部阴影
+  box-shadow: inset 0 2px 0 #707070;
+  position: relative;
+  // 确保不会产生额外高度
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: repeating-linear-gradient(90deg, 
+      #00d9ff 0px, 
+      #00d9ff 4px, 
+      transparent 4px, 
+      transparent 8px);
+    pointer-events: none;
+    animation: pixel-scan 2s linear infinite;
+    z-index: 1;
+  }
+  
+  // 确保内容在伪元素之上
+  > * {
+    position: relative;
+    z-index: 2;
+  }
+}
+
+@keyframes pixel-scan {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(8px); }
+}
+
+body.theme-pixel .footer-title {
+  color: #00d9ff;
+  font-family: var(--font-family-base);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-shadow: 2px 2px 0 #000000,
+               0 0 10px #00d9ff;
+}
+
+body.theme-pixel .footer-links a {
+  color: #c0c0c0;
+  font-family: var(--font-family-base);
+  font-size: 0.7rem;
+  
+  &:hover {
+    color: #00d9ff;
+    text-shadow: 0 0 8px #00d9ff;
+    transform: translateX(4px);
+  }
+}
+
+body.theme-pixel .version-tag {
+  background: #008080;
+  border: 2px solid #00d9ff;
+  color: #ffffff;
+  box-shadow: 2px 2px 0 #000,
+              inset 1px 1px 0 #00a0a0,
+              0 0 10px #00d9ff;
+  font-family: var(--font-family-base);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* ===== Markdown页面独特风格 - 像素硬边 ===== */
+body.theme-pixel .markdown-container {
+  background: #c0c0c0;
+  border: var(--border-width) solid var(--pixel-border-color);
+  box-shadow: 4px 4px 0 #000;
+  border-radius: 0;
+  position: relative;
+  // 增加右侧padding让像素滚动条远离边框
+  padding: 20px 28px 40px 20px !important;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    right: 4px;
+    bottom: 4px;
+    border: 1px dashed #505050;
+    pointer-events: none;
+    z-index: 0;
+  }
+  
+  > * {
+    position: relative;
+    z-index: 1;
+  }
+  
+  // 像素风格滚动条 - 加强像素感
+  :deep(*) {
+    &::-webkit-scrollbar {
+      width: 16px;
+      background: #a0a0a0;
+    }
+    
+    &::-webkit-scrollbar-track {
+      background: #a0a0a0;
+      border-left: 2px solid #000;
+      border-right: 2px solid #000;
+      // 像素点背景
+      background-image: 
+        repeating-linear-gradient(0deg, 
+          transparent, 
+          transparent 2px, 
+          #909090 2px, 
+          #909090 4px);
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background: #008080;
+      border: 2px solid #000;
+      // 完全无圆角
+      border-radius: 0;
+      box-shadow: inset 1px 1px 0 #00a0a0,
+                  inset -1px -1px 0 #005050;
+      
+      &:hover {
+        background: #00a0a0;
+        box-shadow: inset 1px 1px 0 #00d0d0,
+                    inset -1px -1px 0 #007070,
+                    0 0 8px #00d9ff;
+      }
+      
+      &:active {
+        background: #00d9ff;
+        box-shadow: 0 0 12px #00d9ff;
+      }
+    }
+    
+    // 上下按钮
+    &::-webkit-scrollbar-button {
+      height: 16px;
+      background: #606060;
+      border: 2px solid #000;
+      
+      &:hover {
+        background: #808080;
+      }
+    }
+  }
+}
+
+body.theme-pixel .markdown-toc {
+  background: #808080;
+  border: var(--border-width) solid var(--pixel-border-color);
+  box-shadow: 3px 3px 0 #000;
+  border-radius: 0;
+  padding: 16px 24px 16px 16px !important;
+  
+  &::-webkit-scrollbar {
+    width: 14px;
+    background: #606060;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: #606060;
+    border-left: 2px solid #000;
+    border-right: 2px solid #000;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: #008080;
+    border: 2px solid #000;
+    border-radius: 0;
+    box-shadow: inset 1px 1px 0 #00a0a0;
+    
+    &:hover {
+      background: #00a0a0;
+      box-shadow: inset 1px 1px 0 #00d0d0,
+                  0 0 8px #00d9ff;
+    }
+  }
+  
+  &::-webkit-scrollbar-button {
+    height: 14px;
+    background: #505050;
+    border: 2px solid #000;
+  }
+}
+
+body.theme-pixel .toc-header {
+  border-bottom: 2px solid #000;
+  
+  h3 {
+    color: #00d9ff;
+    font-family: var(--font-family-base);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 1px 1px 0 #000,
+                 0 0 10px #00d9ff;
+  }
+}
+
+body.theme-pixel .toc-item.active a {
+  background: #00a0a0;
+  color: #ffffff;
+  box-shadow: inset 2px 2px 0 #006060;
+  text-shadow: 1px 1px 0 #000;
+}
+
+body.theme-pixel .refresh-btn {
+  font-family: var(--font-family-base);
+  font-size: 0.7rem;
+  
+  &:hover:not(:disabled) {
+    background: #00a0a0;
+    color: #ffffff;
+    box-shadow: inset 1px 1px 0 #00d0d0;
   }
 }

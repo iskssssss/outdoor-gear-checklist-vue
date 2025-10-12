@@ -54,7 +54,8 @@ export const localStorageKeys = {
   modelSettings: 'outdoorApiSettings',
   recommendationPreferences: 'outdoorRecommendationPreferences',
   equipmentChecklist: 'outdoorChecklist',
-  customRecommendationOptions: 'outdoorCustomRecommendationOptions'
+  customRecommendationOptions: 'outdoorCustomRecommendationOptions',
+  operationLogs: 'outdoorOperationLogs'
 };
 
 /**

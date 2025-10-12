@@ -128,10 +128,10 @@ const priorityConfig = computed(() => {
   const style = getComputedStyle(document.documentElement)
 
   // 获取主题颜色，如果不存在则使用默认值
-  const dangerColor = style.getPropertyValue('--danger-color').trim() || '#dc3545'
-  const warningColor = style.getPropertyValue('--warning-color').trim() || '#ff9800'
-  const successColor = style.getPropertyValue('--success-color').trim() || '#28a745'
-  const infoColor = style.getPropertyValue('--info-color').trim() || '#17a2b8'
+  const dangerColor = style.getPropertyValue('--danger-color').trim()
+  const warningColor = style.getPropertyValue('--warning-color').trim()
+  const successColor = style.getPropertyValue('--success-color').trim()
+  const infoColor = style.getPropertyValue('--info-color').trim()
 
   return {
     'critical': {
@@ -445,7 +445,7 @@ defineExpose({ show, close })
 <style scoped lang="scss">
 .recommendation-settings {
   background: var(--bg-input);
-  border-radius: 10px;
+  border-radius: var(--border-radius-lg);
   padding: 20px;
   margin-bottom: 20px;
 }
@@ -473,9 +473,9 @@ defineExpose({ show, close })
 
 .config-info {
   padding: 15px;
-  background: var(--bg-input);
-  border-left: 4px solid var(--primary-color);
-  border-radius: 6px;
+  border-left: var(--border-width-lg) solid var(--primary-color);
+  background: var(--bg-hover);
+  border-radius: var(--border-radius);
   margin-bottom: 20px;
   line-height: 1.6;
 }
@@ -490,7 +490,7 @@ defineExpose({ show, close })
 .btn {
   padding: 12px 30px;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--border-radius-sm);
   font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
@@ -508,17 +508,17 @@ defineExpose({ show, close })
 }
 
 .btn-secondary {
-  background: var(--text-muted, #6c757d);
-  color: var(--text-white, white);
+  background: var(--text-muted);
+  color: var(--text-white);
 }
 
 .btn:not(:disabled):hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-md);
 }
 
 .recommendation-results {
-  border-top: 2px solid var(--border-color);
+  border-top: var(--border-width-lg) solid var(--border-color);
   padding-top: 20px;
 }
 
@@ -532,7 +532,7 @@ defineExpose({ show, close })
 .success {
   text-align: center;
   padding: 30px;
-  border-radius: 8px;
+  border-radius: var(--border-radius);
 }
 
 .loading {
@@ -541,14 +541,14 @@ defineExpose({ show, close })
 }
 
 .error {
-  color: var(--danger-color, #dc3545);
-  background: var(--danger-light, #f8d7da);
+  color: var(--danger-color);
+  background: var(--danger-light);
   white-space: pre-line;
 }
 
 .success {
-  color: var(--success-color, #28a745);
-  background: var(--success-light, #d4edda);
+  color: var(--success-color);
+  background: var(--success-light);
 }
 
 .recommendation-content {
@@ -563,11 +563,10 @@ defineExpose({ show, close })
 
 .recommendation-item {
   padding: 20px;
-  border-left: 4px solid;
-  border-radius: 8px;
+  border-left: var(--border-width-lg) solid;
+  border-radius: var(--border-radius);
   transition: all 0.3s ease;
-  background: var(--bg-input);
-  border: 1px solid var(--border-color);
+  border: var(--border-width) solid var(--border-color);
   backdrop-filter: blur(10px);
   // 显式添加底部边距
   margin-bottom: 15px;
@@ -580,7 +579,7 @@ defineExpose({ show, close })
 
 .recommendation-item:hover {
   transform: translateX(5px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-lg);
   border-color: currentColor;
 }
 
@@ -595,13 +594,13 @@ defineExpose({ show, close })
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  background: var(--primary-color);
-  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  border-radius: 20px;
+  background: var(--bg-input);
+  color: var(--text-secondary);
   font-weight: 600;
   font-size: 1.1rem;
-  color: var(--text-white, white);
 }
 
 .recommendation-title {
@@ -616,8 +615,8 @@ defineExpose({ show, close })
   border-radius: 20px;
   font-size: 0.85rem;
   font-weight: 600;
-  color: var(--text-white, white);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  color: var(--text-white);
+  box-shadow: var(--shadow-sm);
 }
 
 .recommendation-description {
@@ -660,7 +659,7 @@ defineExpose({ show, close })
   background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: 6px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-lg);
   z-index: 10;
   margin-top: 5px;
   padding: 0;

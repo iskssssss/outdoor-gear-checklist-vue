@@ -231,15 +231,15 @@ defineExpose({ show, close })
   padding: 15px;
   background: var(--bg-input);
   border-left: 4px solid var(--primary-color);
-  border-radius: 6px;
+  border-radius: var(--border-radius-sm);
   margin-bottom: 20px;
   line-height: 1.6;
 }
 
 .config-info.warning {
-  background: var(--warning-light, #fff3cd);
-  border-left-color: var(--warning-color, #ffc107);
-  color: var(--warning-text, #856404);
+  background: var(--warning-light);
+  border-left-color: var(--warning-color);
+  color: var(--warning-text);
 }
 
 .config-section {
@@ -269,7 +269,7 @@ defineExpose({ show, close })
   width: 100%;
   padding: 10px 15px;
   border: 2px solid var(--border-color);
-  border-radius: 6px;
+  border-radius: var(--border-radius-sm);
   font-size: 1rem;
   transition: all 0.3s ease;
   background: var(--bg-input);
@@ -281,7 +281,7 @@ defineExpose({ show, close })
 .setting-group textarea:focus {
   outline: none;
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px var(--primary-color-shadow, rgba(102, 126, 234, 0.1));
+  box-shadow: 0 0 0 3px var(--primary-color-shadow);
 }
 
 .setting-group small {
@@ -301,7 +301,7 @@ defineExpose({ show, close })
   width: 100%;
   padding: 12px 15px;
   border: 2px solid var(--border-color);
-  border-radius: 6px;
+  border-radius: var(--border-radius-sm);
   font-size: 1rem;
   resize: vertical;
   background: var(--bg-input);
@@ -310,7 +310,7 @@ defineExpose({ show, close })
 
 .test-result {
   padding: 20px;
-  border-radius: 8px;
+  border-radius: var(--border-radius);
   white-space: pre-line;
   line-height: 1.6;
 }
@@ -321,13 +321,13 @@ defineExpose({ show, close })
 }
 
 .test-result.success {
-  background: var(--success-light, #d4edda);
-  color: var(--success-text, #155724);
+  background: var(--success-light);
+  color: var(--success-text);
 }
 
 .test-result.error {
-  background: var(--danger-light, #f8d7da);
-  color: var(--danger-text, #721c24);
+  background: var(--danger-light);
+  color: var(--danger-text);
 }
 
 .config-actions {
@@ -342,7 +342,7 @@ defineExpose({ show, close })
 .btn {
   padding: 12px 30px;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--border-radius-sm);
   font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
@@ -356,12 +356,12 @@ defineExpose({ show, close })
 
 .btn-primary {
   background: var(--primary-color);
-  color: var(--text-white, white);
+  color: var(--text-white);
 }
 
 .btn-secondary {
-  background: var(--text-muted, #6c757d);
-  color: var(--text-white, white);
+  background: var(--text-muted);
+  color: var(--text-white);
 }
 
 .btn:not(:disabled):hover {

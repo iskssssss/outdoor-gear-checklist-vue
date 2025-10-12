@@ -104,12 +104,12 @@ defineExpose({
   max-width: 400px;
   padding: 14px 16px;
   background: var(--bg-card);
-  border-radius: 10px;
+  border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-lg);
   pointer-events: auto;
   cursor: pointer;
   transition: all 0.3s ease;
-  border-left: 4px solid;
+  border-left: 6px solid;
 
   &:hover {
     transform: translateX(-4px);

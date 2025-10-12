@@ -1,6 +1,6 @@
 <template>
-  <BaseModal ref="modalRef" title="🛒 导入购物车商品" width="800px" max-height="90vh" :close-on-overlay-click="false"
-    :disable-body-scroll="isImporting" :before-close="handleBeforeClose" @after-close="resetStateAfterClose">
+  <BaseModal ref="modalRef" title="🛒 导入购物车商品" width="1600px" max-height="110vh" :close-on-overlay-click="false"
+    :disable-body-scroll="isImporting" :before-close="handleBeforeClose" @after-close="resetState">
     <div class="import-cart-wrapper" :class="{ importing: isImporting }">
       <!-- 导入中遮罩 -->
       <div v-if="isImporting" class="importing-overlay">
@@ -10,7 +10,7 @@
           <p class="warning-text">⚠️ 请勿关闭此窗口</p>
         </div>
       </div>
-      <div v-if="showInputSection" class="import-section">
+      <div v-if="currentStep === 'input'" class="import-section">
         <h4>粘贴京东购物车分享信息</h4>
         <p class="help-text">
           <strong>📋 方式一（推荐）：</strong>直接粘贴京东分享文本<br>
@@ -29,7 +29,7 @@
         </div>
       </div>
 
-      <div v-if="parsedItems.length > 0" class="parsed-items-section">
+      <div v-if="currentStep === 'select'" class="parsed-items-section">
         <div class="parsed-items-header">
           <h4>解析到的商品 ({{ parsedItems.length }}件)</h4>
           <button class="btn btn-secondary btn-sm" @click="goBackToInput">← 返回</button>
@@ -44,18 +44,80 @@
             <input type="checkbox" :id="`item-${item.id}`" :value="item.id" v-model="selectedItems"
               class="item-checkbox" />
             <label :for="`item-${item.id}`" class="item-content">
-              <span class="item-name">{{ item.name }}</span>
+              <div class="item-name-and-price">
+                <span class="item-name">{{ item.name }}</span>
+                <span v-if="item.price !== null" class="item-price">￥{{ item.price.toFixed(2) }}</span>
+              </div>
               <span class="item-quantity">x{{ item.quantity }}</span>
             </label>
           </div>
         </div>
         <div class="import-actions">
-          <button class="btn btn-primary" @click="debouncedImportCart"
-            :disabled="isImporting || selectedItems.length === 0">
-            {{ isImporting ? '正在导入...' : `导入选中商品 (${selectedItems.length}件)` }}
+          <button class="btn btn-primary" @click="debouncedAnalyze"
+            :disabled="isLoading || selectedItems.length === 0">
+            {{ isLoading ? '正在分析...' : `分析选中商品 (${selectedItems.length}件)` }}
           </button>
         </div>
       </div>
+
+      <!-- 新增：分析后可编辑的列表 -->
+      <div v-if="currentStep === 'edit'" class="analyzed-items-section">
+        <div class="analyzed-items-header">
+          <h4>编辑商品信息 <span class="header-note">(可重新计算单价)</span></h4>
+          <button class="btn btn-secondary btn-sm" @click="goBackToSelect">← 返回</button>
+        </div>
+
+        <table class="edit-table">
+          <thead>
+            <tr>
+              <th>商品名</th>
+              <th class="w-category">分类</th>
+              <th class="w-quantity">数量</th>
+              <th class="w-unit">单位</th>
+              <th class="w-price">总价</th>
+              <th class="w-price">单价</th>
+              <th class="w-action">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="item in analyzedItems" :key="item.id">
+              <td>
+                <input v-model="item.name" class="editable-input" />
+                <div v-if="item.note" class="item-note-edit">
+                  {{ item.note }}
+                </div>
+              </td>
+              <td>
+                <input v-model="item.category" class="editable-input" />
+              </td>
+              <td class="text-center">
+                <input type="number" v-model.number="item.quantity" min="1" class="editable-input quantity" />
+              </td>
+              <td>
+                <input v-model="item.quantityUnit" class="editable-input unit" placeholder="件" />
+              </td>
+              <td class="text-center">
+                <input type="number" v-model.number="item.totalPrice" :placeholder="item.price ? (item.price * item.quantity).toFixed(2) : '0.00'" min="0" step="0.01" class="editable-input price" />
+              </td>
+              <td class="text-center">
+                <span class="font-medium">{{ item.price?.toFixed(2) ?? '—' }}</span>
+              </td>
+              <td class="text-center">
+                <button @click="recalculatePrice(item)" class="btn-recalculate">
+                  重新计算
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="import-actions">
+          <button @click="debouncedImport" :disabled="isImporting || analyzedItems.length === 0" class="btn btn-primary">
+            导入选中商品
+          </button>
+        </div>
+      </div>
+
 
       <div v-if="message" :class="['info-message', messageType]">{{ message }}</div>
     </div>
@@ -64,392 +126,212 @@
 
 <script setup>
 import { ref, inject, watch, computed } from 'vue';
+import BaseModal from '../common/BaseModal.vue';
+import { debounce } from '../../utils/debounce';
 import { useEquipmentStore } from '../../stores/equipment';
 import { useModelConfigStore } from '../../stores/modelConfig';
 import { useOperationLogStore } from '../../stores/operationLog';
-import BaseModal from '../common/BaseModal.vue';
-import { debounce } from '../../utils/debounce';
+import { useJdParser } from '../../composables/useJdParser';
+import { useModelAnalyzer } from '../../composables/useModelAnalyzer';
+import { useImporter } from '../../composables/useImporter';
 
 const equipmentStore = useEquipmentStore();
 const modelConfigStore = useModelConfigStore();
 const logStore = useOperationLogStore();
+
 const showConfirm = inject('showConfirm');
 const toast = inject('toast');
 
 const modalRef = ref(null);
+
+// 状态
 const cartShareLink = ref('');
 const parsedItems = ref([]);
-const isImporting = ref(false);
+const selectedItems = ref([]);
+const analyzedItems = ref([]);
+const currentStep = ref('input');
 const isLoading = ref(false);
+const isImporting = ref(false);
 const message = ref('');
-const messageType = ref(''); // 'success', 'error', 'info'
-const selectedItems = ref([]); // 新增：存储选中的商品ID
-const showInputSection = ref(true); // 新增：控制输入区域的显示
-const isCancelled = ref(false); // 新增：跟踪导入是否被取消
+const messageType = ref('');
+const isCancelled = ref(false);
 
-// 监听 parsedItems 变化，自动全选商品
+// 计算属性
+const isAllSelected = computed(() =>
+  parsedItems.value.length > 0 &&
+  selectedItems.value.length === parsedItems.value.length
+);
+
+// composables
+const { parseJdContent } = useJdParser();
+const { analyzeWithModel } = useModelAnalyzer(modelConfigStore, equipmentStore);
+const { importAnalyzedItems } = useImporter(equipmentStore, logStore, toast);
+
 watch(parsedItems, (newItems) => {
-  if (newItems.length > 0) {
-    // 默认全选
-    selectedItems.value = newItems.map(item => item.id);
-  } else {
-    selectedItems.value = [];
-  }
+  selectedItems.value = newItems.map(i => i.id);
 });
 
-// 计算属性：是否全选
-const isAllSelected = computed(() => {
-  return parsedItems.value.length > 0 && selectedItems.value.length === parsedItems.value.length;
-});
-
-// 方法：切换全选状态
-function toggleSelectAll() {
-  if (isAllSelected.value) {
-    selectedItems.value = [];
-  } else {
-    selectedItems.value = parsedItems.value.map(item => item.id);
-  }
-}
-
-function resetStateAfterClose() {
+function resetState() {
+  cartShareLink.value = '';
+  parsedItems.value = [];
+  selectedItems.value = [];
+  analyzedItems.value = [];
+  currentStep.value = 'input';
+  isLoading.value = false;
   isImporting.value = false;
   isCancelled.value = false;
   message.value = '';
   messageType.value = '';
-  parsedItems.value = [];
-  selectedItems.value = [];
-  showInputSection.value = true;
-  cartShareLink.value = '';
 }
 
 function show() {
-  resetStateAfterClose();
+  resetState();
   modalRef.value?.show();
 }
 
-/**
- * 关闭前的钩子，用于在导入时确认
- */
-async function handleBeforeClose() {
-  if (isImporting.value) {
-    const confirmed = await showConfirm({
-      title: '取消导入',
-      message: '正在导入商品，确定要取消吗？这可能导致导入不完整。',
-      confirmButtonText: '确定取消',
-      showDangerWarning: true
-    });
-    if (confirmed) {
-      isCancelled.value = true; // 用户确认取消，设置标志
-    }
-    return confirmed;
-  }
-  // 如果不在导入中，则允许关闭
-  return true;
-}
-
-/**
- * 关闭模态框
- */
 function close() {
   modalRef.value?.close();
 }
 
-function clearLink() {
+async function handleBeforeClose() {
   if (isImporting.value) {
-    return; // 导入中不允许清空
+    const confirmed = await showConfirm({
+      title: '取消导入',
+      message: '正在导入中，确定要强制关闭吗？',
+      confirmButtonText: '确定取消',
+      showDangerWarning: true,
+    });
+    if (confirmed) isCancelled.value = true;
+    return confirmed;
   }
+  return true;
+}
+
+function clearLink() {
   cartShareLink.value = '';
-  parsedItems.value = [];
-  selectedItems.value = [];
-  message.value = '';
-  messageType.value = '';
-  // 清空时显示输入区域
-  showInputSection.value = true;
-}
-
-/**
- * 从文本中提取京东短链接
- */
-function extractJdShortLink(text) {
-  // 匹配 https://3.cn/xxx 格式的短链接
-  const shortLinkRegex = /https?:\/\/3\.cn\/[a-zA-Z0-9_-]+/i;
-  const match = text.match(shortLinkRegex);
-  return match ? match[0] : null;
-}
-
-/**
- * 通过代理或直接获取页面HTML
- * 注意：由于浏览器跨域限制，这里需要使用 CORS 代理或者让用户手动提供HTML
- */
-async function fetchPageHtml(url) {
-  try {
-    // 尝试使用 CORS 代理服务
-    // 常用的公共代理：https://corsproxy.io/, https://api.allorigins.win/
-    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
-
-    const response = await fetch(proxyUrl);
-    if (!response.ok) {
-      throw new Error(`HTTP错误: ${response.status}`);
-    }
-
-    const data = await response.json();
-    return data.contents;
-  } catch (error) {
-    console.error('获取页面失败:', error);
-    throw new Error('无法自动获取页面内容，请手动复制页面HTML源代码粘贴');
-  }
 }
 
 async function parseLink() {
+  const input = cartShareLink.value.trim();
+  if (!input) {
+    message.value = '请输入京东购物车分享文本或HTML代码';
+    messageType.value = 'error';
+    return;
+  }
+
   isLoading.value = true;
-  message.value = '正在解析...';
+  message.value = '正在解析中...';
   messageType.value = 'info';
-  parsedItems.value = [];
-
-  const inputContent = cartShareLink.value.trim();
-  if (!inputContent) {
-    message.value = '请输入京东购物车分享信息或HTML源代码。';
-    messageType.value = 'error';
-    isLoading.value = false;
-    return;
-  }
 
   try {
-    let htmlContent = inputContent;
-
-    // 检查是否包含短链接
-    const shortLink = extractJdShortLink(inputContent);
-
-    if (shortLink) {
-      // 如果找到短链接，尝试获取页面内容
-      message.value = `找到链接 ${shortLink}，正在获取页面内容...`;
-      messageType.value = 'info';
-
-      try {
-        htmlContent = await fetchPageHtml(shortLink);
-        message.value = '页面内容获取成功，正在解析商品...';
-      } catch (fetchError) {
-        console.error('自动获取失败:', fetchError);
-        message.value = `无法自动获取页面内容（跨域限制）。\n\n请按以下步骤操作：\n1️⃣ 打开链接：${shortLink}\n2️⃣ 在页面任意位置右键，选择"查看网页源代码"（或按 Ctrl+U / Cmd+Option+U）\n3️⃣ 全选源代码（Ctrl+A / Cmd+A），复制（Ctrl+C / Cmd+C）\n4️⃣ 将源代码粘贴到此处的输入框中，再次点击"解析商品"`;
-        messageType.value = 'error';
-        isLoading.value = false;
-        return;
-      }
-    }
-
-    // 解析HTML内容
-    const extractedItems = extractItemsFromJdHtml(htmlContent);
-
-    if (extractedItems.length === 0) {
-      message.value = '未能从内容中解析出商品。\n如果您粘贴的是分享链接，请手动打开链接并复制完整的HTML源代码。';
+    const result = await parseJdContent(input);
+    if (result.length === 0) {
+      message.value = '未能解析出商品，请确认输入内容。';
       messageType.value = 'error';
     } else {
-      parsedItems.value = extractedItems;
-      message.value = `成功解析到 ${extractedItems.length} 件商品！`;
+      parsedItems.value = result;
+      currentStep.value = 'select';
+      message.value = `成功解析到 ${result.length} 件商品`;
       messageType.value = 'success';
-      // 成功解析后隐藏输入区域
-      showInputSection.value = false;
     }
-
-  } catch (e) {
-    console.error('解析失败:', e);
-    message.value = `解析失败: ${e.message}`;
+  } catch (err) {
+    message.value = `解析失败: ${err.message}`;
     messageType.value = 'error';
   } finally {
     isLoading.value = false;
   }
 }
 
-// 从京东HTML中提取商品信息的函数
-// 注意：这个函数直接从HTML字符串中提取，如果京东页面结构变化，可能需要更新
-function extractItemsFromJdHtml(htmlContent) {
-  const items = [];
-  // 匹配商品名称和数量的正则表达式
-  // 匹配 h4 标签中的 span 内容作为商品名称，以及 num_input 的 value 作为数量
-  // 改进的正则表达式，尝试更健壮地匹配商品信息
-  const itemRegex = /<li[^>]*?>\s*<div class="right-spot">\s*<div class="right-wrapper">\s*<div class="short-description"[^>]*?>.*?<h4><span>([^<]+)<\/span><\/h4>.*?<input[^>]+id="num_\d+"[^>]+value="(\d+)"[^>]*?>.*?<\/li>/gs;
-  let match;
-
-  while ((match = itemRegex.exec(htmlContent)) !== null) {
-    items.push({
-      // 为每个商品生成唯一ID
-      id: Date.now() + Math.random(),
-      name: match[1].trim(),
-      quantity: parseInt(match[2], 10),
-    });
-  }
-  return items;
-}
-
-
-async function importItems() {
-  if (selectedItems.value.length === 0) {
-    message.value = '请至少选择一件商品进行导入。';
-    messageType.value = 'warning';
-    return;
-  }
-
-  isImporting.value = true;
-  isCancelled.value = false; // 重置取消状态
-  message.value = '正在通过大模型分析并导入选中商品到清单...';
-  messageType.value = 'info';
-
+const debouncedAnalyze = debounce(async () => {
+  if (selectedItems.value.length === 0) return;
+  isLoading.value = true;
+  message.value = '正在分析商品，请稍候...';
   try {
-    const itemsToImport = parsedItems.value.filter(item => selectedItems.value.includes(item.id));
-    // 调用大模型进行分类
-    const categorizedItems = await callModelToCategorize(itemsToImport);
-
-    if (isCancelled.value) {
-      console.log('导入操作已被取消，停止添加商品。');
-      message.value = '导入已取消。';
-      messageType.value = 'warning';
-      return;
-    }
-
-    for (const item of categorizedItems) {
-      if (isCancelled.value) {
-        console.log('导入操作已被取消，停止添加商品。');
-        break; // 提前退出循环
-      }
-
-      let category = equipmentStore.categories.find(cat => cat.name === item.category);
-
-      // 如果分类不存在，则创建新分类
-      if (!category) {
-        // 假设大模型会返回或我们有默认图标
-        equipmentStore.addCategory(item.category, item.categoryIcon || '🛍️');
-        // 重新查找新创建的分类
-        category = equipmentStore.categories.find(cat => cat.name === item.category);
-      }
-
-      if (category) {
-        // 添加商品到分类
-        equipmentStore.addItem(category.id, {
-          name: item.name,
-          quantity: item.quantity,
-          quantityUnit: item.quantityUnit || '件',
-          weight: item.weight || 0,
-          weightUnit: item.weightUnit || 'g',
-        });
-      }
-    }
-
-    if (isCancelled.value) {
-      message.value = '导入已取消。';
-      messageType.value = 'warning';
-    } else {
-      toast.success(`成功导入 ${itemsToImport.length} 件商品`);
-      logStore.log('import-cart', `导入了 ${itemsToImport.length} 件购物车商品`, {
-        items: itemsToImport.map(i => i.name).join(', ')
-      });
-      // 成功后立即关闭模态框
-      close();
-    }
-
-  } catch (e) {
-    if (!isCancelled.value) {
-      console.error('导入商品失败:', e);
-      message.value = `导入商品失败: ${e.message}`;
-      messageType.value = 'error';
-    }
-  } finally {
-    isImporting.value = false;
-  }
-}
-
-// 模拟调用大模型进行分类的函数
-// 实际实现会调用 modelConfigStore.testConnection 或类似的API
-async function callModelToCategorize(items) {
-  // 检查是否配置了模型
-  if (!modelConfigStore.settings.apiKey && !modelConfigStore.settings.apiUrl.includes('localhost')) {
-    throw new Error('未配置API，请先在"⚙️ 模型配置"中配置API信息。');
-  }
-
-  const itemNames = items.map(item => item.name).join('; ');
-  // 获取现有分类名称
-  const existingCategories = equipmentStore.categories.map(cat => cat.name);
-  const categoriesHint = existingCategories.length > 0 ? `现有分类包括：${existingCategories.join('、')}。请优先使用这些分类，如果都不适用再建议新分类。` : '';
-  const prompt = `请将以下户外用品列表进行分类。对于每个商品，请给出最合适的户外装备分类（如果不存在，请建议新分类，但尽量使用常见的户外分类如"背负系统"、"睡眠系统"、"服装系统"等）。${categoriesHint}在返回的每个商品的'name'字段中，请根据产品属性保留必要的信息，例如品牌、产品名称、型号等，去除其他冗余信息。同时，如果提供的信息中不存在数量(quantity)和重量(weight)，请将这些字段留空（即设置为null或不包含）。请以JSON数组格式返回结果，每个对象包含 name, category, quantity, quantityUnit, weight, weightUnit 字段。商品列表：${itemNames}`;
-
-  try {
-    // 这里的实现需要根据实际的大模型API进行调整
-    // 假设 modelConfigStore 有一个 testConnection 方法，并且它能够处理并返回结构化的JSON
-    const result = await modelConfigStore.testConnection(prompt);
-    // 假设 content 是带有markdown代码块的字符串
-    const rawContent = result.content;
-    let contentToParse = rawContent;
-
-    // 尝试去除最外层的双引号，以防大模型返回的是一个被包裹在字符串字面量中的JSON
-    if (contentToParse.startsWith('"```json') && contentToParse.endsWith('```"')) {
-      // 移除最外层的双引号
-      contentToParse = contentToParse.substring(1, contentToParse.length - 1);
-    } else if (contentToParse.startsWith('"') && contentToParse.endsWith('"')) {
-      // 移除最外层的双引号
-      contentToParse = contentToParse.substring(1, contentToParse.length - 1);
-    }
-
-    let parsedContent;
-
-    try {
-      // 1. 尝试直接解析
-      parsedContent = JSON.parse(contentToParse);
-    } catch (e1) {
-      // 2. 尝试从Markdown代码块中提取JSON字符串并解析
-      const jsonMatch = contentToParse.match(/```json\n([\s\S]*?)\n```/);
-      if (jsonMatch && jsonMatch[1]) {
-        try {
-          parsedContent = JSON.parse(jsonMatch[1]);
-        } catch (e2) {
-          // 3. 如果markdown中的JSON解析失败，尝试从第一个{}块中提取
-          const braceMatch = contentToParse.match(/\{[\s\S]*\}/);
-          if (braceMatch && braceMatch[0]) {
-            parsedContent = JSON.parse(braceMatch[0]);
-          }
-        }
-      } else {
-        // 3. 如果没有markdown代码块，直接尝试从第一个{}块中提取
-        const braceMatch = contentToParse.match(/\{[\s\S]*\}/);
-        if (braceMatch && braceMatch[0]) {
-          parsedContent = JSON.parse(braceMatch[0]);
-        }
-      }
-    }
-
-    // 确保解析结果是数组，并且包含必要的字段
-    if (!Array.isArray(parsedContent)) {
-      throw new Error('大模型返回的格式不正确，期望一个JSON数组。');
-    }
-    return parsedContent.map(item => ({
-      name: item.name,
-      // 默认分类
-      category: item.category || '未分类',
-      // 如果大模型未提供，则为null
-      quantity: item.quantity === undefined ? null : item.quantity,
-      // 如果大模型未提供，则为null
-      quantityUnit: item.quantityUnit || null,
-      // 如果大模型未提供，则为null
-      weight: item.weight === undefined ? null : item.weight,
-      // 如果大模型未提供，则为null
-      weightUnit: item.weightUnit || null,
-      // 允许大模型返回图标
-      categoryIcon: item.categoryIcon,
+    const items = parsedItems.value.filter(i => selectedItems.value.includes(i.id));
+    const results = await analyzeWithModel(items);
+    // Add totalPrice to each item
+    analyzedItems.value = results.map(item => ({
+      ...item,
+      totalPrice: (item.price && item.quantity) ? parseFloat((item.price * item.quantity).toFixed(2)) : null
     }));
-
-  } catch (e) {
-    console.error('调用大模型失败:', e);
-    throw new Error(`大模型分析失败: ${e.message}`);
+    currentStep.value = 'edit';
+    message.value = '分析完成，可手动编辑';
+    messageType.value = 'success';
+  } catch (err) {
+    message.value = `分析失败: ${err.message}`;
+    messageType.value = 'error';
+  } finally {
+    isLoading.value = false;
   }
-}
+}, 300);
 
-const debouncedImportCart = debounce(importItems, 300);
-const debouncedClose = debounce(close, 300);
+const debouncedImport = debounce(async () => {
+  if (analyzedItems.value.length === 0) return;
+  try {
+    await importAnalyzedItems(analyzedItems.value, isCancelled, isImporting);
+    toast.success(`成功导入 ${analyzedItems.value.length} 件商品`);
+    close();
+  } catch (err) {
+    message.value = err.message;
+    messageType.value = 'error';
+  }
+}, 300);
 
 function goBackToInput() {
-  showInputSection.value = true;
-  message.value = '';
-  messageType.value = '';
+  currentStep.value = 'input';
   parsedItems.value = [];
   selectedItems.value = [];
+  analyzedItems.value = [];
+  message.value = '';
+  messageType.value = '';
+}
+
+function goBackToSelect() {
+  currentStep.value = 'select';
+  analyzedItems.value = [];
+  message.value = `当前已解析 ${parsedItems.value.length} 件商品`;
+  messageType.value = 'success';
+}
+
+function recalculatePrice(item) {
+  if (item.totalPrice === null || item.totalPrice === undefined) {
+    toast.warning('请先填写总价');
+    return;
+  }
+
+  // Detect bundle quantity from name or use existing quantity
+  const match = item.name.match(/(\d+|[一二三四五六七八九十]+)\s*(支|包|件|个|对|瓶|片|条|套)/u);
+  let count = item.quantity;
+  let unit = item.quantityUnit || '件';
+
+  if (match) {
+    let num = match[1];
+    if (isNaN(num)) {
+      const map = { '一': 1, '二': 2, '三': 3, '四': 4, '五': 5, '六': 6, '七': 7, '八': 8, '九': 9, '十': 10 };
+      num = map[num] ?? 1;
+    }
+    count = Number(num);
+    unit = match[2];
+  }
+
+  if (count <= 0) {
+    toast.error('数量必须大于 0');
+    return;
+  }
+
+  const unitPrice = item.totalPrice / count;
+  item.price = parseFloat(unitPrice.toFixed(2));
+  item.quantity = count; // Also update quantity
+  item.quantityUnit = unit; // Update unit as well
+  item.note = `(手动修正: ${count}${unit}套装单价)`;
+
+  toast.success(`已重新计算单价为 ${item.price.toFixed(2)} 元`);
+}
+
+function toggleSelectAll() {
+  selectedItems.value = isAllSelected.value
+    ? []
+    : parsedItems.value.map(i => i.id);
 }
 
 defineExpose({ show, close });
@@ -464,6 +346,135 @@ defineExpose({ show, close });
   // 新增：垂直堆叠子元素
   gap: 20px;
   // 新增：子元素之间的间距
+}
+
+.analyzed-items-section {
+  background: var(--bg-input);
+  border-radius: var(--border-radius-lg);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+
+  .analyzed-items-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    h4 {
+      margin: 0;
+      color: var(--text-primary);
+    }
+    .header-note {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      font-weight: 400;
+      margin-left: 8px;
+    }
+  }
+}
+
+.edit-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+
+  th, td {
+    padding: 10px 8px;
+    border-bottom: var(--border-width) solid var(--border-color);
+    text-align: left;
+  }
+
+  thead th {
+    background-color: var(--bg-input);
+    font-weight: 500;
+  }
+
+  tbody tr:hover {
+    background-color: var(--bg-hover);
+  }
+
+  .w-category { width: 120px; }
+  .w-quantity { width: 80px; }
+  .w-unit { width: 80px; }
+  .w-price { width: 100px; }
+  .w-action { width: 100px; }
+  .text-center { text-align: center; }
+  .font-medium { font-weight: 500; }
+}
+
+.item-note-edit {
+  font-size: 0.8rem;
+  color: var(--warning-color);
+  margin-top: 4px;
+  font-style: italic;
+}
+
+.btn-recalculate {
+  background: none;
+  border: none;
+  color: var(--primary-color);
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 4px;
+
+  &:hover {
+    color: var(--primary-dark);
+  }
+}
+
+.editable-item-list {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.analyzed-item {
+  display: grid;
+  grid-template-columns: 2fr 1fr 0.5fr 0.5fr;
+  gap: 10px;
+  align-items: center;
+  padding: 8px;
+  border-bottom: var(--border-width) solid var(--border-color);
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.item-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.item-note {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.editable-input {
+  width: 100%;
+  padding: 8px 10px;
+  border: var(--border-width) solid var(--border-color);
+  border-radius: var(--border-radius);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  box-sizing: border-box;
+
+  &:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px var(--primary-color-shadow);
+  }
+
+  &.quantity,
+  &.price,
+  &.unit {
+    // 数量和价格输入框可以窄一些
+    max-width: 80px;
+  }
 }
 
 // 导入中遮罩层
@@ -484,7 +495,7 @@ defineExpose({ show, close });
 
 .importing-spinner {
   text-align: center;
-  color: var(--text-white, white);
+  color: var(--text-white);
 
   p {
     margin: 15px 0 5px 0;
@@ -494,7 +505,7 @@ defineExpose({ show, close });
 
   .warning-text {
     font-size: 0.95rem;
-    color: var(--warning-color, #ffc107);
+    color: var(--warning-color);
     margin-top: 10px;
     font-weight: 600;
   }
@@ -505,7 +516,7 @@ defineExpose({ show, close });
   width: 50px;
   height: 50px;
   border: 4px solid var(--bg-input);
-  border-top-color: var(--primary-color, #667eea);
+  border-top-color: var(--primary-color);
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin: 0 auto;
@@ -519,7 +530,7 @@ defineExpose({ show, close });
 
 .import-section {
   background: var(--bg-input);
-  border-radius: 10px;
+  border-radius: var(--border-radius-lg);
   padding: 20px;
   display: flex;
   flex-direction: column;
@@ -539,14 +550,14 @@ defineExpose({ show, close });
   padding: 10px;
   background: var(--primary-light, rgba(102, 126, 234, 0.05));
   border-left: 3px solid var(--primary-color);
-  border-radius: 4px;
+  border-radius: var(--border-radius-sm);
 }
 
 .share-link-input {
   width: 100%;
   padding: 12px 15px;
   border: 2px solid var(--border-color);
-  border-radius: 8px;
+  border-radius: var(--border-radius-lg);
   font-size: 1rem;
   background: var(--bg-card);
   color: var(--text-primary);
@@ -561,7 +572,7 @@ defineExpose({ show, close });
   &:focus {
     outline: none;
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px var(--primary-color-shadow, rgba(102, 126, 234, 0.1));
+    box-shadow: 0 0 0 3px var(--primary-color-shadow);
   }
 }
 
@@ -574,7 +585,7 @@ defineExpose({ show, close });
 .btn {
   padding: 10px 24px;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--border-radius-sm);
   font-size: 0.95rem;
   font-weight: 500;
   cursor: pointer;
@@ -588,11 +599,11 @@ defineExpose({ show, close });
 
 .btn-primary {
   background: var(--primary-color);
-  color: var(--text-white, white);
+  color: var(--text-white);
 
   &:not(:disabled):hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px var(--primary-color-shadow, rgba(102, 126, 234, 0.2));
+    box-shadow: 0 4px 12px var(--primary-color-shadow);
   }
 }
 
@@ -608,7 +619,7 @@ defineExpose({ show, close });
 
 .parsed-items-section {
   background: var(--bg-input);
-  border-radius: 10px;
+  border-radius: var(--border-radius-lg);
   padding: 20px;
   display: flex;
   flex-direction: column;
@@ -637,7 +648,7 @@ defineExpose({ show, close });
   max-height: 250px;
   overflow-y: auto;
   border: 1px solid var(--border-color);
-  border-radius: 6px;
+  border-radius: var(--border-radius-sm);
   padding: 10px;
   background: var(--bg-card);
 }
@@ -685,7 +696,7 @@ defineExpose({ show, close });
   align-items: center;
   padding: 8px 12px;
   background: var(--bg-card);
-  border-radius: 6px;
+  border-radius: var(--border-radius-sm);
   border: 1px solid var(--border-color);
   transition: all 0.2s ease;
 
@@ -698,11 +709,23 @@ defineExpose({ show, close });
 .item-name {
   font-weight: 500;
   color: var(--text-primary);
-  // 明确设置主文本颜色
   flex-grow: 1;
   // 允许名称占据更多空间
   margin-right: 10px;
   // 与数量的间距
+}
+
+.item-name-and-price {
+  display: flex;
+  align-items: baseline;
+  flex-grow: 1;
+  gap: 10px;
+}
+
+.item-price {
+  color: var(--danger-color, #dc3545);
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 .item-quantity {
@@ -722,7 +745,7 @@ defineExpose({ show, close });
 
 .info-message {
   padding: 15px;
-  border-radius: 8px;
+  border-radius: var(--border-radius-sm);
   text-align: center;
   font-weight: 500;
   line-height: 1.5;

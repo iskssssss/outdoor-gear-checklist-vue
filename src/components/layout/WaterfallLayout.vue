@@ -392,7 +392,7 @@ onUnmounted(() => {
   position: absolute;
   background: transparent;
   border: 2px dashed var(--primary-color);
-  border-radius: 12px;
+  border-radius: var(--border-radius-lg);
   padding: 32px;
   display: flex;
   flex-direction: column;
@@ -418,7 +418,7 @@ onUnmounted(() => {
   position: absolute;
   background: var(--bg-card);
   border: 2px solid var(--primary-color);
-  border-radius: 12px;
+  border-radius: var(--border-radius-lg);
   padding: 24px;
   display: flex;
   flex-direction: column;

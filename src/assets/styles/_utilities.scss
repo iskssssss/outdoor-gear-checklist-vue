@@ -7,22 +7,6 @@
 
 * {
   box-sizing: border-box;
-
-  &::-webkit-scrollbar {
-    width: 10px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: var(--scrollbar-track-bg, #f5f5f5);
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: var(--scrollbar-thumb-bg, #ddd);
-  }
-
-  &::-webkit-scrollbar-thumb:hover {
-    background: var(--scrollbar-thumb-hover-bg, #999);
-  }
 }
 
 /* ==================== 阴影效果类 ==================== */
@@ -52,11 +36,11 @@
 
 /* ==================== 圆角类 ==================== */
 .rounded-sm {
-  border-radius: 4px;
+  border-radius: var(--border-radius-sm);
 }
 
 .rounded {
-  border-radius: 6px;
+  border-radius: var(--border-radius);
 }
 
 .rounded-md {
@@ -64,7 +48,11 @@
 }
 
 .rounded-lg {
-  border-radius: 12px;
+  border-radius: var(--border-radius-lg);
+}
+
+.rounded-xl {
+  border-radius: var(--border-radius-xl);
 }
 
 .rounded-full {

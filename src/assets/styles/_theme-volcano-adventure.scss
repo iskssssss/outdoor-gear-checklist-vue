@@ -1,0 +1,296 @@
+/**
+ * 火山熔岩主题 - 炽热激情风格
+ * 只定义差异化样式，通用样式在 _base.scss 中
+ */
+
+@use 'mixins' as *;
+
+body.theme-volcano-adventure {
+  /* ===== CSS 变量定义 ===== */
+  // 火山熔岩主题（Volcano Adventure）
+  // 主色调：火红 → 暗红
+  --primary-color: #e63900;        // 橙红色
+  --primary-dark: #B22222;         // 火砖红
+  --secondary-color: #FF8C00;      // 暗橙色
+  --success-color: #4CAF50;        // 已准备装备绿色
+  --success-light: #E6F4EA;
+  --warning-color: #FFC107;        // 注意或待准备装备
+  --warning-light: #FFF3E0;
+  --danger-color: #D50000;         // 紧急红
+  --danger-light: #FFEBEE;
+  --info-color: #FF7043;           // 火焰提示色
+  --info-light: #FFECE6;
+
+  --bg-gradient: linear-gradient(135deg, #FF4500 0%, #8B0000 100%);
+  --bg-main: #FFF4F1;
+  --bg-card: #FFFFFF;
+  --bg-header: #FFECE6;
+  --bg-input: #FFDAD0;
+  --bg-hover: #FFC9B8;
+  --bg-button-group: #FFC9B8;
+  --bg-overlay: rgba(0, 0, 0, 0.5);
+
+  --text-primary: #4E1B1B;
+  --text-secondary: #6D2E2E;
+  --text-muted: #8D4B4B;
+  --text-white: #FFFFFF;
+
+  --btn-primary-text: #FFFFFF;
+  --btn-success-text: #FFFFFF;
+  --btn-danger-text: #FFFFFF;
+
+  --border-color: #FFC9B8;
+  --border-radius: 8px;
+  --border-radius-sm: 6px;
+  --border-radius-lg: 12px;
+  --border-radius-xl: 16px;
+  --border-width: 1px;
+
+  --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --danger-shadow: 0 2px 8px rgba(213, 0, 0, 0.4);
+  --primary-color-shadow: rgba(255, 69, 0, 0.3);
+  --primary-color-bg-light: rgba(255, 69, 0, 0.15);
+  --primary-color-border: rgba(255, 69, 0, 0.4);
+
+  --bg-mask: rgba(255, 255, 255, 0.3);
+  --shadow-inset: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shimmer-gradient: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  --shimmer-gradient-light: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  --text-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
+  --pulse-glow-start: 0 0 15px rgba(255, 69, 0, 0.5);
+  --pulse-glow-end: 0 0 25px rgba(255, 69, 0, 0.8);
+
+  --scrollbar-track-bg: #FFDAD0;
+  --scrollbar-thumb-bg: #FF8C00;
+  --scrollbar-thumb-hover-bg: #FF4500;
+
+  --btn-success: #4CAF50;
+  --btn-primary: #FF4500;
+  --btn-warning: #FFC107;
+  --btn-danger: #D50000;
+  --btn-info: #FF7043;
+  --btn-secondary: #FF8C00;
+
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 600;
+
+  /* ===== 差异化样式 - 仅火山熔岩主题特有 ===== */
+
+  color: var(--text-primary);
+
+  .app-container {
+    background: linear-gradient(135deg, #FFB8A3 0%, #FFD4C8 100%);
+  }
+
+  .header {
+    box-shadow: 0 6px 20px rgba(255, 69, 0, 0.3);
+  }
+
+  .category-header {
+    background: linear-gradient(135deg, #e63900 0%, #8B0000 100%);
+    color: var(--text-white);
+  }
+
+  .category-title {
+    color: var(--text-white);
+  }
+
+  .category-collapse-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: var(--text-white);
+  }
+
+  .item:hover {
+    background: #FFEAE5;
+  }
+
+  .item.completed {
+    background: #E6F4EA;
+  }
+
+  .stat-item {
+    background: linear-gradient(135deg, #e63900 0%, #FF6347 100%);
+    color: var(--text-white);
+  }
+
+  .nav-menu {
+    border-color: rgba(255, 69, 0, 0.2);
+  }
+
+  .nav-link {
+    color: var(--text-secondary);
+
+    &:hover {
+      color: var(--primary-color);
+      border-bottom-color: var(--primary-color);
+    }
+
+    &.danger:hover {
+      color: var(--danger-color);
+      border-bottom-color: var(--danger-color);
+    }
+  }
+
+  .modal-header {
+    background: linear-gradient(135deg, #e63900 0%, #8B0000 100%);
+    color: var(--text-white);
+    border-bottom: 2px solid var(--border-color);
+
+    h3,
+    .close {
+      color: var(--text-white);
+    }
+  }
+
+  /* 智能推荐按钮火山风格 */
+  .btn-recommendation {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%) !important;
+    color: var(--text-white) !important;
+    border: none !important;
+    box-shadow: 0 4px 12px rgba(255, 69, 0, 0.3);
+
+    &:hover:not(:disabled) {
+      background: linear-gradient(135deg, #FF5722 0%, #8B0000 100%) !important;
+      box-shadow: 0 6px 20px rgba(255, 69, 0, 0.4);
+    }
+  }
+
+  /* 撤销按钮火山风格 */
+  .btn-undo {
+    background: var(--success-color) !important;
+    color: var(--text-white) !important;
+    border: none !important;
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+
+    &:hover:not(:disabled) {
+      box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+      filter: brightness(1.1);
+    }
+
+    &:disabled {
+      background: var(--text-muted) !important;
+      opacity: 0.6;
+    }
+  }
+
+  .add-category-card:hover {
+    box-shadow: var(--shadow-hover);
+  }
+
+  .add-category-input-card {
+    box-shadow: var(--shadow-lg);
+  }
+
+  .item-index {
+    background: linear-gradient(135deg, rgba(255, 69, 0, 0.2) 0%, rgba(255, 140, 0, 0.2) 100%);
+    border: 1px solid rgba(255, 69, 0, 0.5);
+    border-radius: var(--border-radius-sm);
+    color: var(--primary-color);
+    font-weight: 600;
+  }
+
+  .item:hover .item-index {
+    background: linear-gradient(135deg, #FF4500 0%, #FF8C00 100%);
+    color: #ffffff;
+    border-color: #FF4500;
+    box-shadow: 0 3px 8px rgba(255, 69, 0, 0.4);
+  }
+
+  .stats {
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #FF4500 0%, #FF8C00 50%, #FFC107 100%);
+      z-index: 1;
+    }
+
+    .completion-badge {
+      background: linear-gradient(135deg, #FF4500 0%, #FF8C00 100%);
+      animation: pulse 2s ease-in-out infinite;
+
+      &.completed {
+        background: linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%);
+      }
+    }
+
+    .progress-bar-container {
+      background: #FFDAD0;
+    }
+
+    .progress-bar {
+      background: linear-gradient(90deg, #FF4500 0%, #FF8C00 50%, #FFC107 100%);
+      box-shadow: 0 2px 8px rgba(255, 69, 0, 0.3);
+    }
+
+    .info-item {
+      .icon {
+        filter: grayscale(0);
+      }
+    }
+
+    .stat-item {
+      &::before {
+        background: linear-gradient(90deg, transparent, rgba(255, 69, 0, 0.15), transparent);
+      }
+
+      &:hover::before {
+        background: linear-gradient(90deg, transparent, rgba(255, 69, 0, 0.25), transparent);
+      }
+    }
+
+    .stat-categories {
+      background: linear-gradient(135deg, rgba(255, 69, 0, 0.08) 0%, rgba(255, 140, 0, 0.08) 100%);
+      border-color: rgba(255, 69, 0, 0.25);
+
+      &:hover {
+        border-color: rgba(255, 69, 0, 0.4);
+      }
+    }
+
+    .stat-items {
+      background: linear-gradient(135deg, rgba(76, 175, 80, 0.08) 0%, rgba(102, 187, 106, 0.08) 100%);
+      border-color: rgba(76, 175, 80, 0.2);
+
+      &:hover {
+        border-color: rgba(76, 175, 80, 0.4);
+      }
+    }
+
+    .stat-weight {
+      background: linear-gradient(135deg, rgba(255, 140, 0, 0.08) 0%, rgba(255, 99, 71, 0.08) 100%);
+      border-color: rgba(255, 140, 0, 0.2);
+
+      &:hover {
+        border-color: rgba(255, 140, 0, 0.4);
+      }
+    }
+
+    .stat-price {
+      background: linear-gradient(135deg, rgba(255, 193, 7, 0.12) 0%, rgba(255, 179, 0, 0.12) 100%);
+      border-color: rgba(255, 193, 7, 0.3);
+
+      &:hover {
+        border-color: rgba(255, 193, 7, 0.5);
+      }
+
+      .stat-number {
+        background: linear-gradient(135deg, #FFC107 0%, #FFB300 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+    }
+  }
+}
+

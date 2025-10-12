@@ -232,7 +232,7 @@ function handleAddNew(event) {
   flex: 1;
   padding: 10px 15px;
   border: 2px solid var(--border-color);
-  border-radius: 6px;
+  border-radius: var(--border-radius-sm);
   font-size: 1rem;
   background: var(--bg-input);
   color: var(--text-primary);
@@ -250,8 +250,9 @@ function handleAddNew(event) {
   overflow-y: auto;
   background: var(--bg-card);
   border: 1px solid var(--border-color);
-  border-radius: 6px;
+  border-radius: var(--border-radius-sm);
   box-shadow: var(--shadow-lg);
+  margin-top: 4px;
   // 确保在最上层
   z-index: 1000;
   padding: 0;

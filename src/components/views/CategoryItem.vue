@@ -329,7 +329,8 @@ const debouncedShowAddItemInput = debounce(showAddItemInput, 300)
   // 为伪元素提供定位上下文
   position: relative;
   background: var(--bg-card);
-  border-radius: 12px;
+  border: var(--border-width) solid var(--border-color);
+  border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-sm);
   overflow: hidden;
   transition: max-height 0.5s ease, box-shadow 0.3s ease;
@@ -353,21 +354,6 @@ const debouncedShowAddItemInput = debounce(showAddItemInput, 300)
   transition: none !important;
 }
 
-/* 纸张主题下的特殊伪元素效果 */
-body.theme-paper .category::before {
-  content: '';
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
-  border: 2px solid var(--border-light);
-  border-radius: inherit;
-  transform: rotate(-0.5deg);
-  pointer-events: none;
-  opacity: 0.3;
-}
-
 .category:hover {
   box-shadow: var(--shadow-md);
 }
@@ -387,9 +373,9 @@ body.theme-paper .category::before {
   color: var(--text-secondary);
   width: 32px;
   height: 32px;
-  border-radius: 6px;
+  border-radius: var(--border-radius-sm);
   cursor: pointer;
-  font-size: 14px;
+  font-size: var(--font-size-sm);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -413,7 +399,7 @@ body.theme-paper .category::before {
   font-weight: 600;
   cursor: pointer;
   padding: 5px 10px;
-  border-radius: 6px;
+  border-radius: var(--border-radius-sm);
   transition: background 0.3s ease;
   // 让图标和文本在一行
   display: flex;
@@ -423,7 +409,7 @@ body.theme-paper .category::before {
 }
 
 .category-title:hover {
-  background: var(--bg-hover, rgba(255, 255, 255, 0.1));
+  background: var(--bg-hover);
 }
 
 .category-name-input {
@@ -432,8 +418,8 @@ body.theme-paper .category::before {
   // 允许在必要时收缩到0
   min-width: 0;
   padding: 8px 12px;
-  border: 2px solid var(--border-color);
-  border-radius: 8px;
+  border: var(--border-width-lg) solid var(--border-color);
+  border-radius: var(--border-radius-sm);
   font-size: 1rem;
   background: var(--bg-input);
   color: var(--text-primary);
@@ -443,7 +429,7 @@ body.theme-paper .category::before {
 .category-name-input:focus {
   outline: none;
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px var(--primary-color-shadow, rgba(102, 126, 234, 0.1));
+  box-shadow: 0 0 0 3px var(--primary-color-shadow);
 }
 
 .category-actions {
@@ -472,7 +458,7 @@ body.theme-paper .category::before {
   background: var(--bg-input);
   border: none;
   padding: 6px 12px;
-  border-radius: 6px;
+  border-radius: var(--border-radius-sm);
   font-size: 1.2rem;
   font-weight: 700;
   color: var(--text-secondary);
@@ -495,7 +481,7 @@ body.theme-paper .category::before {
   margin-top: 0;
   background: var(--bg-card);
   border: 1px solid var(--border-color);
-  border-radius: 8px;
+  border-radius: var(--border-radius);
   box-shadow: var(--shadow-lg);
   min-width: 150px;
   z-index: 100;
@@ -526,11 +512,11 @@ body.theme-paper .category::before {
   }
 
   &.danger {
-    color: var(--danger-color, #dc3545);
+    color: var(--danger-color);
 
     &:hover {
-      background: var(--danger-light, rgba(220, 53, 69, 0.1));
-      color: var(--danger-color, #dc3545);
+      background: var(--danger-light);
+      color: var(--danger-color);
     }
   }
 }
@@ -570,7 +556,7 @@ body.theme-paper .category::before {
   color: var(--text-secondary);
   margin-bottom: 12px;
   padding-bottom: 8px;
-  border-bottom: 2px solid var(--border-color);
+  border-bottom: var(--border-width-lg) solid var(--border-color);
 }
 
 .items-container {
@@ -585,13 +571,13 @@ body.theme-paper .category::before {
   color: var(--text-muted);
   font-size: 0.9rem;
   background: var(--bg-input);
-  border-radius: 6px;
+  border-radius: var(--border-radius-sm);
 }
 
 .add-item-section {
   margin-top: 15px;
   padding-top: 15px;
-  border-top: 2px dashed var(--border-color);
+  border-top: var(--border-width-lg) dashed var(--border-color);
 }
 
 .add-item-button-container {
@@ -602,10 +588,10 @@ body.theme-paper .category::before {
 
 .add-item-button {
   padding: 10px 24px;
-  border: 2px dashed var(--primary-color);
+  border: var(--border-width-lg) dashed var(--primary-color);
   background: transparent;
   color: var(--primary-color);
-  border-radius: 8px;
+  border-radius: var(--border-radius);
   font-size: 0.95rem;
   font-weight: 500;
   cursor: pointer;
@@ -614,18 +600,18 @@ body.theme-paper .category::before {
 
 .add-item-button:hover {
   background: var(--primary-color);
-  color: var(--text-white, white);
+  color: var(--text-white);
   border-style: solid;
 }
 
 .add-item-button.cancel {
-  border-color: var(--danger-color, #dc3545);
-  color: var(--danger-color, #dc3545);
+  border-color: var(--danger-color);
+  color: var(--danger-color);
 }
 
 .add-item-button.cancel:hover {
-  background: var(--danger-color, #dc3545);
-  color: var(--text-white, white);
+  background: var(--danger-color);
+  color: var(--text-white);
 }
 
 .category-name-edit-group {
@@ -673,8 +659,8 @@ body.theme-paper .category::before {
   flex: 1;
   min-width: 0;
   padding: 8px 12px;
-  border: 2px solid var(--border-color);
-  border-radius: 8px;
+  border: var(--border-width-lg) solid var(--border-color);
+  border-radius: var(--border-radius-sm);
   font-size: 1rem;
   background: var(--bg-input);
   color: var(--text-primary);
@@ -684,6 +670,6 @@ body.theme-paper .category::before {
 .category-icon-input:focus {
   outline: none;
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px var(--primary-color-shadow, rgba(102, 126, 234, 0.1));
+  box-shadow: 0 0 0 3px var(--primary-color-shadow);
 }
 </style>

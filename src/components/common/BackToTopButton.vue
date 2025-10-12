@@ -8,6 +8,7 @@
 
 <script setup>
 import { ref, watch, onUnmounted } from 'vue'
+import { debounce } from '../../utils/debounce'
 
 const props = defineProps({
   scrollContainer: {
@@ -23,7 +24,7 @@ const props = defineProps({
 const showBackToTop = ref(false)
 const scrollTarget = ref(null)
 
-function handleScroll() {
+const handleScroll = debounce(() => {
   let scrollTop;
   if (scrollTarget.value === window) {
     scrollTop = window.scrollY;
@@ -35,7 +36,7 @@ function handleScroll() {
     console.log('[BackToTopButton Debug] Scroll Top:', scrollTop, 'Target:', scrollTarget.value)
   }
   showBackToTop.value = scrollTop > 300
-}
+}, 100)
 
 function scrollToTop() {
   const target = scrollTarget.value || window

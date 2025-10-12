@@ -826,7 +826,7 @@ defineExpose({
   :deep(pre) {
     background: var(--bg-input);
     padding: 12px;
-    border-radius: 6px;
+    border-radius: var(--border-radius-sm);
     overflow-x: auto;
     margin: 1em 0;
     border: 1px solid var(--border-color);
@@ -837,6 +837,7 @@ defineExpose({
       color: var(--text-primary);
       font-size: 0.9em;
       border: none;
+      border-radius: var(--border-radius-sm);
     }
   }
 
@@ -904,7 +905,7 @@ defineExpose({
     border-collapse: collapse;
     margin: 1em 0;
     box-shadow: var(--shadow-sm);
-    border-radius: 6px;
+    border-radius: var(--border-radius-sm);
     overflow: hidden;
 
     th,
@@ -918,6 +919,7 @@ defineExpose({
       background: var(--primary-color);
       color: var(--btn-primary-text, white);
       font-weight: 600;
+      border-radius: var(--border-radius-sm) var(--border-radius-sm) 0 0;
     }
 
     tr:nth-child(even) {
@@ -932,7 +934,17 @@ defineExpose({
   :deep(img) {
     max-width: 100%;
     height: auto;
-    border-radius: 4px;
+    border-radius: var(--border-radius-sm);
+    transition: all 0.3s ease;
+  }
+
+  :deep(img:not([src*="shields.io"]):not([src*="badge"])) {
+    border-radius: var(--border-radius-sm);
+    transition: all 0.3s ease;
+  }
+
+  :deep(p.badge-row) {
+    border-radius: var(--border-radius-sm);
   }
 }
 

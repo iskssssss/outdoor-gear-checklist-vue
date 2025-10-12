@@ -11,10 +11,6 @@
           <router-link to="/" class="nav-link">
             🗂️ 装备管理
           </router-link>
-          <!-- 模型配置 -->
-          <a class="nav-link" @click="showModelConfig">
-            ⚙️ 模型配置
-          </a>
 
           <!-- 使用指南 -->
           <router-link to="/doc" class="nav-link">
@@ -29,6 +25,11 @@
           <!-- 联系我们（开发中） -->
           <a class="nav-link disabled">
             📧 联系我们
+          </a>
+          
+          <!-- 模型配置 -->
+          <a class="nav-link" @click="showModelConfig">
+            ⚙️ 模型配置
           </a>
         </nav>
       </div>

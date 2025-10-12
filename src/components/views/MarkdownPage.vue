@@ -194,7 +194,6 @@ defineExpose({ fetchContent })
   box-shadow: var(--shadow-md);
   // 新增内边距以创建与页脚的间距
   padding: 20px 20px 40px;
-
-  border: var(--pixel-size) solid #202020;
+  // 移除硬编码边框，由主题控制
 }
 </style>

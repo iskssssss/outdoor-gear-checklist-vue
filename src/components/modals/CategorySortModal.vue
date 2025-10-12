@@ -134,7 +134,7 @@ defineExpose({
   gap: 12px;
   padding: 16px 20px;
   background: var(--bg-input);
-  border-radius: 10px;
+  border-radius: var(--border-radius-lg);
   cursor: move;
   transition: all 0.3s ease;
   border: 2px solid transparent;
@@ -183,7 +183,11 @@ defineExpose({
   color: var(--text-secondary);
   background: var(--bg-card);
   padding: 4px 10px;
-  border-radius: 12px;
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .btn {
@@ -219,6 +223,9 @@ defineExpose({
 @media (max-width: 768px) {
   .sort-item {
     padding: 12px 16px;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+    background: var(--bg-input);
   }
 }
 </style>

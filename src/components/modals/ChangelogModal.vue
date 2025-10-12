@@ -151,8 +151,10 @@ defineExpose({
   font-size: 24px;
   cursor: pointer;
   color: var(--text-secondary);
-  padding: 4px 8px;
-  border-radius: 6px;
+  padding: 8px 12px;
+  border-radius: var(--border-radius-sm);
+  font-size: 0.9rem;
+  font-weight: 500;
   transition: all 0.2s ease;
 
   &:hover {

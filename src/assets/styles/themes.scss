@@ -14,6 +14,7 @@
 
 /* 引入混入 */
 @use './_mixins' as *;
+@use './_theme-outdoor-mixins' as outdoor;
 
 /* 引入基础通用样式 */
 @use './_base';
@@ -25,3 +26,30 @@
 @use './_theme-soft';
 @use './_theme-pixel';
 @use './_theme-minimal';
+@use './_theme-mountain-sunrise';
+@use './_theme-forest-trek';
+@use './_theme-snowpeak-aurora';
+@use './_theme-desert-sunset';
+@use './_theme-rainforest-expedition';
+@use './_theme-highland-mist';
+@use './_theme-volcano-adventure';
+@use './_theme-polar-aurora';
+
+/* 引入主题炫酷增强效果 */
+@use './_theme-enhancements';
+
+:root {
+  // 边框宽度
+  --border-width: 1px;
+  --border-width-lg: 2px;
+
+  // 字体大小
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+
+  // 其它
+  --primary-color-shadow: rgba(102, 126, 234, 0.1);
+}

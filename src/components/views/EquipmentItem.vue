@@ -278,10 +278,10 @@ const debouncedToggleCompleted = debounce(toggleItem, 300)
   gap: 8px;
   padding: 12px 16px;
   background: var(--bg-input);
-  border-radius: 8px;
+  border-radius: var(--border-radius);
   cursor: pointer;
   transition: all 0.3s ease;
-  border: 2px solid transparent;
+  border: var(--border-width-lg) solid transparent;
   width: 100%;
   // 为序号定位做准备
   position: relative;
@@ -293,153 +293,27 @@ const debouncedToggleCompleted = debounce(toggleItem, 300)
   justify-content: center;
   min-width: 20px;
   height: 20px;
-  font-size: 11px;
+  font-size: var(--font-size-xs);
   font-weight: 700;
   color: var(--primary-color);
-  background: rgba(var(--primary-color-rgb, 74, 144, 226), 0.15);
-  border-radius: 4px;
+  background: var(--primary-color-bg-light);
+  border-radius: var(--border-radius-sm);
   padding: 2px 6px;
   margin-right: 6px;
   opacity: 0.9;
   transition: all 0.2s ease;
-  border: 1px solid rgba(var(--primary-color-rgb, 74, 144, 226), 0.3);
+  border: var(--border-width) solid var(--primary-color-border);
   // 防止序号被压缩
   flex-shrink: 0;
 }
 
 .item:hover .item-index {
   opacity: 1;
-  color: #fff;
+  color: var(--text-white);
   background: var(--primary-color);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-sm);
   border-color: var(--primary-color);
   transform: scale(1.05);
-}
-
-/* ========== 各主题序号差异化样式 ========== */
-
-/* 默认主题 - 现代渐变风格 */
-body.theme-default .item-index {
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
-  border: 1px solid rgba(102, 126, 234, 0.4);
-  border-radius: 6px;
-  color: #667eea;
-  font-weight: 600;
-}
-
-body.theme-default .item:hover .item-index {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: #ffffff;
-  border-color: #667eea;
-  box-shadow: 0 3px 8px rgba(102, 126, 234, 0.4);
-}
-
-/* 手绘主题 - 不规则手绘风格 */
-body.theme-paper .item-index {
-  background: #fffef9;
-  border: 2px solid #41403e;
-  border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
-  color: #2c2416;
-  font-family: 'Patrick Hand', cursive, sans-serif;
-  font-weight: 400;
-  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.1);
-}
-
-body.theme-paper .item:hover .item-index {
-  background: #86a361;
-  color: #fffef9;
-  border-color: #2c2416;
-  transform: scale(1.08);
-  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.15);
-}
-
-/* 暗黑主题 - 荧光发光效果 */
-body.theme-dark .item-index {
-  background: rgba(0, 217, 255, 0.1);
-  border: 1px solid #00d9ff;
-  border-radius: 4px;
-  color: #00d9ff;
-  font-weight: 700;
-  box-shadow: 0 0 8px rgba(0, 217, 255, 0.3);
-  text-shadow: 0 0 4px rgba(0, 217, 255, 0.5);
-}
-
-body.theme-dark .item:hover .item-index {
-  background: #00d9ff;
-  color: #1a1d29;
-  border-color: #00d9ff;
-  box-shadow: 0 0 15px rgba(0, 217, 255, 0.6), 0 0 30px rgba(0, 217, 255, 0.3);
-  text-shadow: none;
-}
-
-/* 柔和主题 - 圆润马卡龙风格 */
-body.theme-soft .item-index {
-  background: linear-gradient(135deg, #ffd4ea 0%, #e6d9ff 100%);
-  border: 2px solid #ff9ecd;
-  border-radius: 50%;
-  color: #ff9ecd;
-  font-weight: 600;
-  min-width: 20px;
-  height: 20px;
-  box-shadow: 0 2px 8px rgba(255, 158, 205, 0.2);
-}
-
-body.theme-soft .item:hover .item-index {
-  background: linear-gradient(135deg, #ff9ecd 0%, #c4b0ff 100%);
-  color: #ffffff;
-  border-color: #ff9ecd;
-  transform: scale(1.15);
-  box-shadow: 0 4px 12px rgba(255, 158, 205, 0.4);
-}
-
-/* 像素主题 - 8位像素方块风格 */
-body.theme-pixel .item-name {
-  align-items: normal;
-}
-
-body.theme-pixel .item-index {
-  background: #008080;
-  border: 2px solid #202020;
-  border-radius: 0;
-  color: #ffffff;
-  font-weight: 700;
-  font-family: 'Courier New', monospace;
-  min-width: 20px;
-  height: 20px;
-  // 添加行高确保垂直居中
-  line-height: 20px;
-  // 调整内边距
-  padding: 0 6px;
-  box-shadow: 2px 2px 0 #404040;
-  image-rendering: pixelated;
-}
-
-body.theme-pixel .item:hover .item-index {
-  background: #00a0a0;
-  color: #ffffff;
-  border-color: #000000;
-  transform: scale(1.05);
-  box-shadow: 3px 3px 0 #606060;
-}
-
-/* 极简主题 - 纯净线条感 */
-body.theme-minimal .item-index {
-  background: transparent;
-  border: 1px solid #cccccc;
-  border-radius: 50%;
-  color: #666666;
-  font-weight: 300;
-  min-width: 20px;
-  height: 20px;
-  font-size: 10px;
-}
-
-body.theme-minimal .item:hover .item-index {
-  background: #000000;
-  color: #ffffff;
-  border-color: #000000;
-  font-weight: 500;
-  transform: scale(1.1);
 }
 
 .item:hover {
@@ -449,11 +323,11 @@ body.theme-minimal .item:hover .item-index {
 
 .item.completed {
   opacity: 0.7;
-  background: var(--success-light, #d4edda);
+  background: var(--success-light);
 }
 
 .item.completed:hover {
-  background: var(--success-light, #c3e6cb);
+  background: var(--success-light);
   filter: brightness(0.95);
 }
 
@@ -487,7 +361,7 @@ body.theme-minimal .item:hover .item-index {
 }
 
 .item-name {
-  font-weight: 500;
+  font-weight: 700;
   color: var(--text-primary);
   font-size: 1rem;
   display: flex;
@@ -615,7 +489,7 @@ body.theme-minimal .item:hover .item-index {
   width: 32px;
   height: 32px;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--border-radius-sm);
   background: var(--bg-input);
   color: var(--text-primary);
   font-size: 1.2rem;
@@ -643,9 +517,9 @@ body.theme-minimal .item:hover .item-index {
   margin-top: 0;
   min-width: 120px;
   background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border: var(--border-width) solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  box-shadow: var(--shadow-lg);
   padding: 4px 0;
   z-index: 100;
   // 顶部留一点呼吸空间
@@ -664,15 +538,15 @@ body.theme-minimal .item:hover .item-index {
   white-space: nowrap;
 
   &:hover {
-    background: var(--bg-hover, rgba(102, 126, 234, 0.1));
+    background: var(--bg-hover);
     color: var(--primary-color);
   }
 
   &.danger {
-    color: var(--danger-color, #dc3545);
+    color: var(--danger-color);
 
     &:hover {
-      background: rgba(220, 53, 69, 0.1);
+      background: var(--danger-light);
     }
   }
 }
@@ -692,7 +566,7 @@ body.theme-minimal .item:hover .item-index {
 .btn {
   padding: 6px 12px;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--border-radius-sm);
   font-size: 0.85rem;
   font-weight: 500;
   cursor: pointer;
@@ -700,23 +574,18 @@ body.theme-minimal .item:hover .item-index {
 }
 
 .btn-warning {
-  background: var(--warning-color, #ffc107);
+  background: var(--warning-color);
   color: var(--text-primary);
-
-  /* 暗黑主题下使用深色文字以提高对比度 */
-  body.theme-dark & {
-    color: #1a1d29;
-  }
 }
 
 .btn-danger {
-  background: var(--danger-color, #dc3545);
-  color: var(--text-white, white);
+  background: var(--danger-color);
+  color: var(--text-white);
 }
 
 .btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-md);
 }
 
 .add-item-input-container {
@@ -730,8 +599,8 @@ body.theme-minimal .item:hover .item-index {
 .add-item-input {
   width: 100%;
   padding: 10px 14px;
-  border: 2px solid var(--border-color);
-  border-radius: 6px;
+  border: var(--border-width-lg) solid var(--border-color);
+  border-radius: var(--border-radius-sm);
   font-size: 0.95rem;
   transition: all 0.3s ease;
   background: var(--bg-input);
@@ -742,7 +611,7 @@ body.theme-minimal .item:hover .item-index {
 .add-item-input:focus {
   outline: none;
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  box-shadow: 0 0 0 3px var(--primary-color-shadow);
 }
 
 .add-item-details {
@@ -779,8 +648,8 @@ body.theme-minimal .item:hover .item-index {
   // 允许输入框在必要时收缩
   min-width: 0;
   padding: 8px 12px;
-  border: 2px solid var(--border-color);
-  border-radius: 4px;
+  border: var(--border-width-lg) solid var(--border-color);
+  border-radius: var(--border-radius-sm);
   font-size: 0.9rem;
   background: var(--bg-input);
   color: var(--text-primary);
@@ -794,8 +663,8 @@ body.theme-minimal .item:hover .item-index {
 
 .add-item-field select {
   padding: 8px 4px;
-  border: 2px solid var(--border-color);
-  border-radius: 4px;
+  border: var(--border-width-lg) solid var(--border-color);
+  border-radius: var(--border-radius-sm);
   font-size: 0.85rem;
   background: var(--bg-input);
   color: var(--text-primary);
@@ -820,10 +689,10 @@ body.theme-minimal .item:hover .item-index {
 
 .add-item-button {
   padding: 8px 20px;
-  border: 2px solid var(--primary-color);
+  border: var(--border-width-lg) solid var(--primary-color);
   background: var(--primary-color);
-  color: var(--text-white, white);
-  border-radius: 6px;
+  color: var(--text-white);
+  border-radius: var(--border-radius-sm);
   font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
@@ -831,13 +700,13 @@ body.theme-minimal .item:hover .item-index {
 }
 
 .add-item-button:hover {
-  background: var(--primary-dark, #5568d3);
-  border-color: var(--primary-dark, #5568d3);
+  background: var(--primary-dark);
+  border-color: var(--primary-dark);
 }
 
 .add-item-button.cancel {
-  border-color: var(--danger-color, #dc3545);
-  background: var(--danger-color, #dc3545);
+  border-color: var(--danger-color);
+  background: var(--danger-color);
 }
 
 .add-item-button.cancel:hover {
@@ -862,12 +731,12 @@ body.theme-minimal .item:hover .item-index {
   margin-left: 8px;
   padding: 2px 8px;
   // 使用信息蓝色或默认蓝色
-  background-color: var(--info-color, #17a2b8);
+  background-color: var(--info-color);
   color: white;
-  border-radius: 12px;
+  border-radius: var(--border-radius-lg);
   font-size: 0.75rem;
   font-weight: 600;
   vertical-align: middle;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-sm);
 }
 </style>

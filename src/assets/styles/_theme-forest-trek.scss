@@ -1,0 +1,758 @@
+/**
+ * 森林探险主题 - 自然森林风格
+ * 只定义差异化样式，通用样式在 _base.scss 中
+ */
+
+@use 'mixins' as *;
+@use 'theme-outdoor-mixins' as outdoor;
+
+body.theme-forest-trek {
+  // 防止特效导致的滚动条异常
+  overflow-x: hidden;
+
+  &, * {
+    &::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: rgba(163, 177, 138, 0.1);
+      border-radius: var(--border-radius-sm);
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, #2E5339, #558B2F);
+      border-radius: var(--border-radius-sm);
+
+      &:hover {
+        background: linear-gradient(180deg, #1F3A28, #3E7E1F);
+      }
+    }
+  }
+
+  /* ===== CSS 变量定义 ===== */
+  // 森林探险主题（Forest Trek）
+  // 主色调：松绿 → 棕木色 → 淡黄叶色
+  --primary-color: #2E5339;        // 深松绿
+  --primary-dark: #1F3A28;         // 深森林绿
+  --secondary-color: #A3B18A;      // 浅森林绿
+  --success-color: #558B2F;        // 已准备装备绿色
+  --success-light: #E8F5E9;
+  --warning-color: #FFB300;        // 注意或待准备装备黄色
+  --warning-light: #FFF8E1;
+  --danger-color: #D32F2F;         // 缺失装备
+  --danger-light: #FFEBEE;
+  --info-color: #6D4C41;           // 木质提示色
+  --info-light: #EFEBE9;
+
+  --bg-gradient: linear-gradient(135deg, #2E5339 0%, #A3B18A 100%);
+  --bg-main: #F5F5F0;
+  --bg-card: #FFFFFF;
+  --bg-header: #F0F0E5;
+  --bg-input: #E8E8DF;
+  --bg-hover: #DDE0D9;
+  --bg-button-group: #DDE0D9;
+  --bg-overlay: rgba(0, 0, 0, 0.5);
+
+  --text-primary: #1B2A1B;
+  --text-secondary: #4C5E4C;
+  --text-muted: #647d61;
+  --text-white: #FFFFFF;
+
+  --btn-primary-text: #FFFFFF;
+  --btn-success-text: #FFFFFF;
+  --btn-danger-text: #FFFFFF;
+
+  --border-color: #DDE0D9;
+  --border-radius: 8px;
+  --border-radius-sm: 6px;
+  --border-radius-lg: 12px;
+  --border-radius-xl: 16px;
+  --border-width: 1px;
+
+  --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --danger-shadow: 0 2px 8px rgba(211, 47, 47, 0.3);
+  --primary-color-shadow: rgba(46, 83, 57, 0.2);
+  --primary-color-bg-light: rgba(46, 83, 57, 0.1);
+  --primary-color-border: rgba(46, 83, 57, 0.3);
+
+  --bg-mask: rgba(255, 255, 255, 0.3);
+  --shadow-inset: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shimmer-gradient: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  --shimmer-gradient-light: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  --text-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
+  --pulse-glow-start: 0 0 15px rgba(46, 83, 57, 0.5);
+  --pulse-glow-end: 0 0 25px rgba(46, 83, 57, 0.8);
+
+  --scrollbar-track-bg: #E8E8DF;
+  --scrollbar-thumb-bg: #A3B18A;
+  --scrollbar-thumb-hover-bg: #71896E;
+
+  --btn-success: #558B2F;
+  --btn-primary: #2E5339;
+  --btn-warning: #FFB300;
+  --btn-danger: #D32F2F;
+  --btn-info: #6D4C41;
+  --btn-secondary: #A3B18A;
+
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 600;
+
+  /* ===== 差异化样式 - 仅森林探险主题特有 ===== */
+
+  color: var(--text-primary);
+
+  .app-container {
+    background: linear-gradient(135deg, #D5E5D0 0%, #F5F5F0 100%);
+  }
+
+  .header {
+    box-shadow: 0 6px 20px rgba(46, 83, 57, 0.25);
+  }
+
+  .category-header {
+    background: linear-gradient(135deg, #2E5339 0%, #558B2F 100%);
+    color: var(--text-white);
+  }
+
+  .category-title {
+    color: var(--text-white);
+  }
+
+  .category-collapse-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: var(--text-white);
+  }
+
+  .item:hover {
+    background: #E8F5E9;
+  }
+
+  .item.completed {
+    background: #C8E6C9;
+  }
+
+  .stat-item {
+    background: linear-gradient(135deg, #A3B18A 0%, #8FAA72 100%);
+    color: var(--text-white);
+  }
+
+  .nav-menu {
+    border-color: rgba(46, 83, 57, 0.15);
+  }
+
+  .nav-link {
+    color: var(--text-secondary);
+
+    &:hover {
+      color: var(--primary-color);
+      border-bottom-color: var(--primary-color);
+    }
+
+    &.danger:hover {
+      color: var(--danger-color);
+      border-bottom-color: var(--danger-color);
+    }
+  }
+
+  .modal-header {
+    background: linear-gradient(135deg, #2E5339 0%, #558B2F 100%);
+    color: var(--text-white);
+    border-bottom: 2px solid var(--border-color);
+
+    h3,
+    .close {
+      color: var(--text-white);
+    }
+  }
+
+  /* 智能推荐按钮自然风格 */
+  .btn-recommendation {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--success-color) 100%) !important;
+    color: var(--text-white) !important;
+    border: none !important;
+    box-shadow: 0 4px 12px rgba(46, 83, 57, 0.3);
+
+    &:hover:not(:disabled) {
+      background: linear-gradient(135deg, var(--primary-dark) 0%, #3E7E1F 100%) !important;
+      box-shadow: 0 6px 20px rgba(46, 83, 57, 0.4);
+    }
+  }
+
+  /* 撤销按钮自然风格 */
+  .btn-undo {
+    background: var(--success-color) !important;
+    color: var(--text-white) !important;
+    border: none !important;
+    box-shadow: 0 4px 12px rgba(85, 139, 47, 0.3);
+
+    &:hover:not(:disabled) {
+      box-shadow: 0 6px 20px rgba(85, 139, 47, 0.4);
+      filter: brightness(1.1);
+    }
+
+    &:disabled {
+      background: var(--text-muted) !important;
+      color: var(--text-white) !important;
+      opacity: 0.6;
+    }
+  }
+
+  .add-category-card:hover {
+    box-shadow: var(--shadow-hover);
+  }
+
+  .add-category-input-card {
+    box-shadow: var(--shadow-lg);
+  }
+
+  .item-index {
+    background: linear-gradient(135deg, rgba(163, 177, 138, 0.2) 0%, rgba(113, 137, 110, 0.2) 100%);
+    border: 1px solid rgba(46, 83, 57, 0.4);
+    border-radius: var(--border-radius-sm);
+    color: var(--primary-color);
+    font-weight: 600;
+  }
+
+  .item:hover .item-index {
+    background: linear-gradient(135deg, #2E5339 0%, #558B2F 100%);
+    color: #ffffff;
+    border-color: #2E5339;
+    box-shadow: 0 3px 8px rgba(46, 83, 57, 0.4);
+  }
+
+  .stats {
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #2E5339 0%, #558B2F 50%, #A3B18A 100%);
+      z-index: 1;
+    }
+
+    .completion-badge {
+      background: linear-gradient(135deg, #2E5339 0%, #558B2F 100%);
+      animation: pulse 2s ease-in-out infinite;
+
+      &.completed {
+        background: linear-gradient(135deg, #558B2F 0%, #7CB342 100%);
+      }
+    }
+
+    .progress-bar-container {
+      background: #E8E8DF;
+    }
+
+    .progress-bar {
+      background: linear-gradient(90deg, #2E5339 0%, #558B2F 50%, #A3B18A 100%);
+      box-shadow: 0 2px 8px rgba(46, 83, 57, 0.3);
+    }
+
+    .info-item {
+      .icon {
+        filter: grayscale(0);
+      }
+    }
+
+    .stat-item {
+      &::before {
+        background: linear-gradient(90deg, transparent, rgba(46, 83, 57, 0.15), transparent);
+      }
+
+      &:hover::before {
+        background: linear-gradient(90deg, transparent, rgba(46, 83, 57, 0.25), transparent);
+      }
+    }
+
+    .stat-categories {
+      background: linear-gradient(135deg, rgba(46, 83, 57, 0.08) 0%, rgba(163, 177, 138, 0.08) 100%);
+      border-color: rgba(46, 83, 57, 0.2);
+
+      &:hover {
+        border-color: rgba(46, 83, 57, 0.4);
+      }
+    }
+
+    .stat-items {
+      background: linear-gradient(135deg, rgba(85, 139, 47, 0.08) 0%, rgba(124, 179, 66, 0.08) 100%);
+      border-color: rgba(85, 139, 47, 0.2);
+
+      &:hover {
+        border-color: rgba(85, 139, 47, 0.4);
+      }
+    }
+
+    .stat-weight {
+      background: linear-gradient(135deg, rgba(109, 76, 65, 0.08) 0%, rgba(141, 110, 99, 0.08) 100%);
+      border-color: rgba(109, 76, 65, 0.2);
+
+      &:hover {
+        border-color: rgba(109, 76, 65, 0.4);
+      }
+    }
+
+    .stat-price {
+      background: linear-gradient(135deg, rgba(255, 179, 0, 0.12) 0%, rgba(255, 193, 7, 0.12) 100%);
+      border-color: rgba(255, 179, 0, 0.3);
+
+      &:hover {
+        border-color: rgba(255, 179, 0, 0.5);
+      }
+
+      .stat-number {
+        background: linear-gradient(135deg, #FFB300 0%, #FFC107 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+    }
+  }
+
+  /* ===== 炫酷增强效果 - 森林探险 ===== */
+
+  // 按钮自然光影和微光效果
+  button:not(.close),
+  .btn {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(163, 177, 138, 0.3) 0%, transparent 70%);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    &:hover::before {
+      opacity: 1;
+      animation: forest-glow 2s ease-in-out infinite;
+    }
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(46, 83, 57, 0.3),
+                  0 0 20px rgba(163, 177, 138, 0.2);
+    }
+  }
+
+  @keyframes forest-glow {
+    0%, 100% {
+      transform: scale(1) rotate(0deg);
+    }
+    50% {
+      transform: scale(1.2) rotate(180deg);
+    }
+  }
+
+  // 输入框自然光感
+  input,
+  textarea,
+  select {
+    transition: all 0.3s ease;
+    
+    &:focus {
+      border-color: var(--primary-color) !important;
+      box-shadow: 0 0 0 3px rgba(46, 83, 57, 0.15),
+                  0 0 20px rgba(85, 139, 47, 0.2),
+                  inset 0 2px 4px rgba(163, 177, 138, 0.1) !important;
+      background: linear-gradient(135deg, rgba(46, 83, 57, 0.03) 0%, rgba(163, 177, 138, 0.03) 100%);
+    }
+  }
+
+  // 卡片叶纹理浮动效果 + 木纹纹理
+  .category,
+  .add-category-section,
+  .stats {
+    @include outdoor.forest-trek-texture;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 12px rgba(46, 83, 57, 0.1);
+
+    // 确保内容在伪元素之上
+    > .category-header,
+    > .items-section,
+    > .add-item-section,
+    > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(46, 83, 57, 0.2),
+                  0 4px 12px rgba(163, 177, 138, 0.15);
+    }
+  }
+  
+  /* 列表项和交互元素确保可点击 */
+  .item {
+    position: relative;
+    z-index: 1;
+    
+    > * {
+      position: relative;
+      z-index: 1;
+    }
+    
+    button, .btn, input, select, textarea, a, label, [role="button"] {
+      position: relative;
+      z-index: 10; // 确保所有交互元素在最上层
+    }
+  }
+
+  // 进度条流动绿色渐变
+  @keyframes forest-flow {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+
+  .progress-bar {
+    background: linear-gradient(90deg, 
+      #2E5339 0%, 
+      #558B2F 25%, 
+      #A3B18A 50%, 
+      #558B2F 75%, 
+      #2E5339 100%);
+    background-size: 200% 100%;
+    animation: forest-flow 4s ease-in-out infinite;
+    box-shadow: 0 2px 12px rgba(46, 83, 57, 0.3),
+                inset 0 1px 2px rgba(163, 177, 138, 0.2);
+    position: relative;
+    overflow: hidden;
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.3), 
+        transparent);
+      animation: leaf-shimmer 3s infinite;
+    }
+  }
+
+  @keyframes leaf-shimmer {
+    0% {
+      left: -100%;
+    }
+    100% {
+      left: 100%;
+    }
+  }
+
+  // 徽章自然发光效果
+  .completion-badge {
+    animation: forest-pulse 2.5s ease-in-out infinite;
+    box-shadow: 0 0 20px rgba(85, 139, 47, 0.4);
+
+    &.completed {
+      animation: forest-pulse-success 2.5s ease-in-out infinite;
+      box-shadow: 0 0 25px rgba(124, 179, 66, 0.5);
+    }
+  }
+
+  @keyframes forest-pulse {
+    0%, 100% {
+      box-shadow: 0 0 15px rgba(85, 139, 47, 0.4),
+                  0 0 30px rgba(163, 177, 138, 0.3);
+      filter: brightness(1);
+    }
+    50% {
+      box-shadow: 0 0 25px rgba(85, 139, 47, 0.6),
+                  0 0 50px rgba(163, 177, 138, 0.4);
+      filter: brightness(1.1);
+    }
+  }
+
+  @keyframes forest-pulse-success {
+    0%, 100% {
+      box-shadow: 0 0 20px rgba(124, 179, 66, 0.5),
+                  0 0 40px rgba(124, 179, 66, 0.3);
+    }
+    50% {
+      box-shadow: 0 0 30px rgba(124, 179, 66, 0.7),
+                  0 0 60px rgba(124, 179, 66, 0.4);
+    }
+  }
+
+  // Header森林光晕 + 木纹纹理
+  .header {
+    @include outdoor.forest-trek-texture;
+    // 保持sticky定位
+    position: sticky !important;
+    top: 0 !important;
+    box-shadow: 0 4px 12px rgba(46, 83, 57, 0.15);
+    
+    > * {
+      position: relative;
+      z-index: 1;
+    }
+  }
+
+  @keyframes forest-header-glow {
+    0%, 100% {
+      opacity: 0.4;
+      transform: scale(1) rotate(0deg);
+    }
+    50% {
+      opacity: 0.7;
+      transform: scale(1.15) rotate(10deg);
+    }
+  }
+
+  // 分类标题叶影流动
+  .category-header {
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -100%;
+      width: 200%;
+      height: 200%;
+      background: 
+        repeating-linear-gradient(45deg, 
+          transparent, 
+          transparent 20px, 
+          rgba(255, 255, 255, 0.1) 20px, 
+          rgba(255, 255, 255, 0.1) 40px);
+      animation: leaf-pattern 20s linear infinite;
+    }
+  }
+
+  @keyframes leaf-pattern {
+    0% {
+      transform: translateX(0) translateY(0);
+    }
+    100% {
+      transform: translateX(50px) translateY(50px);
+    }
+  }
+
+  /* ===== 导航栏独特风格 - 木纹自然 ===== */
+  .nav-menu {
+    @include outdoor.forest-trek-texture;
+    background: linear-gradient(135deg, 
+      rgba(46, 83, 57, 0.08), 
+      rgba(163, 177, 138, 0.08));
+    padding: 12px 16px !important;
+    border-radius: var(--border-radius);
+    border: 2px solid rgba(46, 83, 57, 0.2);
+    box-shadow: inset 0 1px 2px rgba(163, 177, 138, 0.1);
+  }
+
+  .nav-link {
+    position: relative;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #2E5339, #558B2F, #A3B18A);
+      transition: width 0.3s ease;
+      pointer-events: none;
+    }
+    
+    &:hover:not(.disabled)::after {
+      width: 100%;
+    }
+    
+    &:hover:not(.disabled) {
+      color: var(--primary-color);
+      background: rgba(163, 177, 138, 0.1);
+      border-radius: var(--border-radius-sm);
+    }
+    
+    &.router-link-active {
+      background: linear-gradient(135deg, 
+        rgba(46, 83, 57, 0.12), 
+        rgba(163, 177, 138, 0.12));
+      border-radius: var(--border-radius-sm);
+      box-shadow: 0 2px 6px rgba(46, 83, 57, 0.2);
+    }
+  }
+
+  /* ===== 尾部栏独特风格 - 森林底纹 ===== */
+  .app-footer {
+    @include outdoor.forest-trek-texture;
+    background: linear-gradient(135deg, 
+      rgba(245, 245, 240, 0.98), 
+      rgba(232, 237, 223, 0.98));
+    border-top: 3px solid var(--primary-color);
+    box-shadow: 0 -4px 12px rgba(46, 83, 57, 0.1);
+    position: relative;
+    overflow: hidden; // 防止伪元素导致滚动条抽动
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: -3px;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, 
+        #2E5339 0%, 
+        #558B2F 50%, 
+        #A3B18A 100%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    
+    > * {
+      position: relative;
+      z-index: 1;
+    }
+  }
+
+  .footer-title {
+    color: var(--primary-color);
+    position: relative;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 30px;
+      height: 2px;
+      background: linear-gradient(90deg, #2E5339, #558B2F);
+    }
+  }
+
+  .footer-links a:hover {
+    color: var(--success-color);
+    transform: translateX(6px);
+    text-shadow: 0 0 8px rgba(85, 139, 47, 0.3);
+  }
+
+  .version-tag {
+    background: linear-gradient(135deg, 
+      rgba(46, 83, 57, 0.12), 
+      rgba(163, 177, 138, 0.12));
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    font-weight: 700;
+  }
+
+  /* ===== Markdown页面独特风格 - 森林自然 ===== */
+  .markdown-container {
+    @include outdoor.forest-trek-texture;
+    background: linear-gradient(135deg, 
+      rgba(255, 255, 255, 0.98), 
+      rgba(245, 245, 240, 0.98));
+    box-shadow: 0 8px 30px rgba(46, 83, 57, 0.15);
+    // 增加右侧padding让滚动条与纹理和谐
+    padding: 20px 28px 40px 20px !important;
+    
+    > * {
+      position: relative;
+      z-index: 1;
+    }
+    
+    // 自定义滚动条以匹配森林主题
+    :deep(*) {
+      &::-webkit-scrollbar {
+        width: 10px;
+      }
+      
+      &::-webkit-scrollbar-track {
+        background: rgba(163, 177, 138, 0.1);
+        border-radius: var(--border-radius-sm);
+      }
+      
+      &::-webkit-scrollbar-thumb {
+        background: linear-gradient(180deg, #2E5339, #558B2F);
+        border-radius: var(--border-radius-sm);
+        
+        &:hover {
+          background: linear-gradient(180deg, #1F3A28, #3E7E1F);
+        }
+      }
+    }
+  }
+
+  .markdown-toc {
+    @include outdoor.forest-trek-texture;
+    background: linear-gradient(135deg, 
+      rgba(255, 255, 255, 0.95), 
+      rgba(245, 245, 240, 0.95));
+    box-shadow: 0 6px 25px rgba(46, 83, 57, 0.15);
+    border-color: rgba(46, 83, 57, 0.25);
+    padding: 16px 20px 16px 16px !important;
+    
+    > * {
+      position: relative;
+      z-index: 1;
+    }
+    
+    &::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    &::-webkit-scrollbar-track {
+      background: rgba(163, 177, 138, 0.1);
+      border-radius: var(--border-radius-sm);
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, #2E5339, #558B2F);
+      border-radius: var(--border-radius-sm);
+      
+      &:hover {
+        background: linear-gradient(180deg, #1F3A28, #3E7E1F);
+      }
+    }
+  }
+
+  .toc-header {
+    border-bottom-color: rgba(46, 83, 57, 0.2);
+    
+    h3 {
+      color: var(--primary-color);
+      font-weight: 700;
+    }
+  }
+
+  .toc-item.active a {
+    background: linear-gradient(135deg, 
+      rgba(46, 83, 57, 0.15), 
+      rgba(163, 177, 138, 0.15));
+    box-shadow: 0 2px 6px rgba(46, 83, 57, 0.2);
+  }
+
+  .refresh-btn:hover:not(:disabled) {
+    background: rgba(163, 177, 138, 0.15);
+    color: var(--success-color);
+  }
+}
