@@ -1,20 +1,10 @@
 <template>
-  <BaseModal
-    ref="modalRef"
-    title-tag="h2"
-    width="900px"
-    max-height="85vh"
-    @close="handleClose"
-  >
+  <BaseModal ref="modalRef" title-tag="h2" width="900px" max-height="85vh" @close="handleClose">
     <template #header>
       <h2 class="doc-title">📚 使用指南</h2>
       <div class="header-actions">
-        <button 
-          class="refresh-btn" 
-          @click="fetchDocFromGitHub(false)"
-          :disabled="loading || cooldownTime > 0"
-          :title="loading ? '加载中...' : cooldownTime > 0 ? `请等待 ${cooldownTime} 秒后再刷新` : '刷新文档内容'"
-        >
+        <button class="refresh-btn" @click="fetchDocFromGitHub(false)" :disabled="loading || cooldownTime > 0"
+          :title="loading ? '加载中...' : cooldownTime > 0 ? `请等待 ${cooldownTime} 秒后再刷新` : '刷新文档内容'">
           <span :class="{ 'spinning': loading }">
             {{ cooldownTime > 0 ? cooldownTime : '🔄' }}
           </span>
@@ -29,26 +19,21 @@
         <div class="loading-spinner"></div>
         <p>正在从GitHub加载文档...</p>
       </div>
-      
+
       <!-- 错误提示 -->
       <div v-else-if="error" class="error-state">
         <p>⚠️ 无法从GitHub获取文档</p>
         <p class="error-message">{{ error }}</p>
         <p class="fallback-hint">使用本地缓存数据</p>
       </div>
-      
+
       <!-- 文档内容 -->
       <div v-else class="doc-content" ref="docContentRef" @click="handleLinkClick">
         <div class="markdown-body" v-html="renderedContent"></div>
-        
+
         <!-- 回到顶部按钮 -->
         <transition name="fade">
-          <button 
-            v-show="showBackToTop"
-            class="back-to-top"
-            @click="scrollToTop"
-            title="回到顶部"
-          >
+          <button v-show="showBackToTop" class="back-to-top" @click="scrollToTop" title="回到顶部">
             <span class="arrow">↑</span>
           </button>
         </transition>
@@ -78,7 +63,8 @@ let cooldownTimer = null
 // 转换为 https://raw.githubusercontent.com/owner/repo/branch/file.md
 const GITHUB_REPO = 'iskssssss/outdoor-gear-checklist'
 const GITHUB_BRANCH = 'main'
-const GITHUB_DOC_PATH = 'USAGE.md'  // 使用详细的使用文档
+// 使用详细的使用文档
+const GITHUB_DOC_PATH = 'USAGE.md'
 const GITHUB_DOC_URL = `https://raw.githubusercontent.com/${GITHUB_REPO}/${GITHUB_BRANCH}/${GITHUB_DOC_PATH}`
 const CACHE_KEY = 'outdoor-gear-doc-cache'
 const CACHE_TIME_KEY = 'outdoor-gear-doc-cache-time'
@@ -193,7 +179,7 @@ const renderedContent = computed(() => {
           // 若是单空行：需要看后面第一个非空行是否还是列表项
           // 为了兼容"列表项之间有单空行但仍属同一列表"的情况，我们把单空行临时收集
           // 再在外层决定是否合并
-          contentLines.push('') 
+          contentLines.push('')
           i++
           continue
         }
@@ -263,7 +249,8 @@ const renderedContent = computed(() => {
       const nextLine = rawLines[j] || ''
       if (/^\s*([-*+]|\d+\.)\s+/.test(nextLine)) {
         // treat this blank as part of list (allows single blank between list items)
-        buff.push('') // keep blank to preserve intended spacing inside li
+        // keep blank to preserve intended spacing inside li
+        buff.push('')
         idx++
         continue
       } else {
@@ -343,7 +330,7 @@ async function fetchDocFromGitHub(useCache = true) {
   if (useCache) {
     const cachedContent = localStorage.getItem(CACHE_KEY)
     const cachedTime = localStorage.getItem(CACHE_TIME_KEY)
-    
+
     if (cachedContent && cachedTime) {
       const cacheAge = Date.now() - parseInt(cachedTime)
       // 如果缓存未超过1小时，使用缓存
@@ -357,10 +344,10 @@ async function fetchDocFromGitHub(useCache = true) {
       }
     }
   }
-  
+
   loading.value = true
   error.value = null
-  
+
   try {
     console.log('🌐 正在从GitHub获取文档...', {
       URL: GITHUB_DOC_URL,
@@ -368,39 +355,39 @@ async function fetchDocFromGitHub(useCache = true) {
       分支: GITHUB_BRANCH,
       文件: GITHUB_DOC_PATH
     })
-    
+
     // 使用简单请求避免CORS preflight
     // 不添加自定义headers，raw.githubusercontent.com支持CORS
     const cacheBuster = useCache ? '' : `?t=${Date.now()}`
     const response = await fetch(GITHUB_DOC_URL + cacheBuster)
-    
+
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`)
     }
-    
+
     const content = await response.text()
-    
+
     if (!content || content.trim().length === 0) {
       throw new Error('获取的文档内容为空')
     }
-    
+
     rawContent.value = content
-    
+
     // 缓存内容
     localStorage.setItem(CACHE_KEY, content)
     localStorage.setItem(CACHE_TIME_KEY, Date.now().toString())
-    
+
     console.log('✅ 文档已从GitHub加载', {
       字符数: content.length,
       行数: content.split('\n').length
     })
-    
+
     // 启动冷却计时
     startCooldown()
   } catch (err) {
     console.error('❌ 获取文档失败:', err)
     error.value = err.message
-    
+
     // 尝试使用缓存
     const cachedContent = localStorage.getItem(CACHE_KEY)
     if (cachedContent) {
@@ -420,7 +407,7 @@ async function fetchDocFromGitHub(useCache = true) {
  */
 function startCooldown() {
   cooldownTime.value = COOLDOWN_DURATION
-  
+
   cooldownTimer = setInterval(() => {
     cooldownTime.value--
     if (cooldownTime.value <= 0) {
@@ -439,7 +426,7 @@ function show() {
   if (!rawContent.value) {
     fetchDocFromGitHub(true)
   }
-  
+
   // 绑定滚动事件到BaseModal的body元素
   nextTick(() => {
     const modalBody = document.querySelector('.base-modal-body')
@@ -458,7 +445,7 @@ function close() {
   if (modalBody) {
     modalBody.removeEventListener('scroll', handleScroll)
   }
-  
+
   modalRef.value?.close()
   showBackToTop.value = false
 }
@@ -475,38 +462,38 @@ function handleClose() {
  */
 function handleLinkClick(event) {
   const target = event.target
-  
+
   // 检查是否是锚点链接
   if (target.tagName === 'A' && target.getAttribute('href')?.startsWith('#')) {
     event.preventDefault() // 阻止默认跳转行为
-    
+
     const targetId = target.getAttribute('href').substring(1)
-    
+
     // 在文档内容中查找对应的标题
     const headings = docContentRef.value.querySelectorAll('h1, h2, h3, h4, h5, h6')
-    
+
     for (const heading of headings) {
       const headingText = heading.textContent.trim()
       // 匹配标题文本（移除emoji和特殊字符进行模糊匹配）
       const cleanTargetId = targetId.toLowerCase().replace(/[^a-z0-9\u4e00-\u9fa5]/g, '')
       const cleanHeadingText = headingText.toLowerCase().replace(/[^a-z0-9\u4e00-\u9fa5]/g, '')
-      
+
       if (cleanHeadingText.includes(cleanTargetId) || cleanTargetId.includes(cleanHeadingText)) {
         // 平滑滚动到目标位置
         heading.scrollIntoView({
           behavior: 'smooth',
           block: 'start'
         })
-        
+
         // 添加高亮效果
         heading.style.transition = 'all 0.3s ease'
         heading.style.backgroundColor = 'var(--primary-color)'
-        heading.style.color = 'white'
+        heading.style.color = 'var(--btn-primary-text, white)'
         heading.style.padding = '0.5em'
         heading.style.marginLeft = '-0.5em'
         heading.style.marginRight = '-0.5em'
         heading.style.borderRadius = '4px'
-        
+
         // 2秒后移除高亮
         setTimeout(() => {
           heading.style.backgroundColor = ''
@@ -515,7 +502,7 @@ function handleLinkClick(event) {
           heading.style.marginLeft = ''
           heading.style.marginRight = ''
         }, 2000)
-        
+
         break
       }
     }
@@ -557,7 +544,7 @@ onUnmounted(() => {
   if (cooldownTimer) {
     clearInterval(cooldownTimer)
   }
-  
+
   // 清理滚动事件监听
   const modalBody = document.querySelector('.base-modal-body')
   if (modalBody) {
@@ -588,25 +575,25 @@ defineExpose({ show, close })
 .refresh-btn {
   padding: 8px 12px;
   background: var(--primary-color);
-  color: white;
+  color: var(--btn-primary-text, white);
   border: none;
   border-radius: 6px;
   cursor: pointer;
   font-size: 1rem;
   transition: all 0.3s ease;
   min-width: 40px;
-  
+
   &:hover:not(:disabled) {
     background: var(--primary-dark, #5568d3);
     transform: translateY(-2px);
   }
-  
+
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
     background: var(--text-secondary);
   }
-  
+
   .spinning {
     display: inline-block;
     animation: spin 1s linear infinite;
@@ -616,14 +603,14 @@ defineExpose({ show, close })
 .close-btn {
   padding: 8px 12px;
   background: var(--text-secondary);
-  color: white;
+  color: var(--btn-danger-text, white);
   border: none;
   border-radius: 6px;
   cursor: pointer;
   font-size: 1.2rem;
   line-height: 1;
   transition: all 0.3s ease;
-  
+
   &:hover {
     background: var(--danger-color);
     transform: translateY(-2px);
@@ -631,8 +618,13 @@ defineExpose({ show, close })
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 // 加载状态
@@ -657,16 +649,16 @@ defineExpose({ show, close })
   text-align: center;
   padding: 40px 20px;
   color: var(--text-secondary);
-  
+
   p {
     margin: 10px 0;
   }
-  
+
   .error-message {
     color: var(--danger-color);
     font-size: 0.9rem;
   }
-  
+
   .fallback-hint {
     color: var(--text-muted);
     font-size: 0.85rem;
@@ -684,7 +676,7 @@ defineExpose({ show, close })
   line-height: 1.6;
   font-size: 1rem;
   word-wrap: break-word;
-  
+
   // 标题样式
   :deep(h1) {
     font-size: 2rem;
@@ -694,18 +686,18 @@ defineExpose({ show, close })
     border-bottom: 3px solid var(--primary-color);
     color: var(--text-primary);
     position: relative;
-    
+
     &:first-child {
       margin-top: 0;
     }
-    
+
     &::before {
       content: '📖';
       margin-right: 0.5em;
       opacity: 0.8;
     }
   }
-  
+
   :deep(h2) {
     font-size: 1.5rem;
     font-weight: 600;
@@ -716,7 +708,7 @@ defineExpose({ show, close })
     border-bottom: 2px solid var(--border-color);
     color: var(--text-primary);
   }
-  
+
   :deep(h3) {
     font-size: 1.25rem;
     font-weight: 600;
@@ -725,35 +717,35 @@ defineExpose({ show, close })
     border-left: 3px solid var(--success-color);
     color: var(--text-primary);
   }
-  
+
   :deep(h4) {
     font-size: 1.1rem;
     font-weight: 600;
     margin: 0.9em 0 0.4em;
     color: var(--text-primary);
   }
-  
+
   :deep(h5) {
     font-size: 1.05rem;
     font-weight: 600;
     margin: 0.8em 0 0.4em;
     color: var(--text-primary);
   }
-  
+
   :deep(h6) {
     font-size: 1rem;
     font-weight: 600;
     margin: 0.8em 0 0.4em;
     color: var(--text-secondary);
   }
-  
+
   // 段落样式
   :deep(p) {
     margin: 0.8em 0;
     line-height: 1.7;
     text-align: justify;
   }
-  
+
   // 链接样式
   :deep(a) {
     color: var(--primary-color);
@@ -763,26 +755,26 @@ defineExpose({ show, close })
     transition: all 0.3s ease;
     padding: 0 2px;
     cursor: pointer;
-    
+
     &:hover {
       background: var(--primary-color);
-      color: white;
+      color: var(--btn-primary-text, white);
       border-bottom-style: solid;
       border-radius: 2px;
     }
-    
+
     // 内部锚点链接样式（目录跳转）
     &[href^="#"] {
       border-bottom-style: solid;
-      
+
       &:hover {
         background: var(--primary-color);
-        color: white;
+        color: var(--btn-primary-text, white);
         transform: translateX(3px);
       }
     }
   }
-  
+
   // 行内代码
   :deep(code) {
     background: var(--bg-input);
@@ -795,7 +787,7 @@ defineExpose({ show, close })
     font-weight: 500;
     white-space: nowrap;
   }
-  
+
   // 代码块
   :deep(pre) {
     background: var(--bg-input);
@@ -804,8 +796,8 @@ defineExpose({ show, close })
     overflow-x: auto;
     margin: 1em 0;
     border: 1px solid var(--border-color);
-    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-    
+    box-shadow: var(--shadow-sm);
+
     code {
       background: none;
       padding: 0;
@@ -817,49 +809,51 @@ defineExpose({ show, close })
       font-weight: normal;
     }
   }
-  
+
   // 列表样式
-  :deep(ul), :deep(ol) {
+  :deep(ul),
+  :deep(ol) {
     margin: 0.8em 0;
     padding-left: 2em;
-    
+
     li {
       margin: 0.3em 0;
       line-height: 1.6;
       position: relative;
-      
+
       &::marker {
         color: var(--primary-color);
         font-weight: 600;
       }
     }
-    
+
     // 嵌套列表
-    ul, ol {
+    ul,
+    ol {
       margin: 0.3em 0;
       padding-left: 1.5em;
     }
   }
-  
+
   :deep(ul) {
     list-style-type: disc;
-    
+
     li::marker {
       font-size: 0.8em;
     }
   }
-  
+
   :deep(ol) {
     list-style-type: decimal;
   }
-  
+
   // 加粗和斜体
   :deep(strong) {
     font-weight: 700;
     color: var(--text-primary);
     position: relative;
     padding: 0 3px;
-    
+
     // 使用半透明背景高亮，确保所有主题下都有良好对比度
     &::after {
       content: '';
@@ -874,48 +868,48 @@ defineExpose({ show, close })
       border-radius: 2px;
     }
   }
-  
+
   :deep(em) {
     font-style: italic;
     color: var(--text-secondary);
   }
-  
+
   :deep(strong em),
   :deep(em strong) {
     font-weight: 700;
     font-style: italic;
     color: var(--text-primary);
-    
+
     &::after {
       opacity: 0.3;
     }
   }
-  
+
   // 删除线（GFM扩展）
   :deep(del) {
     text-decoration: line-through;
     color: var(--text-muted);
     opacity: 0.7;
   }
-  
+
   // 任务列表（GFM扩展）
   :deep(li.task-item) {
     list-style: none;
     margin-left: -1.5em;
-    
+
     input[type="checkbox"] {
       margin-right: 0.5em;
       cursor: not-allowed;
     }
   }
-  
+
   // 图片样式
   :deep(img) {
     max-width: 100%;
     height: auto;
     margin: 0.3em 0.2em;
     vertical-align: middle;
-    
+
     // shields.io徽章样式（来自img.shields.io的图片）
     &[src*="shields.io"],
     &[src*="badge"],
@@ -926,35 +920,35 @@ defineExpose({ show, close })
       box-shadow: none;
       border-radius: 3px;
       transition: all 0.2s ease;
-      
+
       &:hover {
         transform: translateY(-1px);
         opacity: 0.85;
       }
     }
-    
+
     // 普通图片样式
     &:not([src*="shields.io"]):not([src*="badge"]) {
       display: block;
       border-radius: 8px;
       margin: 1.2em auto;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+      box-shadow: var(--shadow-md);
       border: 2px solid var(--border-color);
-      
+
       &:hover {
         transform: scale(1.02);
-        box-shadow: 0 6px 20px rgba(0,0,0,0.18);
+        box-shadow: var(--shadow-lg);
       }
     }
   }
-  
+
   // 徽章行样式
   :deep(p.badge-row) {
     text-align: center;
     margin: 1.5em 0;
     line-height: 2.5;
   }
-  
+
   // 徽章链接样式
   :deep(a:has(img[src*="shields.io"])),
   :deep(a:has(img[src*="badge"])) {
@@ -962,13 +956,13 @@ defineExpose({ show, close })
     border: none;
     padding: 0;
     margin: 0.2em 0.3em;
-    
+
     &:hover {
       background: none;
       border: none;
     }
   }
-  
+
   // 水平线
   :deep(hr) {
     border: none;
@@ -977,7 +971,7 @@ defineExpose({ show, close })
     margin: 1.5em 0;
     opacity: 0.6;
   }
-  
+
   // 引用块
   :deep(blockquote) {
     border-left: 4px solid var(--primary-color);
@@ -987,9 +981,9 @@ defineExpose({ show, close })
     color: var(--text-secondary);
     font-style: italic;
     border-radius: 0 6px 6px 0;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    box-shadow: var(--shadow-sm);
     position: relative;
-    
+
     &::before {
       content: '"';
       position: absolute;
@@ -1000,46 +994,47 @@ defineExpose({ show, close })
       opacity: 0.2;
       font-family: Georgia, serif;
     }
-    
+
     p {
       margin: 0.4em 0;
-      
+
       &:first-child {
         margin-top: 0;
       }
-      
+
       &:last-child {
         margin-bottom: 0;
       }
     }
   }
-  
+
   // 表格样式（如果需要）
   :deep(table) {
     width: 100%;
     border-collapse: collapse;
     margin: 1em 0;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    box-shadow: var(--shadow-sm);
     border-radius: 8px;
     overflow: hidden;
-    
-    th, td {
+
+    th,
+    td {
       padding: 10px 14px;
       border: 1px solid var(--border-color);
       text-align: left;
       line-height: 1.5;
     }
-    
+
     th {
       background: var(--primary-color);
-      color: white;
+      color: var(--btn-primary-text, white);
       font-weight: 600;
     }
-    
+
     tr:nth-child(even) {
       background: var(--bg-input);
     }
-    
+
     tr:hover {
       background: var(--bg-hover, rgba(102, 126, 234, 0.05));
     }
@@ -1051,45 +1046,46 @@ defineExpose({ show, close })
   .doc-title {
     font-size: 1.2rem;
   }
-  
+
   .markdown-body {
     font-size: 0.95rem;
-    
+
     :deep(h1) {
       font-size: 1.6rem;
-      
+
       &::before {
         font-size: 1.2rem;
       }
     }
-    
+
     :deep(h2) {
       font-size: 1.35rem;
     }
-    
+
     :deep(h3) {
       font-size: 1.15rem;
     }
-    
+
     :deep(h4) {
       font-size: 1.05rem;
     }
-    
-    :deep(ul), :deep(ol) {
+
+    :deep(ul),
+    :deep(ol) {
       padding-left: 1.5em;
     }
-    
+
     :deep(pre) {
       padding: 12px;
       font-size: 0.85rem;
     }
-    
+
     :deep(blockquote) {
       padding: 0.8em 1em;
       margin: 1em 0;
     }
   }
-  
+
   // 移动端回到顶部按钮
   .back-to-top {
     bottom: 80px;
@@ -1103,34 +1099,36 @@ defineExpose({ show, close })
 // 回到顶部按钮（使用fixed定位在视口右下角）
 .back-to-top {
   position: fixed;
-  bottom: 100px;  // 避免被页面底部遮挡
+  // 避免被页面底部遮挡
+  bottom: 100px;
   right: 50px;
   width: 50px;
   height: 50px;
   background: var(--primary-color);
-  color: white;
+  color: var(--btn-primary-text, white);
   border: none;
   border-radius: 50%;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  box-shadow: var(--shadow-lg);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.5rem;
   font-weight: 700;
   transition: all 0.3s ease;
-  z-index: 1100;  // 确保在模态框之上（模态框z-index是1000）
-  
+  // 确保在模态框之上（模态框z-index是1000）
+  z-index: 1100;
+
   &:hover {
     background: var(--primary-dark, var(--primary-color));
     transform: translateY(-4px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    box-shadow: var(--shadow-xl);
   }
-  
+
   &:active {
     transform: translateY(-2px);
   }
-  
+
   .arrow {
     line-height: 1;
   }
@@ -1150,32 +1148,34 @@ defineExpose({ show, close })
 
 // 打印样式
 @media print {
+
   .header-actions,
   .back-to-top {
     display: none;
   }
-  
+
   .markdown-body {
     :deep(a) {
-      color: #000;
-      border-bottom-color: #000;
-      
+      color: var(--text-primary);
+      border-bottom-color: var(--text-primary);
+
       &::after {
         content: " (" attr(href) ")";
         font-size: 0.8em;
-        color: #666;
+        color: var(--text-secondary);
       }
     }
-    
+
     :deep(pre) {
-      border: 1px solid #ccc;
+      border: 1px solid var(--border-color);
       page-break-inside: avoid;
     }
-    
-    :deep(h1), :deep(h2), :deep(h3) {
+
+    :deep(h1),
+    :deep(h2),
+    :deep(h3) {
       page-break-after: avoid;
     }
   }
 }
 </style>
-

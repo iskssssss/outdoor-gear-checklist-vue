@@ -1,37 +1,23 @@
 <template>
-  <div class="input-select-wrapper">
-    <input 
-      type="text" 
-      v-model="displayText" 
-      @focus="handleFocus"
-      @click="handleClick"
-      @blur="handleBlur"
-      @input="handleInput"
-      @keyup.enter="selectOrCreateOption"
-      :placeholder="placeholder"
-      autocomplete="off"
-    >
-    <transition name="dropdown">
-      <ul v-show="isOpen && filteredOptions.length > 0" class="suggestions-list" ref="suggestionsList">
-        <li 
-          v-for="option in filteredOptions"
-          :key="option.value"
-          @mousedown="handleSelect(option)"
-          :class="{ 'selected': option.value === modelValue }"
-          :ref="el => { if (option.value === modelValue) selectedItemRef = el }"
-        >
-          {{ option.label }}
-        </li>
-        <li v-if="canAddNew" @mousedown="handleAddNew" class="add-new-option">
-          + 添加 "{{ displayText }}"
-        </li>
-      </ul>
-    </transition>
+  <div class="input-select-wrapper" ref="triggerRef">
+    <input type="text" v-model="displayText" @focus="handleFocus" @click="handleClick" @blur="handleBlur"
+      @input="handleInput" @keyup.enter="selectOrCreateOption" :placeholder="placeholder" autocomplete="off">
+    <ul class="suggestions-list" ref="menuRef" :style="menuStyle">
+      <li v-for="option in filteredOptions" :key="option.value" @mousedown="handleSelect(option)"
+        :class="{ 'selected': option.value === modelValue }"
+        :ref="el => { if (option.value === modelValue) selectedItemRef = el }">
+        {{ option.label }}
+      </li>
+      <li v-if="canAddNew" @mousedown.prevent="handleAddNew" class="add-new-option">
+        + 添加 "{{ displayText }}"
+      </li>
+    </ul>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, watch, nextTick } from 'vue';
+import { useResponsiveMenu } from '@/composables/useResponsiveMenu';
 
 const props = defineProps({
   modelValue: {
@@ -57,12 +43,18 @@ const emit = defineEmits(['update:modelValue', 'addCustomOption']);
 const displayText = ref('');
 const isOpen = ref(false);
 const isTyping = ref(false);
-const suggestionsList = ref(null);
+// 触发器引用
+const triggerRef = ref(null);
+// 菜单引用
+const menuRef = ref(null);
 let selectedItemRef = null;
 let blurTimer = null;
 
+// 使用响应式菜单 Composable
+const { menuStyle, updatePosition } = useResponsiveMenu(triggerRef, menuRef, { isOpen, setWidth: true });
+
 // 获取选中项的 label
-const selectedOption = computed(() => 
+const selectedOption = computed(() =>
   props.options.find(opt => opt.value === props.modelValue)
 );
 
@@ -80,14 +72,14 @@ const filteredOptions = computed(() => {
   if (!isTyping.value) {
     return props.options;
   }
-  
+
   // 否则根据输入过滤
   const search = displayText.value.toLowerCase().trim();
   if (!search) {
     return props.options;
   }
-  
-  return props.options.filter(opt => 
+
+  return props.options.filter(opt =>
     opt.label.toLowerCase().includes(search)
   );
 });
@@ -117,18 +109,18 @@ function openDropdown() {
     clearTimeout(blurTimer);
     blurTimer = null;
   }
-  
+
   // 重置输入状态
   isTyping.value = false;
-  
+
   // 显示当前选中的值
   if (selectedOption.value) {
     displayText.value = selectedOption.value.label;
   }
-  
+
   // 打开下拉列表
   isOpen.value = true;
-  
+
   // 滚动到选中项
   nextTick(() => {
     if (selectedItemRef) {
@@ -145,12 +137,12 @@ function handleBlur() {
   if (blurTimer) {
     clearTimeout(blurTimer);
   }
-  
+
   // 极短的延迟，仅用于确保点击事件能够触发
   blurTimer = setTimeout(() => {
     isOpen.value = false;
     isTyping.value = false;
-    
+
     // 恢复显示选中项
     if (selectedOption.value) {
       displayText.value = selectedOption.value.label;
@@ -166,10 +158,10 @@ function handleInput() {
     clearTimeout(blurTimer);
     blurTimer = null;
   }
-  
+
   // 标记为正在输入
   isTyping.value = true;
-  
+
   // 确保下拉列表打开
   if (!isOpen.value) {
     isOpen.value = true;
@@ -179,11 +171,11 @@ function handleInput() {
 function selectOrCreateOption() {
   const search = displayText.value.trim();
   if (!search) return;
-  
-  const existing = props.options.find(opt => 
+
+  const existing = props.options.find(opt =>
     opt.label.toLowerCase() === search.toLowerCase()
   );
-  
+
   if (existing) {
     handleSelect(existing);
   } else if (canAddNew.value) {
@@ -196,11 +188,11 @@ function handleSelect(option, event) {
     event.preventDefault();
     event.stopPropagation();
   }
-  
+
   if (blurTimer) {
     clearTimeout(blurTimer);
   }
-  
+
   emit('update:modelValue', option.value);
   displayText.value = option.label;
   isOpen.value = false;
@@ -212,14 +204,14 @@ function handleAddNew(event) {
     event.preventDefault();
     event.stopPropagation();
   }
-  
+
   if (blurTimer) {
     clearTimeout(blurTimer);
   }
-  
+
   const label = displayText.value.trim();
   if (!label) return;
-  
+
   emit('addCustomOption', props.category, label, label);
   emit('update:modelValue', label);
   displayText.value = label;
@@ -245,7 +237,6 @@ function handleAddNew(event) {
   background: var(--bg-input);
   color: var(--text-primary);
   cursor: pointer;
-  z-index: 1;
 }
 
 .input-select-wrapper input:focus {
@@ -254,21 +245,17 @@ function handleAddNew(event) {
 }
 
 .suggestions-list {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  width: 100%;
+  /* 移除 position, top, left, width, transform-origin */
   max-height: 200px;
   overflow-y: auto;
   background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: 6px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  z-index: 10;
-  margin-top: 5px;
+  box-shadow: var(--shadow-lg);
+  // 确保在最上层
+  z-index: 1000;
   padding: 0;
   list-style: none;
-  transform-origin: top;
 }
 
 .suggestions-list li {
@@ -284,7 +271,7 @@ function handleAddNew(event) {
 
 .suggestions-list li.selected {
   background-color: var(--primary-color);
-  color: var(--text-white, white);
+  color: var(--btn-primary-text, white);
   font-weight: 600;
 }
 
@@ -315,6 +302,7 @@ function handleAddNew(event) {
     opacity: 0;
     transform: translateY(-10px);
   }
+
   100% {
     opacity: 1;
     transform: translateY(0);
@@ -326,6 +314,7 @@ function handleAddNew(event) {
     opacity: 1;
     transform: translateY(0);
   }
+
   100% {
     opacity: 0;
     transform: translateY(-10px);

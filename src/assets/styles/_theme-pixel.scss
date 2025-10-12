@@ -6,77 +6,118 @@
 :root,
 body.theme-pixel {
   /* ===== 颜色变量 - 像素风常见调色板 ===== */
-  --primary-color: #008080; /* 青色，经典像素游戏主色 */
+  // 经典Teal色
+  --primary-color: #008080;
   --primary-dark: #005f5f;
-  --secondary-color: #800080; /* 紫色，辅助色 */
-  --success-color: #00a000;
-  --success-light: #a0ffa0;
-  --warning-color: #c0c000;
-  --warning-light: #ffff80;
-  --danger-color: #a00000;
-  --danger-light: #ffa0a0;
-  --info-color: #008080;
-  --info-light: #80ffff;
-  
-  --bg-gradient: linear-gradient(135deg, #404040 0%, #202020 100%); /* 暗色渐变背景 */
-  --bg-main: #303030; /* 主背景色 */
-  --bg-card: #c0c0c0; /* 银色/灰色，模拟老式屏幕 */
-  --bg-header: #808080; /* 中灰色 */
-  --bg-input: #f0f0f0; /* 浅灰色 */
-  --bg-hover: #d8d8d8; /* 悬停色 */
+  // 灰色
+  --secondary-color: #808080;
+  // 纯绿色
+  --success-color: #008000;
+  --success-light: #e0ffe0;
+  // 橄榄色
+  --warning-color: #808000;
+  --warning-light: #ffffe0;
+  // 栗色
+  --danger-color: #d12929;
+  --danger-light: #ffe0e0;
+  // 海军蓝
+  --info-color: #000080;
+  --info-light: #e0e0ff;
+
+  // 暗色渐变背景
+  --bg-gradient: linear-gradient(135deg, #404040 0%, #202020 100%);
+  // 经典浅灰色背景
+  --bg-main: #c0c0c0;
+  // 银色/灰色，模拟老式屏幕
+  --bg-card: #c0c0c0;
+  // 中灰色
+  --bg-header: #808080;
+  // 白色输入框背景以增强对比度
+  --bg-input: #ffffff;
+  // 悬停色
+  --bg-hover: #a0a0a0;
   --bg-button-group: #a0a0a0;
-  
-  --text-primary: #000000; /* 纯黑色文本 */
-  --text-secondary: #303030;
-  --text-muted: #606060;
-  --text-white: #ffffff; /* 纯白色文本 */
-  
-  --border-color: #505050; /* 深灰色边框 */
-  --border-radius: 0; /* 像素风无圆角 */
-  --border-width: 2px; /* 更粗的边框 */
-  
-  --shadow-card: 4px 4px #404040; /* 像素化阴影 */
-  --shadow-hover: 6px 6px #606060; /* 像素化悬停阴影 */
-  --shadow-sm: 2px 2px #303030;
-  --shadow-md: 4px 4px #404040;
-  --shadow-lg: 6px 6px #505050;
-  --shadow-xl: 8px 8px #606060;
-  
+  --bg-overlay: rgba(192, 192, 192, 0.7);
+
+  // 纯黑色文本
+  --text-primary: #000000;
+  // 加深次要文本颜色
+  --text-secondary: #505050;
+  // 使用与页头相同的灰色
+  --text-muted: #808080;
+  // 纯白色文本
+  --text-white: #ffffff;
+
+  --btn-primary-text: #ffffff;
+  --btn-success-text: #ffffff;
+  --btn-danger-text: #ffffff;
+
+  // 加深边框颜色
+  --border-color: #505050;
+  // 像素风无圆角
+  --border-radius: 0;
+  // 更粗的边框
+  --border-width: 2px;
+
+  // 像素化阴影
+  --shadow-card: 3px 3px 0 #000;
+  // 像素化悬停阴影
+  --shadow-hover: 4px 4px 0 #000;
+  --shadow-sm: 2px 2px 0 #000;
+  --shadow-md: 3px 3px 0 #000;
+  --shadow-lg: 4px 4px 0 #000;
+  --shadow-xl: 5px 5px 0 #000;
+  --danger-shadow: 3px 3px 0 #400000;
+  --primary-color-shadow: #004040;
+
+  --scrollbar-track-bg: #c0c0c0;
+  --scrollbar-thumb-bg: #505050;
+  --scrollbar-thumb-hover-bg: #202020;
+
   --btn-success: #00a000;
   --btn-primary: #008080;
   --btn-warning: #c0c000;
   --btn-danger: #a00000;
   --btn-info: #008080;
   --btn-secondary: #808080;
-  
+
   /* ===== 字体 - 像素风字体，需要引入外部字体或使用系统自带的等宽字体 ===== */
-  --font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; /* 使用全局统一字体 */
+  --font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  /* 使用全局统一字体 */
   --font-weight-normal: 400;
-  --font-weight-medium: 700; /* 像素字体粗细变化不明显，用700强调 */
+  // 像素字体粗细变化不明显，用700强调
+  --font-weight-medium: 700;
   --font-weight-bold: 900;
-  
+  // 像素字体
+  --font-family-base: 'Press Start 2P', 'VT323', 'Courier New', monospace, sans-serif;
+  --font-size-base: 0.9rem;
+
   /* 额外像素风专属变量 */
-  --pixel-size: 2px; /* 定义像素单位大小 */
-  --pixel-border-color: #202020;
-  --pixel-shadow-color: #101010;
+  // 定义像素单位大小
+  --pixel-size: 2px;
+  --pixel-border-color: #000000;
+  --pixel-shadow-color: #505050;
 }
 
 body.theme-pixel {
   font-family: var(--font-family);
   color: var(--text-primary);
-  background-color: #202020; /* 整体背景 */
-  
+  // 整体背景
+  background-color: #202020;
+
   /* 全局应用像素化效果 */
   * {
-    image-rendering: pixelated; /* 确保图片和图标像素化 */
-    -ms-interpolation-mode: nearest-neighbor; /* IE兼容 */
+    // 确保图片和图标像素化
+    image-rendering: pixelated;
+    // IE兼容
+    -ms-interpolation-mode: nearest-neighbor;
   }
 
   /* 差异化样式 */
   .app-container {
     background: var(--bg-gradient);
   }
-  
+
   /* 使用指南页面和更新日志页面特殊处理 - 覆盖所有变量 */
   .doc-page,
   .markdown-page,
@@ -89,183 +130,186 @@ body.theme-pixel {
     --bg-input: #303030;
     --bg-hover: #606060;
     --border-color: #606060;
-    
-    background: #404040 !important; /* 深灰色背景 */
-    
+
+    // 深灰色背景
+    background: #404040 !important;
+
     .doc-header,
     .markdown-header,
     .changelog-header {
-      background: #606060 !important; /* 中灰色头部 */
+      // 中灰色头部
+      background: #606060 !important;
       border-bottom: var(--pixel-size) solid #202020;
     }
-    
+
     .doc-page-title,
     .markdown-page-title,
     .changelog-page-title {
       color: #f0f0f0 !important;
     }
-    
+
     .back-btn {
       background: var(--primary-color) !important;
       color: #ffffff !important;
       border: var(--pixel-size) solid #005f5f;
     }
-    
+
     .refresh-btn {
       background: var(--primary-color) !important;
       color: #ffffff !important;
       border: var(--pixel-size) solid #005f5f;
     }
-    
+
     .doc-main,
     .markdown-main,
     .changelog-main {
       background: #404040;
     }
-    
+
     .doc-container,
     .markdown-container,
     .changelog-container {
       background: transparent;
     }
-    
+
     .doc-content-wrapper,
     .markdown-content-wrapper {
       background: transparent;
     }
-    
+
     .doc-toc,
     .markdown-toc {
-      background: #505050 !important; /* 深灰色目录背景 */
+      // 深灰色目录背景
+      background: #505050 !important;
       border: var(--pixel-size) solid #202020 !important;
-      
+
       .toc-header h3 {
         color: #f0f0f0 !important;
         border-bottom-color: #303030;
       }
-      
+
       .toc-item a {
         color: #d0d0d0 !important;
-        
+
         &:hover {
           color: #ffffff !important;
           background: #606060 !important;
         }
       }
-      
+
       .toc-item.active a {
         color: #ffffff !important;
         background: var(--primary-color) !important;
       }
     }
-    
+
     .markdown-body {
       // 通过覆盖变量，所有使用 var(--text-primary) 的元素都会自动变成浅色
       // 不需要单独设置每个元素的颜色
-      
-      
+
+
       // 行内代码 - 经典DOS终端绿色
       :deep(code) {
         background: #202020 !important;
         color: #00ff00 !important;
         border-color: #404040 !important;
       }
-      
+
       // 代码块 - 经典DOS终端绿色
       :deep(pre) {
         background: #202020 !important;
         border: var(--pixel-size) solid #404040 !important;
-        
+
         code {
           background: transparent !important;
           color: #00ff00 !important;
         }
       }
-      
+
       // 链接 - 经典青色
       :deep(a) {
         color: #00ffff !important;
         border-bottom-color: #00ffff !important;
-        
+
         &:hover {
           color: #000000 !important;
           background: #00ffff !important;
           border-bottom-color: #00ffff !important;
         }
       }
-      
+
       // 引用块
       :deep(blockquote) {
         background: #505050 !important;
         border-left-color: var(--primary-color) !important;
-        
+
         &::before {
           color: var(--primary-color) !important;
         }
       }
-      
+
       // 表格
       :deep(table) {
         background: #303030 !important;
         border: var(--pixel-size) solid #202020 !important;
-        
+
         th {
           background: #606060 !important;
           color: #ffffff !important;
           border-color: #404040 !important;
         }
-        
+
         td {
           background: #404040 !important;
           color: #d0d0d0 !important;
           border-color: #505050 !important;
         }
-        
+
         tr:nth-child(even) td {
           background: #4a4a4a !important;
         }
-        
+
         tr:hover td {
           background: #555555 !important;
           color: #ffffff !important;
         }
       }
-      
+
       // 水平线
       :deep(hr) {
         background: linear-gradient(to right, transparent, #808080, transparent) !important;
       }
-      
+
       // 加粗
       :deep(strong) {
         color: #ffffff !important;
-        
+
         &::after {
           background: #00ffff !important;
           opacity: 0.3;
         }
       }
-      
+
       // 斜体
       :deep(em) {
         color: #c0c0c0 !important;
       }
-      
+
       // 删除线
       :deep(del) {
         color: #808080 !important;
       }
-      
+
       // 图片边框
       :deep(img:not([src*="shields.io"]):not([src*="badge"])) {
         border-color: #606060 !important;
         box-shadow: 4px 4px #303030 !important;
-        
+
         &:hover {
           box-shadow: 6px 6px #404040 !important;
         }
       }
-      
+
       // 徽章行
       :deep(p.badge-row) {
         img {
@@ -273,63 +317,63 @@ body.theme-pixel {
         }
       }
     }
-    
+
     // 加载和错误状态
     .loading-state {
       color: #d0d0d0 !important;
-      
+
       p {
         color: #d0d0d0 !important;
       }
     }
-    
+
     .loading-spinner {
       border-color: #505050 !important;
       border-top-color: var(--primary-color) !important;
     }
-    
+
     .error-state {
       color: #d0d0d0 !important;
-      
+
       p {
         color: #d0d0d0 !important;
       }
-      
+
       .error-message {
         color: #ff8080 !important;
       }
-      
+
       .fallback-hint {
         color: #a0a0a0 !important;
       }
     }
-    
+
     // 回到顶部按钮
     .back-to-top {
       background: var(--primary-color) !important;
       color: #ffffff !important;
       border: var(--pixel-size) solid #005f5f;
       box-shadow: 4px 4px #303030 !important;
-      
+
       &:hover {
         background: #00a0a0 !important;
         box-shadow: 6px 6px #404040 !important;
       }
     }
   }
-  
+
   .header {
     box-shadow: 6px 6px var(--pixel-shadow-color);
     border-bottom: var(--pixel-size) solid var(--pixel-border-color);
   }
-  
+
   .category-header {
     background: var(--primary-color);
     color: var(--text-white);
     border: var(--pixel-size) solid var(--pixel-border-color);
     box-shadow: var(--pixel-size) var(--pixel-size) var(--pixel-shadow-color);
   }
-  
+
   .item {
     background: var(--bg-card);
     border: var(--pixel-size) solid var(--border-color);
@@ -341,12 +385,13 @@ body.theme-pixel {
     background: #e0e0e0;
     box-shadow: var(--pixel-size) var(--pixel-size) #606060;
   }
-  
+
   .item.completed {
-    background: #a0ffa0; /* 鲜绿色 */
+    // 鲜绿色
+    background: #a0ffa0;
     border-color: #008000;
   }
-  
+
   .stat-item {
     background: var(--primary-color);
     color: var(--text-white);
@@ -354,26 +399,26 @@ body.theme-pixel {
     box-shadow: var(--pixel-size) var(--pixel-size) var(--pixel-shadow-color);
     border-radius: var(--border-radius);
   }
-  
+
   .nav-menu {
     border-color: var(--border-color);
     border-bottom: var(--pixel-size) solid var(--pixel-border-color);
   }
-  
+
   .nav-link {
     color: var(--text-primary);
-    
+
     &:hover {
       color: var(--primary-color);
       border-bottom-color: var(--primary-color);
     }
-    
+
     &.danger:hover {
       color: var(--btn-danger);
       border-bottom-color: var(--btn-danger);
     }
   }
-  
+
   .modal-content {
     border: var(--pixel-size) solid var(--pixel-border-color);
     box-shadow: calc(var(--pixel-size) * 2) calc(var(--pixel-size) * 2) var(--pixel-shadow-color);
@@ -384,8 +429,9 @@ body.theme-pixel {
     background: var(--primary-color);
     color: var(--text-white);
     border-bottom: var(--pixel-size) solid var(--pixel-border-color);
-    
-    h3, .close {
+
+    h3,
+    .close {
       color: var(--text-white);
     }
   }
@@ -396,9 +442,11 @@ body.theme-pixel {
 
   .tab-btn {
     border-bottom: var(--pixel-size) solid transparent;
+
     &:hover {
       color: var(--primary-color);
     }
+
     &.active {
       color: var(--primary-color);
       border-bottom-color: var(--primary-color);
@@ -419,7 +467,7 @@ body.theme-pixel {
   .btn-primary {
     background: var(--btn-primary);
   }
-  
+
   .btn-secondary {
     background: var(--btn-secondary);
   }
@@ -429,10 +477,11 @@ body.theme-pixel {
   .setting-group textarea {
     border: var(--pixel-size) solid var(--border-color);
     border-radius: var(--border-radius);
+
     &:focus {
       outline: none;
       border-color: var(--primary-color);
-      box-shadow: calc(var(--pixel-size) * 2) calc(var(--pixel-size) * 2) rgba(0,0,0,0.1);
+      box-shadow: calc(var(--pixel-size) * 2) calc(var(--pixel-size) * 2) rgba(0, 0, 0, 0.1);
     }
   }
 
@@ -455,7 +504,7 @@ body.theme-pixel {
     background: var(--btn-danger);
     color: var(--text-white);
   }
-  
+
   /* 智能推荐按钮像素风格 */
   .btn-recommendation {
     background: var(--btn-primary) !important;
@@ -463,14 +512,14 @@ body.theme-pixel {
     border: var(--pixel-size) solid var(--pixel-border-color) !important;
     box-shadow: var(--pixel-size) var(--pixel-size) var(--pixel-shadow-color);
     border-radius: 0 !important;
-    
+
     &:hover:not(:disabled) {
       background: #00a0a0 !important;
       transform: translate(calc(var(--pixel-size) * -1), calc(var(--pixel-size) * -1));
       box-shadow: calc(var(--pixel-size) * 2) calc(var(--pixel-size) * 2) var(--pixel-shadow-color);
     }
   }
-  
+
   /* 撤销按钮像素风格 */
   .btn-undo {
     background: var(--btn-success) !important;
@@ -478,13 +527,13 @@ body.theme-pixel {
     border: var(--pixel-size) solid var(--pixel-border-color) !important;
     box-shadow: var(--pixel-size) var(--pixel-size) var(--pixel-shadow-color);
     border-radius: 0 !important;
-    
+
     &:hover:not(:disabled) {
       background: #00c000 !important;
       transform: translate(calc(var(--pixel-size) * -1), calc(var(--pixel-size) * -1));
       box-shadow: calc(var(--pixel-size) * 2) calc(var(--pixel-size) * 2) var(--pixel-shadow-color);
     }
-    
+
     &:disabled {
       background: var(--btn-secondary) !important;
       border-color: var(--border-color) !important;
@@ -492,20 +541,20 @@ body.theme-pixel {
       filter: grayscale(0.5);
     }
   }
-  
+
   /* 添加分类卡片像素风格 */
   .add-category-card {
     border: var(--pixel-size) dashed var(--primary-color) !important;
     border-radius: 0 !important;
     box-shadow: var(--pixel-size) var(--pixel-size) var(--pixel-shadow-color);
-    
+
     &:hover {
       border-color: #00a0a0 !important;
       background: var(--bg-card) !important;
       box-shadow: calc(var(--pixel-size) * 2) calc(var(--pixel-size) * 2) var(--pixel-shadow-color);
     }
   }
-  
+
   .add-category-input-card {
     border: var(--pixel-size) solid var(--primary-color) !important;
     border-radius: 0 !important;
@@ -515,10 +564,11 @@ body.theme-pixel {
   .category-input {
     border: var(--pixel-size) solid var(--border-color) !important;
     border-radius: 0 !important;
-    
+
     &:focus {
       border-color: var(--primary-color) !important;
-      box-shadow: var(--pixel-size) var(--pixel-size) var(--primary-color) !important; // 像素风格的焦点阴影
+      // 像素风格的焦点阴影
+      box-shadow: var(--pixel-size) var(--pixel-size) var(--primary-color) !important;
     }
   }
 }

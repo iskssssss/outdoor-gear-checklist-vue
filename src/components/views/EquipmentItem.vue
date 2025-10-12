@@ -1,13 +1,8 @@
 <template>
-  <div 
-    v-if="!isEditingForm"
-    class="item" 
-    :class="{ completed: completed }"
-    @click="debouncedToggleCompleted"
-  >
-    <div class="item-status">
+  <div v-if="!isEditingForm" class="item" :class="{ completed: completed }" @click="debouncedToggleCompleted">
+    <!-- <div class="item-status">
       {{ completed ? '✅' : '⭕' }}
-    </div>
+    </div> -->
     <div class="item-info">
       <span class="item-name">
         <span class="item-index" v-if="itemIndex">{{ itemIndex }}</span>
@@ -26,7 +21,8 @@
             <span class="detail-label">重量:</span>
             <span class="detail-value">
               {{ formatNumber(item.weight) }}{{ item.weightUnit }}
-              <span v-if="totalWeight > 0" class="total-weight">（总重: {{ formatNumber(totalWeight, 1) }}{{ item.weightUnit }}）</span>
+              <span v-if="totalWeight > 0" class="total-weight">（总重: {{ formatNumber(totalWeight, 1) }}{{
+                item.weightUnit }}）</span>
             </span>
           </span>
           <span v-if="item.price > 0" class="detail-row item-price">
@@ -34,7 +30,8 @@
             <span class="detail-label">价格:</span>
             <span class="detail-value">
               {{ formatPrice(item.price) }}{{ item.priceUnit }}
-              <span v-if="totalPrice > 0" class="total-price">（总价: {{ formatPrice(totalPrice) }}{{ item.priceUnit }}）</span>
+              <span v-if="totalPrice > 0" class="total-price">（总价: {{ formatPrice(totalPrice) }}{{ item.priceUnit
+                }}）</span>
             </span>
           </span>
         </template>
@@ -53,13 +50,8 @@
 
   <div v-else class="item editing">
     <div class="add-item-input-container">
-      <input 
-        type="text" 
-        class="add-item-input" 
-        v-model="editingData.name"
-        ref="editNameInput"
-        :placeholder="isAdding ? '输入装备名称' : '装备名称'"
-      >
+      <input type="text" class="add-item-input" v-model="editingData.name" ref="editNameInput"
+        :placeholder="isAdding ? '输入装备名称' : '装备名称'">
       <div class="add-item-details">
         <div class="add-item-field">
           <label>重量:</label>
@@ -109,7 +101,8 @@ import { debounce } from '../../utils/debounce'
 const props = defineProps({
   item: {
     type: Object,
-    required: false // Not required if isAdding is true
+    // Not required if isAdding is true
+    required: false
   },
   categoryId: {
     type: Number,
@@ -144,7 +137,7 @@ const editingData = ref(props.isAdding ? {
   weightUnit: 'g',
   price: 0,
   priceUnit: '人民币'
-} : { 
+} : {
   ...props.item,
   price: props.item?.price || 0,
   priceUnit: props.item?.priceUnit || '人民币'
@@ -237,7 +230,7 @@ function handleCancel() {
   emit('cancel')
   isEditingForm.value = false;
   if (props.isAdding) {
-     editingData.value = {
+    editingData.value = {
       name: '',
       quantity: 1,
       quantityUnit: '个',
@@ -247,7 +240,7 @@ function handleCancel() {
       priceUnit: '人民币'
     }
   } else {
-    editingData.value = { 
+    editingData.value = {
       ...props.item,
       priceUnit: props.item?.priceUnit || '人民币'
     };
@@ -279,8 +272,10 @@ const debouncedToggleCompleted = debounce(toggleItem, 300)
 <style scoped lang="scss">
 .item {
   display: flex;
-  align-items: flex-start; /* 将align-items改为flex-start */
-  gap: 8px; /* 减小间距 */
+  // 将align-items改为flex-start
+  align-items: flex-start;
+  // 减小间距
+  gap: 8px;
   padding: 12px 16px;
   background: var(--bg-input);
   border-radius: 8px;
@@ -288,7 +283,8 @@ const debouncedToggleCompleted = debounce(toggleItem, 300)
   transition: all 0.3s ease;
   border: 2px solid transparent;
   width: 100%;
-  position: relative; /* 为序号定位做准备 */
+  // 为序号定位做准备
+  position: relative;
 }
 
 .item-index {
@@ -307,14 +303,15 @@ const debouncedToggleCompleted = debounce(toggleItem, 300)
   opacity: 0.9;
   transition: all 0.2s ease;
   border: 1px solid rgba(var(--primary-color-rgb, 74, 144, 226), 0.3);
-  flex-shrink: 0; /* 防止序号被压缩 */
+  // 防止序号被压缩
+  flex-shrink: 0;
 }
 
 .item:hover .item-index {
   opacity: 1;
   color: #fff;
   background: var(--primary-color);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   border-color: var(--primary-color);
   transform: scale(1.05);
 }
@@ -409,8 +406,10 @@ body.theme-pixel .item-index {
   font-family: 'Courier New', monospace;
   min-width: 20px;
   height: 20px;
-  line-height: 20px; /* 添加行高确保垂直居中 */
-  padding: 0 6px; /* 调整内边距 */
+  // 添加行高确保垂直居中
+  line-height: 20px;
+  // 调整内边距
+  padding: 0 6px;
   box-shadow: 2px 2px 0 #404040;
   image-rendering: pixelated;
 }
@@ -464,7 +463,8 @@ body.theme-minimal .item:hover .item-index {
   background: var(--bg-card);
   padding: 15px;
   box-sizing: border-box;
-  width: 100%; /* 确保占据父容器的100%宽度 */
+  // 确保占据父容器的100%宽度
+  width: 100%;
 }
 
 .item.editing:hover {
@@ -477,8 +477,10 @@ body.theme-minimal .item:hover .item-index {
 }
 
 .item-info {
-  flex: 1 1 auto; /* 允许增长和收缩，并设置基础宽度 */
-  min-width: 0; /* 允许在必要时收缩到0 */
+  // 允许增长和收缩，并设置基础宽度
+  flex: 1 1 auto;
+  // 允许在必要时收缩到0
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -489,7 +491,8 @@ body.theme-minimal .item:hover .item-index {
   color: var(--text-primary);
   font-size: 1rem;
   display: flex;
-  align-items: center; /* 让序号和文字垂直居中对齐 */
+  // 让序号和文字垂直居中对齐
+  align-items: center;
 }
 
 .item.completed .item-name {
@@ -500,11 +503,16 @@ body.theme-minimal .item:hover .item-index {
 .item-details {
   font-size: 0.85rem;
   color: var(--text-secondary);
-  white-space: normal; /* 允许文本换行 */
-  word-break: break-word; /* 防止长单词溢出 */
-  display: flex; /* 启用Flexbox布局 */
-  flex-direction: column; /* 子元素垂直堆叠 */
-  gap: 4px; /* 行之间的间距 */
+  // 允许文本换行
+  white-space: normal;
+  // 防止长单词溢出
+  word-break: break-word;
+  // 启用Flexbox布局
+  display: flex;
+  // 子元素垂直堆叠
+  flex-direction: column;
+  // 行之间的间距
+  gap: 4px;
 }
 
 .detail-row {
@@ -512,26 +520,31 @@ body.theme-minimal .item:hover .item-index {
   align-items: baseline;
   line-height: 1.6;
   gap: 4px;
-  flex-wrap: wrap; /* 允许换行，但尽量避免 */
+  // 允许换行，但尽量避免
+  flex-wrap: wrap;
 }
 
 .detail-icon {
-  flex-shrink: 0; /* 图标不收缩 */
+  // 图标不收缩
+  flex-shrink: 0;
   font-size: 1em;
 }
 
 .detail-label {
-  flex-shrink: 0; /* 标签不收缩 */
+  // 标签不收缩
+  flex-shrink: 0;
   color: var(--text-primary);
   font-weight: 500;
 }
 
 .detail-value {
   flex: 1;
-  min-width: 0; /* 允许收缩 */
+  // 允许收缩
+  min-width: 0;
   color: var(--text-primary);
   font-weight: 500;
-  word-break: break-word; /* 长文本可以断行 */
+  // 长文本可以断行
+  word-break: break-word;
 }
 
 .item-quantity {
@@ -546,7 +559,8 @@ body.theme-minimal .item:hover .item-index {
   color: var(--text-secondary);
   font-weight: 400;
   font-size: 0.9em;
-  white-space: nowrap; /* 总重尽量不换行 */
+  // 总重尽量不换行
+  white-space: nowrap;
 }
 
 .item-price {
@@ -557,7 +571,8 @@ body.theme-minimal .item:hover .item-index {
   color: var(--text-secondary);
   font-weight: 400;
   font-size: 0.9em;
-  white-space: nowrap; /* 总价尽量不换行 */
+  // 总价尽量不换行
+  white-space: nowrap;
 }
 
 .item-actions {
@@ -589,7 +604,8 @@ body.theme-minimal .item:hover .item-index {
     top: 100%;
     left: 0;
     right: 0;
-    height: 10px; /* 扩展10px的hover区域 */
+    // 扩展10px的hover区域
+    height: 10px;
     background: transparent;
   }
 }
@@ -623,7 +639,8 @@ body.theme-minimal .item:hover .item-index {
   position: absolute;
   right: 0;
   top: 100%;
-  margin-top: 0; /* 无间隙，直接连接 */
+  // 无间隙，直接连接
+  margin-top: 0;
   min-width: 120px;
   background: var(--bg-card);
   border: 1px solid var(--border-color);
@@ -631,7 +648,8 @@ body.theme-minimal .item:hover .item-index {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   padding: 4px 0;
   z-index: 100;
-  padding-top: 4px; /* 顶部留一点呼吸空间 */
+  // 顶部留一点呼吸空间
+  padding-top: 4px;
 }
 
 // 菜单项
@@ -664,6 +682,7 @@ body.theme-minimal .item:hover .item-index {
     opacity: 0;
     transform: translateY(-5px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -683,7 +702,7 @@ body.theme-minimal .item:hover .item-index {
 .btn-warning {
   background: var(--warning-color, #ffc107);
   color: var(--text-primary);
-  
+
   /* 暗黑主题下使用深色文字以提高对比度 */
   body.theme-dark & {
     color: #1a1d29;
@@ -697,13 +716,14 @@ body.theme-minimal .item:hover .item-index {
 
 .btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .add-item-input-container {
   display: flex;
   flex-direction: column;
-  gap: 8px; /* 减小间距 */
+  // 减小间距
+  gap: 8px;
   width: 100%;
 }
 
@@ -726,12 +746,13 @@ body.theme-minimal .item:hover .item-index {
 }
 
 .add-item-details {
-  display: grid;
-  grid-template-columns: 1fr; /* 始终单列 */
-  gap: 10px; 
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
-@media (min-width: 480px) { /* 移除此媒体查询中的双列设置 */
+@media (min-width: 480px) {
+  /* 移除此媒体查询中的双列设置 */
   /* .add-item-details {
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   } */
@@ -740,23 +761,24 @@ body.theme-minimal .item:hover .item-index {
 .add-item-field {
   display: flex;
   align-items: center;
-  /* flex-wrap: wrap; */ /* 移除flex-wrap，尝试让元素保持在同一行 */
-  gap: 4px; /* 元素之间的间距 */
+  // 减小间距
+  gap: 4px;
 }
 
 .add-item-field label {
   font-weight: 500;
   color: var(--text-secondary);
   font-size: 0.9rem;
-  flex-shrink: 0; 
-  white-space: nowrap;
-  /* margin-right: 4px; 让gap处理间距 */
+  width: auto;
+  flex-shrink: 0;
 }
 
 .add-item-field input {
-  flex: 1; /* 简化flex属性，让input填充剩余空间 */
-  min-width: 0; /* 允许在必要时收缩到0 */
-  padding: 6px 10px;
+  // 允许输入框填充剩余空间
+  flex: 1 1 auto;
+  // 允许输入框在必要时收缩
+  min-width: 0;
+  padding: 8px 12px;
   border: 2px solid var(--border-color);
   border-radius: 4px;
   font-size: 0.9rem;
@@ -771,16 +793,16 @@ body.theme-minimal .item:hover .item-index {
 }
 
 .add-item-field select {
-  padding: 6px 2px;
+  padding: 8px 4px;
   border: 2px solid var(--border-color);
   border-radius: 4px;
   font-size: 0.85rem;
   background: var(--bg-input);
   color: var(--text-primary);
   cursor: pointer;
-  flex-shrink: 0; /* 防止收缩 */
-  width: 55px; /* 进一步减小固定宽度 */
-  /* min-width: 50px; 移除min-width，width已固定 */
+  // 设置一个固定的单位选择框宽度
+  width: 65px;
+  flex-shrink: 0;
   text-align: center;
   box-sizing: border-box;
 }
@@ -828,7 +850,7 @@ body.theme-minimal .item:hover .item-index {
   .item {
     flex-wrap: wrap;
   }
-  
+
   .item-actions {
     width: 100%;
     justify-content: flex-end;
@@ -839,7 +861,8 @@ body.theme-minimal .item:hover .item-index {
   display: inline-block;
   margin-left: 8px;
   padding: 2px 8px;
-  background-color: var(--info-color, #17a2b8); /* 使用信息蓝色或默认蓝色 */
+  // 使用信息蓝色或默认蓝色
+  background-color: var(--info-color, #17a2b8);
   color: white;
   border-radius: 12px;
   font-size: 0.75rem;
@@ -848,4 +871,3 @@ body.theme-minimal .item:hover .item-index {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 </style>
-

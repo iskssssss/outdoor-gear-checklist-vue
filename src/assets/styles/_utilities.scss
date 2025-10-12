@@ -3,23 +3,25 @@
  * 使用方法：在组件中添加对应的 class，或使用 @extend 继承
  */
 
-/* ==================== 通用滚动条样式 ==================== */
+/* ==================== 全局重置 & 盒模型 ==================== */
+
 * {
+  box-sizing: border-box;
+
   &::-webkit-scrollbar {
     width: 10px;
   }
 
   &::-webkit-scrollbar-track {
-    background: var(--bg-input, #f5f5f5);
+    background: var(--scrollbar-track-bg, #f5f5f5);
   }
 
   &::-webkit-scrollbar-thumb {
-    background: var(--border-color, #ddd);
-    border-radius: 5px;
+    background: var(--scrollbar-thumb-bg, #ddd);
   }
 
   &::-webkit-scrollbar-thumb:hover {
-    background: var(--text-muted, #999);
+    background: var(--scrollbar-thumb-hover-bg, #999);
   }
 }
 
@@ -42,7 +44,7 @@
 
 .shadow-hover {
   transition: box-shadow 0.3s ease;
-  
+
   &:hover {
     box-shadow: var(--shadow-hover, 0 4px 12px rgba(0, 0, 0, 0.15));
   }
@@ -85,7 +87,7 @@
 /* ==================== Hover 效果类 ==================== */
 .hover-lift {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  
+
   &:hover {
     transform: translateY(-3px);
     box-shadow: var(--shadow-lg, 0 6px 20px rgba(0, 0, 0, 0.18));
@@ -94,7 +96,7 @@
 
 .hover-scale {
   transition: transform 0.3s ease;
-  
+
   &:hover {
     transform: scale(1.05);
   }
@@ -102,7 +104,7 @@
 
 .hover-bg {
   transition: background-color 0.3s ease;
-  
+
   &:hover {
     background: var(--bg-hover, #e9ecef);
   }
@@ -347,7 +349,7 @@
   padding: 15px;
   box-shadow: var(--shadow-sm, 0 2px 8px rgba(0, 0, 0, 0.08));
   transition: box-shadow 0.3s ease;
-  
+
   &:hover {
     box-shadow: var(--shadow-md, 0 4px 12px rgba(0, 0, 0, 0.12));
   }
@@ -362,7 +364,7 @@
   cursor: pointer;
   transition: all 0.3s ease;
   border: none;
-  
+
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
@@ -377,7 +379,7 @@
   transition: all 0.3s ease;
   padding: 10px 15px;
   border-radius: 6px;
-  
+
   &:focus {
     outline: none;
     border-color: var(--primary-color);
@@ -510,4 +512,3 @@
 .z-1000 {
   z-index: 1000;
 }
-

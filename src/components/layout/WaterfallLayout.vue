@@ -1,30 +1,16 @@
 <template>
   <div ref="containerRef" class="waterfall-layout-container" :style="waterfallStyle">
-    <CategoryItem
-      v-for="(category, index) in props.categories"
-      :key="category.id"
-      :category="category"
-      :layout-mode="props.layoutMode"
-      :ref="el => setCategoryRef(el, index)"
-      :style="itemPositions[index] || {}"
-    />
+    <CategoryItem v-for="(category, index) in props.categories" :key="category.id" :category="category"
+      :layout-mode="props.layoutMode" :ref="el => setCategoryRef(el, index)" :style="itemPositions[index] || {}" />
 
     <!-- 添加分类按钮 -->
-    <div 
-      v-if="props.addCardVisible"
-      class="add-category-card"
-      :style="addButtonPosition"
-      @click="emit('add-card-click')"
-    >
+    <div v-if="props.addCardVisible" class="add-category-card" :style="addButtonPosition"
+      @click="emit('add-card-click')">
       <slot name="add-card-content"></slot>
     </div>
 
     <!-- 添加分类输入框（通过slot传递） -->
-    <div
-      v-if="props.addCardVisible && isAddingCategory"
-      class="add-category-input-card"
-      :style="addButtonPosition"
-    >
+    <div v-if="props.addCardVisible && isAddingCategory" class="add-category-input-card" :style="addButtonPosition">
       <slot name="add-input-card-content"></slot>
     </div>
   </div>
@@ -38,28 +24,39 @@ const props = defineProps({
   categories: { type: Array, required: true },
   columnGap: { type: Number, default: 16 },
   addCardVisible: { type: Boolean, default: false },
-  isAdding: { type: Boolean, default: false }, // 从父组件接收是否正在添加分类
-  layoutMode: { type: String, default: 'waterfall' } // 布局模式，用于控制动画
+  // 从父组件接收是否正在添加分类
+  isAdding: { type: Boolean, default: false },
+  // 布局模式，用于控制动画
+  layoutMode: { type: String, default: 'waterfall' }
 })
 
 const emit = defineEmits(['add-card-click'])
 
 // 瀑布流相关状态
 const containerRef = ref(null)
-const categoryRefs = [] // 用于存储CategoryItem的引用
-const itemPositions = ref([]) // 存储每个CategoryItem的绝对定位样式
-const waterfallStyle = ref({}) // 容器的高度样式
-const addButtonPosition = ref({}) // 添加按钮的定位样式
-const columnCount = ref(3) // 瀑布流列数
-const gap = computed(() => props.columnGap) // 列间距
-const isAddingCategory = computed(() => props.isAdding) // 从props获取是否正在添加
+// 用于存储CategoryItem的引用
+const categoryRefs = []
+// 存储每个CategoryItem的绝对定位样式
+const itemPositions = ref([])
+// 容器的高度样式
+const waterfallStyle = ref({})
+// 添加按钮的定位样式
+const addButtonPosition = ref({})
+// 瀑布流列数
+const columnCount = ref(3)
+// 列间距
+const gap = computed(() => props.columnGap)
+// 从props获取是否正在添加
+const isAddingCategory = computed(() => props.isAdding)
 
 // 动画相关状态
 let resizeTimeout = null
 let animationFrameId = null
 let isAnimating = false
-let currentTransitionDuration = ref(0.5) // 当前transition时长（秒）
-const activeTimeouts = new Set() // 存储所有活动的定时器 ID
+// 当前transition时长（秒）
+let currentTransitionDuration = ref(0.5)
+// 存储所有活动的定时器 ID
+const activeTimeouts = new Set()
 
 // 存储每个分类上次的高度，用于平滑动画
 const lastHeights = new Map()
@@ -99,7 +96,7 @@ const setCategoryRef = (el, index) => {
  */
 const calculateWaterfallLayout = () => {
   if (isAnimatingCollapse) return // 动画中禁止重新布局
-  
+
   if (!containerRef.value || props.categories.length === 0) {
     itemPositions.value = []
     waterfallStyle.value = {}
@@ -112,7 +109,7 @@ const calculateWaterfallLayout = () => {
     if (!containerRef.value) {
       return
     }
-    
+
     const containerWidth = containerRef.value.offsetWidth
     if (containerWidth === 0) {
       safeSetTimeout(() => calculateWaterfallLayout(), 100)
@@ -138,7 +135,7 @@ const calculateWaterfallLayout = () => {
 
       // 首次计算时使用更长的过渡时间，避免抽动
       const transitionDuration = (!itemPositions.value || itemPositions.value.length === 0) ? 0.8 : currentTransitionDuration.value
-      
+
       positions[index] = {
         position: 'absolute',
         left: `${left}px`,
@@ -188,7 +185,7 @@ const calculateWaterfallLayout = () => {
       let nextTop = columnHeights[nextColumnIndex]
 
       if (isAddingCategory.value) {
-         nextTop = Math.max(nextTop, Math.max(...columnHeights) - 180 - colGap)
+        nextTop = Math.max(nextTop, Math.max(...columnHeights) - 180 - colGap)
       }
 
       addButtonPosition.value = {
@@ -216,14 +213,14 @@ const calculateWaterfallLayout = () => {
 const animateLayout = (startTime, duration = 500, frameCount = 0) => {
   const currentTime = Date.now()
   const elapsed = currentTime - startTime
-  
+
   // 收起动画每帧更新，展开动画每3帧更新
   const updateFrequency = duration <= 300 ? 1 : 3
-  
+
   if (frameCount % updateFrequency === 0) {
     calculateWaterfallLayout()
   }
-  
+
   if (elapsed < duration && isAnimating) {
     animationFrameId = requestAnimationFrame(() => animateLayout(startTime, duration, frameCount + 1))
   } else {
@@ -255,10 +252,10 @@ const handleResize = () => {
     clearTimeout(resizeTimeout)
     activeTimeouts.delete(resizeTimeout)
   }
-  
+
   resizeTimeout = safeSetTimeout(() => {
     const width = window.innerWidth
-    
+
     if (width <= 768) {
       columnCount.value = 1
     } else if (width <= 1200) {
@@ -266,7 +263,7 @@ const handleResize = () => {
     } else {
       columnCount.value = 3
     }
-    
+
     currentTransitionDuration.value = 0.5
     nextTick(() => {
       calculateWaterfallLayout()
@@ -280,7 +277,7 @@ watch(() => props.categories.map(c => c.collapsed), (newStates, oldStates) => {
 
   let isCollapsing = false
   let isExpanding = false
-  
+
   if (oldStates && oldStates.length > 0) {
     for (let i = 0; i < newStates.length; i++) {
       if (!oldStates[i] && newStates[i]) {
@@ -295,7 +292,7 @@ watch(() => props.categories.map(c => c.collapsed), (newStates, oldStates) => {
     isAnimatingCollapse = true
     currentTransitionDuration.value = 0.3
     startLayoutAnimation(300)
-    
+
     safeSetTimeout(() => {
       isAnimatingCollapse = false
       calculateWaterfallLayout()
@@ -303,11 +300,11 @@ watch(() => props.categories.map(c => c.collapsed), (newStates, oldStates) => {
     }, 1)
   } else if (isExpanding) {
     currentTransitionDuration.value = 0.5
-    calculateWaterfallLayout() 
+    calculateWaterfallLayout()
     startLayoutAnimation(500)
   } else {
     currentTransitionDuration.value = 0.5
-    calculateWaterfallLayout() 
+    calculateWaterfallLayout()
     startLayoutAnimation(500)
   }
 }, { deep: true })
@@ -352,7 +349,7 @@ onMounted(() => {
   } else {
     columnCount.value = 3
   }
-  
+
   window.addEventListener('resize', handleResize)
   // 仅在瀑布流模式下延迟计算布局，确保DOM元素稳定
   if (props.layoutMode === 'waterfall') {
@@ -365,7 +362,7 @@ onMounted(() => {
 // 组件卸载
 onUnmounted(() => {
   window.removeEventListener('resize', handleResize)
-  
+
   // 清理所有定时器
   if (resizeTimeout) {
     clearTimeout(resizeTimeout)
@@ -374,7 +371,7 @@ onUnmounted(() => {
     clearTimeout(timeoutId)
   })
   activeTimeouts.clear()
-  
+
   if (animationFrameId) {
     cancelAnimationFrame(animationFrameId)
   }
@@ -386,7 +383,8 @@ onUnmounted(() => {
 .waterfall-layout-container {
   position: relative;
   /* transition通过JavaScript动态设置 */
-  display: block; /* 确保div容器是block，以便获取宽度 */
+  // 确保div容器是block，以便获取宽度
+  display: block;
 }
 
 /* 添加分类卡片 - + 按钮样式 */
@@ -411,7 +409,7 @@ onUnmounted(() => {
   background: var(--bg-card);
   border-style: solid;
   transform: translateY(-4px);
-  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+  box-shadow: var(--shadow-lg);
   opacity: 1;
 }
 

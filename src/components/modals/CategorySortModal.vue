@@ -1,35 +1,19 @@
 <template>
-  <BaseModal
-    ref="modalRef"
-    title="🔀 分类排序"
-    title-tag="h2"
-    width="500px"
-    max-height="80vh"
-    :close-on-overlay-click="false"
-    :show-footer="true"
-    @close="handleClose"
-  >
+  <BaseModal ref="modalRef" title="🔀 分类排序" title-tag="h2" width="500px" max-height="80vh"
+    :close-on-overlay-click="false" :show-footer="true" @close="handleClose">
     <template #default>
-        <p class="hint-text">拖动卡片可以调整分类顺序</p>
-        
-        <div class="sort-list">
-          <div 
-            v-for="(category, index) in sortedCategories" 
-            :key="category.id"
-            class="sort-item"
-            draggable="true"
-            @dragstart="handleDragStart(index)"
-            @dragover.prevent="handleDragOver(index)"
-            @drop="handleDrop(index)"
-            @dragend="handleDragEnd"
-            :class="{ 'dragging': draggingIndex === index }"
-          >
-            <span class="drag-handle">⋮⋮</span>
-            <span class="category-icon">{{ category.icon || '✨' }}</span>
-            <span class="category-name">{{ category.name }}</span>
-            <span class="item-count">{{ category.items.length }} 项</span>
-          </div>
+      <p class="hint-text">拖动卡片可以调整分类顺序</p>
+
+      <div class="sort-list">
+        <div v-for="(category, index) in sortedCategories" :key="category.id" class="sort-item" draggable="true"
+          @dragstart="handleDragStart(index)" @dragover.prevent="handleDragOver(index)" @drop="handleDrop(index)"
+          @dragend="handleDragEnd" :class="{ 'dragging': draggingIndex === index }">
+          <span class="drag-handle">⋮⋮</span>
+          <span class="category-icon">{{ category.icon || '✨' }}</span>
+          <span class="category-name">{{ category.name }}</span>
+          <span class="item-count">{{ category.items.length }} 项</span>
         </div>
+      </div>
     </template>
 
     <template #footer>
@@ -87,12 +71,12 @@ function handleDragStart(index) {
  */
 function handleDragOver(index) {
   if (draggingIndex.value === null || draggingIndex.value === index) return
-  
+
   // 移动元素
   const draggedItem = sortedCategories.value[draggingIndex.value]
   sortedCategories.value.splice(draggingIndex.value, 1)
   sortedCategories.value.splice(index, 0, draggedItem)
-  
+
   // 更新拖拽索引
   draggingIndex.value = index
 }
@@ -172,7 +156,7 @@ defineExpose({
   font-size: 18px;
   color: var(--text-secondary);
   cursor: grab;
-  
+
   &:active {
     cursor: grabbing;
   }
@@ -214,18 +198,18 @@ defineExpose({
 
 .btn-primary {
   background: var(--primary-color);
-  color: white;
-  
+  color: var(--btn-primary-text, white);
+
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    box-shadow: var(--shadow-lg);
   }
 }
 
 .btn-secondary {
   background: var(--bg-input);
   color: var(--text-primary);
-  
+
   &:hover {
     background: var(--bg-hover);
   }
@@ -238,4 +222,3 @@ defineExpose({
   }
 }
 </style>
-

@@ -8,13 +8,8 @@
     </template>
 
     <template #default>
-      <MarkdownViewer 
-        :content="content"
-        :loading="loading"
-        :error="error"
-        :show-toc="true"
-        :has-cached-content="hasCachedContent"
-      />
+      <MarkdownViewer :content="content" :loading="loading" :error="error" :show-toc="true"
+        :has-cached-content="hasCachedContent" />
     </template>
   </BaseModal>
 </template>
@@ -41,7 +36,7 @@ async function fetchChangelog(useCache = true) {
   if (useCache) {
     const cachedContent = localStorage.getItem(CACHE_KEY)
     const cachedTime = localStorage.getItem(CACHE_TIME_KEY)
-    
+
     if (cachedContent && cachedTime) {
       const cacheAge = Date.now() - parseInt(cachedTime)
       // 缓存有效期1小时
@@ -53,38 +48,38 @@ async function fetchChangelog(useCache = true) {
       }
     }
   }
-  
+
   loading.value = true
   error.value = null
-  
+
   try {
     console.log('🌐 正在加载更新日志...')
-    
+
     const cacheBuster = useCache ? '' : `?t=${Date.now()}`
     const response = await fetch('/CHANGELOG.md' + cacheBuster)
-    
+
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`)
     }
-    
+
     const text = await response.text()
-    
+
     if (!text || text.trim().length === 0) {
       throw new Error('获取的内容为空')
     }
-    
+
     content.value = text
     hasCachedContent.value = true
-    
+
     // 保存到缓存
     localStorage.setItem(CACHE_KEY, text)
     localStorage.setItem(CACHE_TIME_KEY, Date.now().toString())
-    
+
     console.log('✅ 更新日志已加载')
   } catch (err) {
     console.error('❌ 加载更新日志失败:', err)
     error.value = err.message
-    
+
     // 尝试使用缓存作为降级方案
     const cachedContent = localStorage.getItem(CACHE_KEY)
     if (cachedContent) {

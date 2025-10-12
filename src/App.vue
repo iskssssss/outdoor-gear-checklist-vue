@@ -1,53 +1,45 @@
 <template>
   <div class="app-container" @click="handleClickOutside">
-    <AppHeader 
-      @show-model-config="showModelConfig"
-    />
+    <AppHeader @show-model-config="showModelConfig" />
     <div class="router-view-wrapper">
-      <router-view
-        @show-recommendation="showRecommendation"
-        @show-operation-log="showOperationLog"
-      />
+      <router-view @show-recommendation="showRecommendation" @show-operation-log="showOperationLog" />
     </div>
     <AppFooter />
-
-    <!-- 固定在右上角的主题切换器 -->
-    <div class="theme-switcher-fixed" :class="{ expanded: themeSwitcherExpanded }">
-      <button 
-        class="theme-toggle-btn" 
-        @click="toggleThemeSwitcher"
-        :title="getCurrentTheme.name"
-      >
-        {{ getCurrentTheme.icon }}
-      </button>
-      <div v-show="themeSwitcherExpanded" class="theme-options">
-        <button
-          v-for="theme in themeStore.themes"
-          :key="theme.id"
-          class="theme-option"
-          :class="{ active: theme.id === themeStore.currentTheme }"
-          @click="switchToTheme(theme.id)"
-          :title="theme.description"
-        >
-          <span class="theme-icon">{{ theme.icon }}</span>
-          <span class="theme-name">{{ theme.name }}</span>
-        </button>
-      </div>
-    </div>
 
     <!-- 模态框组件 -->
     <RecommendationModal ref="recommendationModalRef" />
     <ModelConfigModal ref="modelConfigModalRef" />
     <OperationLogModal ref="operationLogModalRef" />
-    
+
     <!-- Toast 通知组件 -->
     <ToastNotification ref="toastRef" />
 
     <!-- 自定义确认模态框 -->
     <BaseConfirm ref="confirmModalRef" />
 
-    <!-- 回到顶部按钮 -->
-    <BackToTopButton />
+    <!-- 浮动操作按钮组 -->
+    <div class="fab-group">
+      <!-- 主题切换器菜单 (现在是 fab-group 的直接子元素) -->
+      <div class="theme-options-wrapper" ref="themeSwitcherMenuRef" :style="themeSwitcherStyle">
+        <div class="theme-options-list">
+          <button v-for="theme in themeStore.themes" :key="theme.id" class="theme-option"
+            :class="{ active: theme.id === themeStore.currentTheme }" @click="switchToTheme(theme.id, $event)"
+            :title="theme.description">
+            <span class="theme-icon">{{ theme.icon }}</span>
+            <span class="theme-name">{{ theme.name }}</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 主题切换器触发按钮 -->
+      <button class="fab-item theme-toggle-btn" ref="themeSwitcherTriggerRef" @click.stop="toggleThemeSwitcher"
+        :title="getCurrentTheme.name">
+        <span class="icon">🎨</span>
+      </button>
+
+      <!-- 回到顶部按钮 -->
+      <BackToTopButton class="fab-item" />
+    </div>
   </div>
 </template>
 
@@ -65,7 +57,10 @@ import { useEquipmentStore } from './stores/equipment'
 import { useModelConfigStore } from './stores/modelConfig'
 import { useThemeStore } from './stores/themeStore'
 import { toast as toastService } from './utils/toast'
-import { eventBus } from './utils/eventBus'; // 1. 导入 eventBus
+// 1. 导入 eventBus
+import { eventBus } from './utils/eventBus';
+// 引入 Composable
+import { useResponsiveMenu } from './composables/useResponsiveMenu';
 
 // 初始化stores
 const equipmentStore = useEquipmentStore()
@@ -74,7 +69,8 @@ const themeStore = useThemeStore()
 
 // Toast 引用
 const toastRef = ref(null)
-const confirmModalRef = ref(null) // 新增确认模态框引用
+// 新增确认模态框引用
+const confirmModalRef = ref(null)
 
 // 提供全局 toast 方法
 provide('toast', {
@@ -92,8 +88,15 @@ const recommendationModalRef = ref(null)
 const modelConfigModalRef = ref(null)
 const operationLogModalRef = ref(null)
 
-// 主题切换器状态
+// --- 主题切换器 ---
 const themeSwitcherExpanded = ref(false)
+const themeSwitcherTriggerRef = ref(null)
+const themeSwitcherMenuRef = ref(null)
+const { menuStyle: themeSwitcherStyle } = useResponsiveMenu(
+  themeSwitcherTriggerRef,
+  themeSwitcherMenuRef,
+  { isOpen: themeSwitcherExpanded, offset: 12 }
+)
 
 // 获取当前主题信息
 const getCurrentTheme = computed(() => {
@@ -101,21 +104,20 @@ const getCurrentTheme = computed(() => {
 })
 
 // 切换主题选择器展开/收起
-function toggleThemeSwitcher(event) {
-  event.stopPropagation() // 阻止事件冒泡
+function toggleThemeSwitcher() {
   themeSwitcherExpanded.value = !themeSwitcherExpanded.value
 }
 
 // 切换到指定主题
-function switchToTheme(themeId) {
-  themeStore.switchTheme(themeId)
+function switchToTheme(themeId, event) {
+  themeStore.switchTheme(themeId, event)
   themeSwitcherExpanded.value = false
 }
 
 // 点击页面其他地方时收起主题切换器
 function handleClickOutside(event) {
   // 如果点击的不是主题切换器区域，则收起
-  const themeSwitcher = event.target.closest('.theme-switcher-fixed')
+  const themeSwitcher = event.target.closest('.theme-switcher-floated')
   if (!themeSwitcher && themeSwitcherExpanded.value) {
     themeSwitcherExpanded.value = false
   }
@@ -127,13 +129,13 @@ function handleKeyboardShortcut(event) {
   if ((event.ctrlKey || event.metaKey) && event.key === 'z' && !event.shiftKey) {
     // 防止默认行为（浏览器的撤销）
     event.preventDefault()
-    
+
     // 检查是否在输入框中
     const activeElement = document.activeElement
-    const isInputting = activeElement.tagName === 'INPUT' || 
-                       activeElement.tagName === 'TEXTAREA' || 
-                       activeElement.isContentEditable
-    
+    const isInputting = activeElement.tagName === 'INPUT' ||
+      activeElement.tagName === 'TEXTAREA' ||
+      activeElement.isContentEditable
+
     // 如果不在输入状态，执行撤销操作
     if (!isInputting) {
       equipmentStore.quickUndo()
@@ -145,19 +147,20 @@ function handleKeyboardShortcut(event) {
 onMounted(() => {
   equipmentStore.loadData()
   modelConfigStore.loadSettings()
-  themeStore.loadTheme() // 加载主题设置
-  
+  // 加载主题设置
+  themeStore.loadTheme()
+
   // 设置全局 toast 实例
   if (toastRef.value) {
     toastService.setInstance(toastRef.value)
   }
-  
+
   // 添加键盘快捷键监听
   window.addEventListener('keydown', handleKeyboardShortcut)
-  
+
   // 2. 添加全局滚动监听
   window.addEventListener('scroll', handleGlobalScroll, { passive: true });
-  
+
   console.log('🚀 户外装备清单系统已初始化 (Vue 3版本)')
   console.log('💡 提示: 按 Ctrl+Z (或 Cmd+Z) 可以撤销最近的操作')
 })
@@ -165,7 +168,7 @@ onMounted(() => {
 // 组件卸载时移除事件监听
 onUnmounted(() => {
   window.removeEventListener('keydown', handleKeyboardShortcut)
-  
+
   // 3. 移除全局滚动监听
   window.removeEventListener('scroll', handleGlobalScroll);
 })
@@ -199,7 +202,14 @@ function showOperationLog() {
 </script>
 
 <style lang="scss">
-@use './assets/main' as *;
+/* 引入基础样式 */
+@import './assets/main.scss';
+
+/* 移除旧的主题切换动画 */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+}
 
 /* 背景由主题系统控制，在 styles/themes.scss 中定义 */
 .app-container {
@@ -210,7 +220,8 @@ function showOperationLog() {
 
 .router-view-wrapper {
   flex-grow: 1;
-  min-height: 100vh; /* 确保内容区域至少占满整个屏幕 */
+  // 确保内容区域至少占满整个屏幕
+  min-height: 100vh;
   padding-top: 32px;
 }
 
@@ -236,53 +247,62 @@ function showOperationLog() {
   gap: 20px;
 }
 
-/* ===== 固定主题切换器 ===== */
-.theme-switcher-fixed {
+/* ===== 浮动操作按钮组 (FAB Group) ===== */
+.fab-group {
   position: fixed;
-  bottom: 50px; /* 与回到顶部按钮对齐 */
-  right: 120px; /* 在回到顶部按钮左侧，留出足够间距 */
-  z-index: 999;
+  bottom: 40px;
+  right: 40px;
+  z-index: 998;
   display: flex;
-  flex-direction: column-reverse; /* 反向排列，按钮在下，选项在上 */
-  align-items: flex-end;
-  gap: 8px;
+  flex-direction: column;
+  gap: 16px;
 }
 
-.theme-toggle-btn {
-  width: 48px;
-  height: 48px;
+.fab-item {
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
-  background: var(--bg-card);
+  background-color: var(--bg-card);
   border: 2px solid var(--border-color);
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
-  font-size: 1.5rem;
+  box-shadow: var(--shadow-md);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.3s ease;
-  
-  &:hover {
-    transform: scale(1.08) rotate(15deg);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-  }
-  
-  &:active {
-    transform: scale(0.95);
-  }
 }
 
-.theme-options {
+.fab-item:hover {
+  transform: scale(1.1);
+  box-shadow: var(--shadow-lg);
+}
+
+.fab-item .icon {
+  font-size: 1.8rem;
+}
+
+/* 主题切换器在 FAB Group 中的特定样式 */
+.theme-toggle-btn:hover {
+  transform: scale(1.1) rotate(20deg);
+}
+
+.theme-options-wrapper {
+  /* 由 useResponsiveMenu 控制定位, z-index 需高于 fab-group */
+  z-index: 999;
+  background-color: var(--bg-card);
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  padding: 10px;
+  box-shadow: var(--shadow-xl);
+  width: 180px;
+}
+
+/* 移除 .theme-switcher-floated 样式 */
+
+.theme-options-list {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  background: var(--bg-card);
-  border: 2px solid var(--border-color);
-  border-radius: 10px;
-  padding: 8px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
-  animation: slideInRight 0.3s ease;
-  min-width: 140px;
+  gap: 8px;
 }
 
 .theme-option {
@@ -298,16 +318,16 @@ function showOperationLog() {
   text-align: left;
   font-size: 0.95rem;
   color: var(--text-primary);
-  
+
   &:hover {
     background: var(--bg-input);
     border-color: var(--primary-color);
     transform: translateX(-4px);
   }
-  
+
   &.active {
     background: var(--primary-color);
-    color: var(--text-white, white);
+    color: var(--btn-primary-text, white);
     border-color: var(--primary-color);
     font-weight: 600;
   }
@@ -326,8 +346,10 @@ function showOperationLog() {
 @keyframes slideInRight {
   from {
     opacity: 0;
-    transform: translateY(20px); /* 从下往上滑入 */
+    // 从下往上滑入
+    transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -338,49 +360,15 @@ function showOperationLog() {
 
 /* 移动端适配 */
 @media (max-width: 768px) {
-  .theme-switcher-fixed {
-    bottom: 30px; /* 与移动端回到顶部按钮对齐 */
-    right: 85px; /* 在回到顶部按钮左侧，移动端间距较小 */
+  .fab-group {
+    bottom: 20px;
+    right: 20px;
+    gap: 12px;
   }
-  
-  .theme-toggle-btn {
+
+  .fab-item {
     width: 48px;
     height: 48px;
-    font-size: 1.5rem;
-  }
-  
-  .theme-options {
-    min-width: 140px;
-    padding: 8px;
-  }
-  
-  .theme-option {
-    padding: 8px 12px;
-    font-size: 0.9rem;
-  }
-  
-  .theme-icon {
-    font-size: 1.1rem;
-  }
-
-  .theme-selector {
-    bottom: 10px;
-    right: 10px;
-    padding: 8px 12px;
-    gap: 8px;
-  }
-
-  .theme-selector label {
-    font-size: 0.9rem;
-  }
-
-  .theme-selector select {
-    font-size: 0.8rem;
-    padding: 6px 10px;
-    padding-right: 25px;
-    background-position: right 6px center;
-    background-size: 10px;
   }
 }
 </style>
-

@@ -11,33 +11,33 @@
         </button>
 
         <!-- 导入下拉菜单 -->
-        <div class="action-dropdown">
-          <button class="btn btn-primary btn-sm">
+        <div class="action-dropdown" :ref="el => menuRefs.import.trigger.value = el">
+          <button class="btn btn-primary btn-sm" @click.stop="toggleMenu('import')">
             📥 导入
           </button>
-          <div class="action-menu">
+          <div class="action-menu" :ref="el => menuRefs.import.menu.value = el" :style="importMenuStyle">
             <a class="menu-item" @click.prevent="debouncedImportData">📄 导入 JSON</a>
             <a class="menu-item" @click.prevent="debouncedImportFromCart">🛒 导入购物车</a>
           </div>
         </div>
 
         <!-- 导出下拉菜单 -->
-        <div class="action-dropdown">
-          <button class="btn btn-primary btn-sm">
+        <div class="action-dropdown" :ref="el => menuRefs.export.trigger.value = el">
+          <button class="btn btn-primary btn-sm" @click.stop="toggleMenu('export')">
             📤 导出
           </button>
-          <div class="action-menu">
+          <div class="action-menu" :ref="el => menuRefs.export.menu.value = el" :style="exportMenuStyle">
             <a class="menu-item" @click.prevent="debouncedExportData">📄 导出 JSON</a>
             <a class="menu-item" @click.prevent="debouncedExportToImage">🖼️ 导出图片</a>
           </div>
         </div>
 
         <!-- 分类管理下拉菜单 -->
-        <div class="action-dropdown">
-          <button class="btn btn-secondary btn-sm">
+        <div class="action-dropdown" :ref="el => menuRefs.manage.trigger.value = el">
+          <button class="btn btn-secondary btn-sm" @click.stop="toggleMenu('manage')">
             📂 分类管理
           </button>
-          <div class="action-menu">
+          <div class="action-menu" :ref="el => menuRefs.manage.menu.value = el" :style="manageMenuStyle">
             <a class="menu-item" @click.prevent="debouncedInitializeCategories">✨ 初始化分类</a>
             <a class="menu-item danger" @click.prevent="debouncedClearAllData">🗑️ 清空所有数据</a>
           </div>
@@ -60,11 +60,11 @@
         </button>
 
         <!-- 更多操作下拉菜单 -->
-        <div class="more-actions-dropdown">
-          <button class="btn btn-secondary btn-sm">
+        <div class="more-actions-dropdown" :ref="el => menuRefs.more.trigger.value = el">
+          <button class="btn btn-secondary btn-sm" @click.stop="toggleMenu('more')">
             ⋯ 更多
           </button>
-          <div class="more-actions-menu">
+          <div class="more-actions-menu" :ref="el => menuRefs.more.menu.value = el" :style="moreMenuStyle">
             <a class="menu-item" @click.prevent="debouncedToggleLayout">
               {{ layoutMode === 'grid' ? '💧 切换到瀑布流' : '🔲 切换到网格' }}
             </a>
@@ -153,13 +153,16 @@
 import { ref, computed, nextTick, watch, onMounted, onUnmounted, inject } from 'vue'
 import { useEquipmentStore } from '../../stores/equipment'
 import { useOperationLogStore } from '../../stores/operationLog'
+// 引入
+import { useResponsiveMenu } from '../../composables/useResponsiveMenu'
 import CategoryItem from './CategoryItem.vue'
 import WaterfallLayout from '../layout/WaterfallLayout.vue'
 import CategorySortModal from '../modals/CategorySortModal.vue'
 import BaseModal from '../common/BaseModal.vue'
 import ExportPreview from './ExportPreview.vue'
 import ImportCartModal from '../modals/ImportCartModal.vue'
-import BaseConfirm from '../common/BaseConfirm.vue' // 引入自定义确认框
+// 引入自定义确认框
+import BaseConfirm from '../common/BaseConfirm.vue'
 import html2canvas from 'html2canvas'
 import { imageExportConfig } from '../../config/appConfig'
 import { debounce } from '../../utils/debounce'
@@ -172,11 +175,13 @@ const logStore = useOperationLogStore()
 
 // 注入 toast 通知
 const toast = inject('toast')
-const showConfirm = inject('showConfirm') // 注入全局确认框方法
+// 注入全局确认框方法
+const showConfirm = inject('showConfirm')
 const newCategoryName = ref('')
 const isAdding = ref(false)
 const categoryInput = ref(null)
-const layoutMode = ref('grid') // 'grid' 或 'waterfall'
+// 'grid' 或 'waterfall'
+const layoutMode = ref('grid')
 const categorySortModalRef = ref(null)
 
 // 图片预览相关状态
@@ -188,7 +193,54 @@ const exportPreviewRef = ref(null)
 
 // 导入购物车模态框引用
 const importCartModalRef = ref(null)
-const confirmModalRef = ref(null) // 新增确认模态框引用
+// 新增确认模态框引用
+const confirmModalRef = ref(null)
+
+// --- 响应式下拉菜单 ---
+// 当前激活的菜单
+const activeMenu = ref(null)
+const menuRefs = {
+  import: { trigger: ref(null), menu: ref(null), isOpen: ref(false) },
+  export: { trigger: ref(null), menu: ref(null), isOpen: ref(false) },
+  manage: { trigger: ref(null), menu: ref(null), isOpen: ref(false) },
+  more: { trigger: ref(null), menu: ref(null), isOpen: ref(false) },
+}
+
+const { menuStyle: importMenuStyle } = useResponsiveMenu(menuRefs.import.trigger, menuRefs.import.menu, { isOpen: menuRefs.import.isOpen })
+const { menuStyle: exportMenuStyle } = useResponsiveMenu(menuRefs.export.trigger, menuRefs.export.menu, { isOpen: menuRefs.export.isOpen })
+const { menuStyle: manageMenuStyle } = useResponsiveMenu(menuRefs.manage.trigger, menuRefs.manage.menu, { isOpen: menuRefs.manage.isOpen })
+const { menuStyle: moreMenuStyle } = useResponsiveMenu(menuRefs.more.trigger, menuRefs.more.menu, { isOpen: menuRefs.more.isOpen })
+
+function toggleMenu(menuName) {
+  if (activeMenu.value && activeMenu.value !== menuName) {
+    menuRefs[activeMenu.value].isOpen.value = false
+  }
+
+  if (menuRefs[menuName]) {
+    menuRefs[menuName].isOpen.value = !menuRefs[menuName].isOpen.value
+    activeMenu.value = menuRefs[menuName].isOpen.value ? menuName : null
+  }
+}
+
+function handleClickOutside(event) {
+  if (activeMenu.value) {
+    const trigger = menuRefs[activeMenu.value].trigger.value
+    const menu = menuRefs[activeMenu.value].menu.value
+    if (trigger && !trigger.contains(event.target) && menu && !menu.contains(event.target)) {
+      menuRefs[activeMenu.value].isOpen.value = false
+      activeMenu.value = null
+    }
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
+
 
 // 撤销相关
 const undoableCount = computed(() => logStore.undoableCount)
@@ -566,7 +618,7 @@ const debouncedToggleGroupByStatus = debounce(toggleGroupByStatus, 300)
   .btn-recommendation {
     padding: 8px 16px;
     background: var(--primary-color);
-    color: var(--text-white);
+    color: var(--btn-primary-text);
     border: var(--border-width, 1px) solid var(--primary-color);
     border-radius: 6px;
     font-weight: 600;
@@ -592,24 +644,10 @@ const debouncedToggleGroupByStatus = debounce(toggleGroupByStatus, 300)
   }
 
   // 通用下拉菜单容器
-  .action-dropdown {
+  .action-dropdown,
+  .more-actions-dropdown {
     position: relative;
     display: inline-block;
-
-    &:hover .action-menu {
-      display: block;
-      animation: dropdownFadeIn 0.2s ease;
-    }
-
-    &::after {
-      content: '';
-      position: absolute;
-      top: 100%;
-      left: 0;
-      right: 0;
-      height: 8px;
-      background: transparent;
-    }
   }
 
   // 撤销按钮样式
@@ -619,7 +657,7 @@ const debouncedToggleGroupByStatus = debounce(toggleGroupByStatus, 300)
     gap: 6px;
     padding: 8px 16px;
     background: var(--success-color);
-    color: var(--text-white);
+    color: var(--btn-success-text);
     border: var(--border-width, 1px) solid var(--success-color);
     border-radius: 6px;
     font-weight: 600;
@@ -674,47 +712,22 @@ const debouncedToggleGroupByStatus = debounce(toggleGroupByStatus, 300)
 // 下拉菜单样式
 .action-menu,
 .more-actions-menu {
-  display: none;
-  position: absolute;
-  left: 0;
-  top: 100%;
-  margin-top: 4px;
+  /* 移除 display, position, left, top, margin-top, z-index */
   background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   min-width: 160px;
-  z-index: 100;
   overflow: hidden;
   padding: 4px 0;
+  z-index: 1000;
 }
 
-.more-actions-dropdown {
-  position: relative;
-  display: inline-block;
-
-  &::after {
-    content: '';
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    height: 8px;
-    background: transparent;
-  }
-
-  .more-actions-menu {
-    right: 0;
-    left: auto;
-  }
+.more-actions-dropdown .more-actions-menu {
+  /* 移除 right, left, auto */
 }
 
-.more-actions-dropdown:hover .more-actions-menu,
-.more-actions-menu:hover,
-.action-dropdown:hover .action-menu,
-.action-menu:hover {
-  display: block;
-}
+/* 移除所有 :hover 触发的样式 */
 
 @keyframes dropdownFadeIn {
   from {
@@ -766,8 +779,8 @@ const debouncedToggleGroupByStatus = debounce(toggleGroupByStatus, 300)
   background: var(--bg-card);
   border-radius: var(--border-radius);
   box-shadow: var(--shadow-md);
+  // 调整间距
   margin-bottom: 16px;
-  /* 调整间距 */
 }
 
 .empty-state h3 {
@@ -873,7 +886,7 @@ const debouncedToggleGroupByStatus = debounce(toggleGroupByStatus, 300)
 
 .btn-primary {
   background: var(--primary-color);
-  color: var(--text-white, white);
+  color: var(--btn-primary-text, white);
 
   &:hover {
     background: var(--primary-dark, #5568d3);

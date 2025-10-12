@@ -15,7 +15,7 @@
           <a class="nav-link" @click="showModelConfig">
             ⚙️ 模型配置
           </a>
-          
+
           <!-- 使用指南 -->
           <router-link to="/doc" class="nav-link">
             📚 使用指南
@@ -25,7 +25,7 @@
           <router-link to="/changelog" class="nav-link">
             📝 更新日志
           </router-link>
-          
+
           <!-- 联系我们（开发中） -->
           <a class="nav-link disabled">
             📧 联系我们
@@ -59,10 +59,9 @@ function showModelConfig() {
   top: 0;
   z-index: 100;
   background: var(--bg-header);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  margin-bottom: 5px;
+  box-shadow: var(--shadow-md);
   padding: 4px 0;
-  transition: none;
+  transition: box-shadow 0.3s ease;
 }
 
 // ==================== 容器布局 ====================
@@ -75,7 +74,8 @@ function showModelConfig() {
   align-items: center;
 }
 
-.header-left, .header-right {
+.header-left,
+.header-right {
   display: flex;
   align-items: center;
 }
@@ -105,10 +105,14 @@ h1 {
   overflow: hidden;
   width: 100%;
   text-align: center;
-  max-height: 50px; // 恢复展开时的高度
-  opacity: 1; // 恢复展开时的透明度
-  margin: 4px 0 0 0; // 减小 margin
-  transition: none; // 移除所有过渡效果
+  // 恢复展开时的高度
+  max-height: 50px;
+  // 恢复展开时的透明度
+  opacity: 1;
+  // 减小 margin
+  margin: 4px 0 0 0;
+  // 移除所有过渡效果
+  transition: none;
 }
 
 // ==================== 导航栏样式 ====================
@@ -116,12 +120,15 @@ h1 {
   display: flex;
   align-items: center;
   gap: 15px;
-  padding: 8px 0; // 减小 padding
-  margin-top: 10px; // 减小 margin
+  // 减小 padding
+  padding: 8px 0;
+  // 减小 margin
+  margin-top: 10px;
   flex-shrink: 1;
   min-width: 0;
   white-space: nowrap;
-  overflow: visible; // 修改为 visible，确保下拉菜单可见
+  // 修改为 visible，确保下拉菜单可见
+  overflow: visible;
   -webkit-overflow-scrolling: touch;
   transition: none;
 }
@@ -129,8 +136,10 @@ h1 {
 // 一级菜单链接
 .nav-link {
   position: relative;
-  padding: 6px 12px; // 减小内边距
-  font-size: 0.85rem; // 减小字体大小
+  // 减小内边距
+  padding: 6px 12px;
+  // 减小字体大小
+  font-size: 0.85rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -139,23 +148,23 @@ h1 {
   white-space: nowrap;
   display: inline-block;
   color: var(--text-primary);
-  
+
   &:hover:not(.disabled) {
     border-bottom-color: var(--primary-color);
     color: var(--primary-color);
   }
-  
+
   &.router-link-active {
     color: var(--primary-color);
     border-bottom-color: var(--primary-color);
     font-weight: 700;
   }
-  
+
   &.disabled {
     color: var(--text-secondary);
     cursor: not-allowed;
     opacity: 0.5;
-    
+
     &:hover {
       border-bottom-color: transparent;
     }

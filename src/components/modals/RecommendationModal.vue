@@ -1,118 +1,78 @@
 <template>
-  <BaseModal
-    ref="modalRef"
-    title="🤖 智能装备推荐"
-    width="800px"
-    max-height="90vh"
-    :close-on-overlay-click="false"
-    @close="handleClose"
-  >
-        <div class="recommendation-settings">
-          <h4>推荐设置</h4>
-          <div class="setting-group">
-            <label>活动类型：</label>
-            <InputSelect
-              v-model="prefs.activityType"
-              :options="allActivityTypeOptions"
-              category="activityType"
-              placeholder="选择或输入活动类型"
-              @update:modelValue="savePreferences"
-              @addCustomOption="handleAddCustomOption"
-            />
-          </div>
-          <div class="setting-group">
-            <label>季节：</label>
-            <InputSelect
-              v-model="prefs.season"
-              :options="allSeasonOptions"
-              category="season"
-              placeholder="选择或输入季节"
-              @update:modelValue="savePreferences"
-              @addCustomOption="handleAddCustomOption"
-            />
-          </div>
-          <div class="setting-group">
-            <label>天气条件：</label>
-            <InputSelect
-              v-model="prefs.weather"
-              :options="allWeatherOptions"
-              category="weather"
-              placeholder="选择或输入天气条件"
-              @update:modelValue="savePreferences"
-              @addCustomOption="handleAddCustomOption"
-            />
-          </div>
-          <div class="setting-group">
-            <label>难度等级：</label>
-            <InputSelect
-              v-model="prefs.difficulty"
-              :options="allDifficultyOptions"
-              category="difficulty"
-              placeholder="选择或输入难度等级"
-              @update:modelValue="savePreferences"
-              @addCustomOption="handleAddCustomOption"
-            />
-          </div>
-          <div class="setting-group">
-            <label>预算范围：</label>
-            <InputSelect
-              v-model="prefs.budget"
-              :options="allBudgetOptions"
-              category="budget"
-              placeholder="选择或输入预算范围"
-              @update:modelValue="savePreferences"
-              @addCustomOption="handleAddCustomOption"
-            />
-          </div>
-        </div>
+  <BaseModal ref="modalRef" title="🤖 智能装备推荐" width="800px" max-height="90vh" :close-on-overlay-click="false"
+    @close="handleClose">
+    <div class="recommendation-settings">
+      <h4>推荐设置</h4>
+      <div class="setting-group">
+        <label>活动类型：</label>
+        <InputSelect v-model="prefs.activityType" :options="allActivityTypeOptions" category="activityType"
+          placeholder="选择或输入活动类型" @update:modelValue="savePreferences" @addCustomOption="handleAddCustomOption" />
+      </div>
+      <div class="setting-group">
+        <label>季节：</label>
+        <InputSelect v-model="prefs.season" :options="allSeasonOptions" category="season" placeholder="选择或输入季节"
+          @update:modelValue="savePreferences" @addCustomOption="handleAddCustomOption" />
+      </div>
+      <div class="setting-group">
+        <label>天气条件：</label>
+        <InputSelect v-model="prefs.weather" :options="allWeatherOptions" category="weather" placeholder="选择或输入天气条件"
+          @update:modelValue="savePreferences" @addCustomOption="handleAddCustomOption" />
+      </div>
+      <div class="setting-group">
+        <label>难度等级：</label>
+        <InputSelect v-model="prefs.difficulty" :options="allDifficultyOptions" category="difficulty"
+          placeholder="选择或输入难度等级" @update:modelValue="savePreferences" @addCustomOption="handleAddCustomOption" />
+      </div>
+      <div class="setting-group">
+        <label>预算范围：</label>
+        <InputSelect v-model="prefs.budget" :options="allBudgetOptions" category="budget" placeholder="选择或输入预算范围"
+          @update:modelValue="savePreferences" @addCustomOption="handleAddCustomOption" />
+      </div>
+    </div>
 
-        
-        <div class="config-info">
-          <strong>⚙️ 使用模型配置</strong>
-          推荐功能将使用"⚙️ 模型配置"中保存的API设置。如需修改API配置，请点击顶部"⚙️ 模型配置"按钮。
-        </div>
 
-        <div class="recommendation-actions">
-          <button class="btn btn-primary" @click="debouncedGetRecommendations" :disabled="isLoading">
-            {{ isLoading ? '正在获取推荐...' : '获取推荐' }}
-          </button>
-          <button class="btn btn-secondary" @click="debouncedClose">取消</button>
-        </div>
+    <div class="config-info">
+      <strong>⚙️ 使用模型配置</strong>
+      推荐功能将使用"⚙️ 模型配置"中保存的API设置。如需修改API配置，请点击顶部"⚙️ 模型配置"按钮。
+    </div>
 
-        <div v-if="showResults" class="recommendation-results">
-          <h4>推荐结果</h4>
-          <div v-if="isLoading" class="loading">
-            正在分析您的装备清单并生成推荐...
-          </div>
-          <div v-else-if="error" class="error">
-            {{ error }}
-          </div>
-          <div v-else-if="recommendations.length === 0" class="success">
-            您的装备清单已经很完善了！
-          </div>
-          <div v-else class="recommendation-content">
-            <!-- <div class="recommendation-actions add-to-list-actions">
+    <div class="recommendation-actions">
+      <button class="btn btn-primary" @click="debouncedGetRecommendations" :disabled="isLoading">
+        {{ isLoading ? '正在获取推荐...' : '获取推荐' }}
+      </button>
+      <button class="btn btn-secondary" @click="debouncedClose">取消</button>
+    </div>
+
+    <div v-if="showResults" class="recommendation-results">
+      <h4>推荐结果</h4>
+      <div v-if="isLoading" class="loading">
+        正在分析您的装备清单并生成推荐...
+      </div>
+      <div v-else-if="error" class="error">
+        {{ error }}
+      </div>
+      <div v-else-if="recommendations.length === 0" class="success">
+        您的装备清单已经很完善了！
+      </div>
+      <div v-else class="recommendation-content">
+        <!-- <div class="recommendation-actions add-to-list-actions">
               <button class="btn btn-primary" @click="addRecommendationsToEquipment">
                 添加到清单
               </button>
             </div> -->
-            <div
-              v-for="(rec, index) in recommendations"
-              :key="index"
-              class="recommendation-item"
-              :style="getItemStyle(rec.priority)"
-            >
-              <div class="recommendation-header">
-                <span class="recommendation-number">{{ index + 1 }}</span>
-                <h5 class="recommendation-title">{{ rec.title }}</h5>
-                <span class="priority-badge" :style="getBadgeStyle(rec.priority)">
-                  {{ getPriorityIcon(rec.priority) }} {{ getPriorityLabel(rec.priority) }}
-                </span>
-              </div>
-              <p class="recommendation-description">{{ rec.description }}</p>
-            </div>
+        <div v-for="(rec, index) in recommendations" :key="index" class="recommendation-item"
+          :style="getItemStyle(rec.priority)">
+          <div class="recommendation-header">
+            <span class="recommendation-number">{{ index + 1 }}</span>
+            <h5 class="recommendation-title">{{ rec.title }}</h5>
+            <span class="priority-badge" :style="getBadgeStyle(rec.priority)">
+              {{ getPriorityIcon(rec.priority) }} {{ getPriorityLabel(rec.priority) }}
+            </span>
           </div>
+          <p class="recommendation-description">{{ rec.description }}</p>
         </div>
+      </div>
+    </div>
   </BaseModal>
 </template>
 
@@ -166,37 +126,38 @@ function handleAddCustomOption(category, value, label) {
 // 优先级配置 - 使用CSS变量以支持主题切换
 const priorityConfig = computed(() => {
   const style = getComputedStyle(document.documentElement)
-  
+
   // 获取主题颜色，如果不存在则使用默认值
   const dangerColor = style.getPropertyValue('--danger-color').trim() || '#dc3545'
   const warningColor = style.getPropertyValue('--warning-color').trim() || '#ff9800'
   const successColor = style.getPropertyValue('--success-color').trim() || '#28a745'
   const infoColor = style.getPropertyValue('--info-color').trim() || '#17a2b8'
-  
+
   return {
-    'critical': { 
-      icon: '🔴', 
-      label: '必备', 
-      color: dangerColor, 
-      bg: `${dangerColor}15` // 使用半透明背景，更符合主题
+    'critical': {
+      icon: '🔴',
+      label: '必备',
+      color: dangerColor,
+      // 使用半透明背景，更符合主题
+      bg: `${dangerColor}15`
     },
-    'high': { 
-      icon: '🟠', 
-      label: '重要', 
-      color: warningColor, 
-      bg: `${warningColor}15` 
+    'high': {
+      icon: '🟠',
+      label: '重要',
+      color: warningColor,
+      bg: `${warningColor}15`
     },
-    'medium': { 
-      icon: '🟡', 
-      label: '建议', 
-      color: infoColor, 
-      bg: `${infoColor}15` 
+    'medium': {
+      icon: '🟡',
+      label: '建议',
+      color: infoColor,
+      bg: `${infoColor}15`
     },
-    'low': { 
-      icon: '🟢', 
-      label: '可选', 
-      color: successColor, 
-      bg: `${successColor}15` 
+    'low': {
+      icon: '🟢',
+      label: '可选',
+      color: successColor,
+      bg: `${successColor}15`
     }
   }
 })
@@ -235,11 +196,11 @@ async function getRecommendations() {
   isLoading.value = true
   showResults.value = true
   error.value = ''
-  
+
   try {
     // 使用在线或离线推荐
     const hasApiConfig = modelConfigStore.settings.apiUrl && modelConfigStore.settings.apiKey
-    
+
     if (!hasApiConfig) {
       // 离线模式
       recommendations.value = getOfflineRecommendations()
@@ -263,22 +224,22 @@ async function getRecommendations() {
 function getOfflineRecommendations() {
   const currentItems = equipmentStore.categories.flatMap(cat => cat.items)
   const itemNames = currentItems.map(item => item.name.toLowerCase())
-  
+
   const recommendations = []
-  
+
   // 基础必备装备检查
   const essentials = [
     { name: '登山鞋', title: '户外鞋/登山鞋', description: '适合路况的专业户外鞋，提供足够的支撑和防滑', priority: 'critical' },
     { name: '背包', title: '合适容量的背包', description: '根据活动天数选择合适容量的背包（一日10-20L，多日40-60L）', priority: 'critical' },
     { name: '饮水', title: '饮水系统', description: '水袋或水瓶，确保充足的水分补给', priority: 'critical' }
   ]
-  
+
   essentials.forEach(essential => {
     if (!itemNames.some(name => name.includes(essential.name))) {
       recommendations.push(essential)
     }
   })
-  
+
   // 根据季节推荐
   if (prefs.value.season === 'winter' && !itemNames.some(name => name.includes('保暖') || name.includes('羽绒'))) {
     recommendations.push({
@@ -287,7 +248,7 @@ function getOfflineRecommendations() {
       priority: 'high'
     })
   }
-  
+
   // 根据天气推荐
   if ((prefs.value.weather === 'rainy' || prefs.value.weather === 'mixed') && !itemNames.some(name => name.includes('雨') || name.includes('防水'))) {
     recommendations.push({
@@ -296,7 +257,7 @@ function getOfflineRecommendations() {
       priority: 'high'
     })
   }
-  
+
   // 根据预算推荐
   if (prefs.value.budget === 'low') {
     recommendations.push({
@@ -305,21 +266,21 @@ function getOfflineRecommendations() {
       priority: 'medium'
     })
   }
-  
+
   return recommendations
 }
 
 async function getOnlineRecommendations() {
   const settings = modelConfigStore.settings
   const apiUrl = modelConfigStore.buildApiUrl(settings.apiUrl)
-  
+
   // 构建当前装备清单信息
-  const currentItems = equipmentStore.categories.flatMap(cat => 
-    cat.items.map(item => 
+  const currentItems = equipmentStore.categories.flatMap(cat =>
+    cat.items.map(item =>
       `类别: ${cat.name}, 名称: ${item.name}, 是否准备: ${item.prepared ? '是' : '否'}, 数量: ${item.quantity}${item.quantityUnit || '个'}, 重量: ${item.weight}${item.weightUnit || 'g'}, 备注: ${item.notes || '无'}`
     )
   )
-  
+
   const prompt = `作为户外装备专家，请根据以下信息为户外装备清单提供专业推荐：
 
 活动类型：${prefs.value.activityType}
@@ -351,41 +312,41 @@ ${currentItems.length > 0 ? currentItems.join('\n') : '暂无装备'}
     temperature: settings.temperature || 0.7,
     stream: false
   }
-  
+
   const headers = {
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${settings.apiKey}`
   }
-  
+
   const response = await fetch(apiUrl, {
     method: 'POST',
     headers: headers,
     body: JSON.stringify(requestBody)
   })
-  
+
   if (!response.ok) {
     throw new Error(`API请求失败: ${response.status} ${response.statusText}`)
   }
-  
+
   const data = await response.json()
   const content = data.choices?.[0]?.message?.content || ''
-  
+
   if (!content) {
     throw new Error('API返回了空内容，请检查配置和请求参数')
   }
-  
+
   // 尝试解析JSON响应
   try {
     const parsed = JSON.parse(content)
-    
+
     if (parsed.recommendations && Array.isArray(parsed.recommendations)) {
       return parsed.recommendations
     }
-    
+
     if (Array.isArray(parsed)) {
       return parsed
     }
-    
+
     return [parsed]
   } catch (e) {
     // 尝试提取JSON部分
@@ -400,7 +361,7 @@ ${currentItems.length > 0 ? currentItems.join('\n') : '暂无装备'}
         // 解析失败
       }
     }
-    
+
     // 如果都失败，返回文本内容
     return [{
       type: 'general',
@@ -451,7 +412,7 @@ async function addRecommendationsToEquipment() {
     // 注意：这里需要遍历现有分类，判断名称是否包含推荐标题或描述
     // 由于我们不能直接访问 equipmentStore.categories，所以我们先找到匹配的名称
     // 并在调用 addItem 之前通过 getOrCreateCategory 确保分类存在。
-    const matchedCategory = equipmentStore.categories.find(cat => 
+    const matchedCategory = equipmentStore.categories.find(cat =>
       rec.title.includes(cat.name) || rec.description.includes(cat.name)
     );
     if (matchedCategory) {
@@ -543,7 +504,7 @@ defineExpose({ show, close })
 
 .btn-primary {
   background: var(--primary-color);
-  color: var(--text-white, white);
+  color: var(--btn-primary-text, white);
 }
 
 .btn-secondary {
@@ -553,7 +514,7 @@ defineExpose({ show, close })
 
 .btn:not(:disabled):hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .recommendation-results {
@@ -608,11 +569,13 @@ defineExpose({ show, close })
   background: var(--bg-input);
   border: 1px solid var(--border-color);
   backdrop-filter: blur(10px);
-  margin-bottom: 15px; /* 显式添加底部边距 */
+  // 显式添加底部边距
+  margin-bottom: 15px;
 }
 
 .recommendation-item:last-child {
-  margin-bottom: 0; /* 最后一个不加底部边距，避免多余空间 */
+  // 最后一个不加底部边距，避免多余空间
+  margin-bottom: 0;
 }
 
 .recommendation-item:hover {
@@ -697,7 +660,7 @@ defineExpose({ show, close })
   background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: 6px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   z-index: 10;
   margin-top: 5px;
   padding: 0;
@@ -739,14 +702,13 @@ defineExpose({ show, close })
     align-items: flex-start;
     gap: 8px;
   }
-  
+
   .setting-group label {
     min-width: auto;
   }
-  
+
   .setting-group select {
     width: 100%;
   }
 }
 </style>
-

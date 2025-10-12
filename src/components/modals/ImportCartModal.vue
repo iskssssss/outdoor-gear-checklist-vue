@@ -90,7 +90,8 @@ const isCancelled = ref(false); // 新增：跟踪导入是否被取消
 // 监听 parsedItems 变化，自动全选商品
 watch(parsedItems, (newItems) => {
   if (newItems.length > 0) {
-    selectedItems.value = newItems.map(item => item.id); // 默认全选
+    // 默认全选
+    selectedItems.value = newItems.map(item => item.id);
   } else {
     selectedItems.value = [];
   }
@@ -142,7 +143,8 @@ async function handleBeforeClose() {
     }
     return confirmed;
   }
-  return true; // 如果不在导入中，则允许关闭
+  // 如果不在导入中，则允许关闭
+  return true;
 }
 
 /**
@@ -161,7 +163,8 @@ function clearLink() {
   selectedItems.value = [];
   message.value = '';
   messageType.value = '';
-  showInputSection.value = true; // 清空时显示输入区域
+  // 清空时显示输入区域
+  showInputSection.value = true;
 }
 
 /**
@@ -244,7 +247,8 @@ async function parseLink() {
       parsedItems.value = extractedItems;
       message.value = `成功解析到 ${extractedItems.length} 件商品！`;
       messageType.value = 'success';
-      showInputSection.value = false; // 成功解析后隐藏输入区域
+      // 成功解析后隐藏输入区域
+      showInputSection.value = false;
     }
 
   } catch (e) {
@@ -268,7 +272,8 @@ function extractItemsFromJdHtml(htmlContent) {
 
   while ((match = itemRegex.exec(htmlContent)) !== null) {
     items.push({
-      id: Date.now() + Math.random(), // 为每个商品生成唯一ID
+      // 为每个商品生成唯一ID
+      id: Date.now() + Math.random(),
       name: match[1].trim(),
       quantity: parseInt(match[2], 10),
     });
@@ -311,8 +316,10 @@ async function importItems() {
 
       // 如果分类不存在，则创建新分类
       if (!category) {
-        equipmentStore.addCategory(item.category, item.categoryIcon || '🛍️'); // 假设大模型会返回或我们有默认图标
-        category = equipmentStore.categories.find(cat => cat.name === item.category); // 重新查找新创建的分类
+        // 假设大模型会返回或我们有默认图标
+        equipmentStore.addCategory(item.category, item.categoryIcon || '🛍️');
+        // 重新查找新创建的分类
+        category = equipmentStore.categories.find(cat => cat.name === item.category);
       }
 
       if (category) {
@@ -368,14 +375,17 @@ async function callModelToCategorize(items) {
     // 这里的实现需要根据实际的大模型API进行调整
     // 假设 modelConfigStore 有一个 testConnection 方法，并且它能够处理并返回结构化的JSON
     const result = await modelConfigStore.testConnection(prompt);
-    const rawContent = result.content; // 假设 content 是带有markdown代码块的字符串
+    // 假设 content 是带有markdown代码块的字符串
+    const rawContent = result.content;
     let contentToParse = rawContent;
 
     // 尝试去除最外层的双引号，以防大模型返回的是一个被包裹在字符串字面量中的JSON
     if (contentToParse.startsWith('"```json') && contentToParse.endsWith('```"')) {
-      contentToParse = contentToParse.substring(1, contentToParse.length - 1); // 移除最外层的双引号
+      // 移除最外层的双引号
+      contentToParse = contentToParse.substring(1, contentToParse.length - 1);
     } else if (contentToParse.startsWith('"') && contentToParse.endsWith('"')) {
-      contentToParse = contentToParse.substring(1, contentToParse.length - 1); // 移除最外层的双引号
+      // 移除最外层的双引号
+      contentToParse = contentToParse.substring(1, contentToParse.length - 1);
     }
 
     let parsedContent;
@@ -411,12 +421,18 @@ async function callModelToCategorize(items) {
     }
     return parsedContent.map(item => ({
       name: item.name,
-      category: item.category || '未分类', // 默认分类
-      quantity: item.quantity === undefined ? null : item.quantity, // 如果大模型未提供，则为null
-      quantityUnit: item.quantityUnit || null, // 如果大模型未提供，则为null
-      weight: item.weight === undefined ? null : item.weight, // 如果大模型未提供，则为null
-      weightUnit: item.weightUnit || null, // 如果大模型未提供，则为null
-      categoryIcon: item.categoryIcon, // 允许大模型返回图标
+      // 默认分类
+      category: item.category || '未分类',
+      // 如果大模型未提供，则为null
+      quantity: item.quantity === undefined ? null : item.quantity,
+      // 如果大模型未提供，则为null
+      quantityUnit: item.quantityUnit || null,
+      // 如果大模型未提供，则为null
+      weight: item.weight === undefined ? null : item.weight,
+      // 如果大模型未提供，则为null
+      weightUnit: item.weightUnit || null,
+      // 允许大模型返回图标
+      categoryIcon: item.categoryIcon,
     }));
 
   } catch (e) {
@@ -443,11 +459,11 @@ defineExpose({ show, close });
 .import-cart-wrapper {
   position: relative;
   display: flex;
-  /* 新增：使用Flexbox布局 */
+  // 新增：使用Flexbox布局
   flex-direction: column;
-  /* 新增：垂直堆叠子元素 */
+  // 新增：垂直堆叠子元素
   gap: 20px;
-  /* 新增：子元素之间的间距 */
+  // 新增：子元素之间的间距
 }
 
 // 导入中遮罩层
@@ -457,7 +473,7 @@ defineExpose({ show, close });
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.75);
+  background: var(--bg-overlay, rgba(0, 0, 0, 0.75));
   backdrop-filter: blur(4px);
   display: flex;
   justify-content: center;
@@ -468,7 +484,7 @@ defineExpose({ show, close });
 
 .importing-spinner {
   text-align: center;
-  color: white;
+  color: var(--text-white, white);
 
   p {
     margin: 15px 0 5px 0;
@@ -478,7 +494,7 @@ defineExpose({ show, close });
 
   .warning-text {
     font-size: 0.95rem;
-    color: #ffc107;
+    color: var(--warning-color, #ffc107);
     margin-top: 10px;
     font-weight: 600;
   }
@@ -488,7 +504,7 @@ defineExpose({ show, close });
 .spinner {
   width: 50px;
   height: 50px;
-  border: 4px solid rgba(255, 255, 255, 0.3);
+  border: 4px solid var(--bg-input);
   border-top-color: var(--primary-color, #667eea);
   border-radius: 50%;
   animation: spin 1s linear infinite;
@@ -521,7 +537,7 @@ defineExpose({ show, close });
   line-height: 1.6;
   margin: 0;
   padding: 10px;
-  background: rgba(102, 126, 234, 0.05);
+  background: var(--primary-light, rgba(102, 126, 234, 0.05));
   border-left: 3px solid var(--primary-color);
   border-radius: 4px;
 }
@@ -537,15 +553,15 @@ defineExpose({ show, close });
   transition: all 0.3s ease;
   box-sizing: border-box;
   resize: vertical;
-  /* 允许 textarea 垂直调整大小 */
+  // 允许 textarea 垂直调整大小
   min-height: 100px;
-  /* 最小高度 */
+  // 最小高度
   line-height: 1.6;
 
   &:focus {
     outline: none;
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(var(--primary-color-rgb), 0.1);
+    box-shadow: 0 0 0 3px var(--primary-color-shadow, rgba(102, 126, 234, 0.1));
   }
 }
 
@@ -576,7 +592,7 @@ defineExpose({ show, close });
 
   &:not(:disabled):hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(var(--primary-color-rgb), 0.2);
+    box-shadow: 0 4px 12px var(--primary-color-shadow, rgba(102, 126, 234, 0.2));
   }
 }
 
@@ -586,7 +602,7 @@ defineExpose({ show, close });
 
   &:not(:disabled):hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    box-shadow: var(--shadow-md);
   }
 }
 
@@ -603,9 +619,9 @@ defineExpose({ show, close });
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
-    /* 允许换行 */
+    // 允许换行
     gap: 10px;
-    /* 元素间距 */
+    // 元素间距
 
     h4 {
       margin: 0;
@@ -638,7 +654,7 @@ defineExpose({ show, close });
     width: 18px;
     height: 18px;
     accent-color: var(--primary-color);
-    /* 选中颜色使用主题色 */
+    // 选中颜色使用主题色
   }
 
   label {
@@ -654,7 +670,7 @@ defineExpose({ show, close });
   width: 16px;
   height: 16px;
   accent-color: var(--primary-color);
-  /* 选中颜色使用主题色 */
+  // 选中颜色使用主题色
 }
 
 .item-content {
@@ -682,26 +698,26 @@ defineExpose({ show, close });
 .item-name {
   font-weight: 500;
   color: var(--text-primary);
-  /* 明确设置主文本颜色 */
+  // 明确设置主文本颜色
   flex-grow: 1;
-  /* 允许名称占据更多空间 */
+  // 允许名称占据更多空间
   margin-right: 10px;
-  /* 与数量的间距 */
+  // 与数量的间距
 }
 
 .item-quantity {
   color: var(--text-secondary);
-  /* 明确设置次要文本颜色 */
+  // 明确设置次要文本颜色
   white-space: nowrap;
-  /* 防止数量换行 */
+  // 防止数量换行
 }
 
 .import-actions {
   display: flex;
   justify-content: flex-end;
-  /* 修改为居右对齐 */
+  // 修改为居右对齐
   margin-top: 10px;
-  /* 增加与商品列表的间距 */
+  // 增加与商品列表的间距
 }
 
 .info-message {

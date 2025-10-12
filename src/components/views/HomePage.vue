@@ -1,20 +1,16 @@
 <template>
   <div class="main-content">
-    <div class="sidebar">
+    <div class="main-header">
       <StatsPanel />
     </div>
-    <div class="content">
-      <CategoryList 
-        @show-recommendation="showRecommendation" 
-        @show-operation-log="showOperationLog"
-      />
-    </div>
+    <CategoryList @show-recommendation="$emit('show-recommendation')"
+      @show-operation-log="$emit('show-operation-log')" />
   </div>
 </template>
 
 <script setup>
-import CategoryList from './CategoryList.vue'
 import StatsPanel from './StatsPanel.vue'
+import CategoryList from './CategoryList.vue'
 
 defineEmits(['show-recommendation', 'show-operation-log'])
 
@@ -32,13 +28,20 @@ function showOperationLog() {
   max-width: 1400px;
   margin: 0 auto;
   padding: 12px;
-  display: grid;
-  grid-template-columns: 300px 1fr;
+  display: flex;
+  flex-direction: column;
   gap: 20px;
+  // 新增内边距以创建与页脚的间距
+  padding-bottom: 40px;
+}
+
+.main-header {
+  /* 未来可以添加一些欢迎语或快速操作 */
 }
 
 .content {
-  min-width: 0; /* Prevents content from overflowing its grid cell */
+  // Prevents content from overflowing its grid cell
+  min-width: 0;
 }
 
 /* On tablets and smaller screens, switch to a single-column layout */

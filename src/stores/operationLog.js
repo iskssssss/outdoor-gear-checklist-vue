@@ -13,9 +13,9 @@ export const useOperationLogStore = defineStore('operationLog', () => {
 
   // Getters
   const logCount = computed(() => logs.value.length)
-  
+
   // 计算可撤销的操作数量（只计算有状态数据的）
-  const undoableCount = computed(() => 
+  const undoableCount = computed(() =>
     logs.value.filter(log => log.undoable && !log.undone && log.beforeState && log.beforeState.categories).length
   )
 
@@ -64,7 +64,7 @@ export const useOperationLogStore = defineStore('operationLog', () => {
     if (saved) {
       try {
         const loadedLogs = JSON.parse(saved)
-        
+
         // 处理旧版本日志数据，确保新字段存在
         logs.value = loadedLogs.map(log => ({
           ...log,
@@ -72,7 +72,7 @@ export const useOperationLogStore = defineStore('operationLog', () => {
           undoable: log.undoable !== undefined ? log.undoable : (log.beforeState ? true : false),
           undone: log.undone || false
         }))
-        
+
         console.log('📋 操作日志已加载', {
           日志总数: logs.value.length,
           可撤销: logs.value.filter(l => l.undoable && !l.undone && l.beforeState).length,
@@ -145,7 +145,7 @@ export const useOperationLogStore = defineStore('operationLog', () => {
    */
   function formatTime(timestamp) {
     const time = new Date(timestamp)
-    return `${time.getMonth()+1}/${time.getDate()} ${time.getHours()}:${String(time.getMinutes()).padStart(2, '0')}:${String(time.getSeconds()).padStart(2, '0')}`
+    return `${time.getMonth() + 1}/${time.getDate()} ${time.getHours()}:${String(time.getMinutes()).padStart(2, '0')}:${String(time.getSeconds()).padStart(2, '0')}`
   }
 
   /**

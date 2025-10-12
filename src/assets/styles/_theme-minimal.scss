@@ -5,134 +5,154 @@
 
 body.theme-minimal {
   /* ===== CSS 变量定义 ===== */
+  // 原 #4a5568
   --primary-color: #000000;
-  --primary-dark: #1a1a1a;
-  --secondary-color: #333333;
-  --success-color: #28a745;
-  --success-light: #d4edda;
-  --success-text: #155724;
-  --warning-color: #ffc107;
-  --warning-light: #fff3cd;
-  --warning-text: #856404;
-  --danger-color: #dc3545;
-  --danger-light: #f8d7da;
-  --danger-text: #721c24;
-  --info-color: #17a2b8;
-  --info-light: #d1ecf1;
-  --info-text: #0c5460;
-  
+  // 原 #2c3340
+  --primary-dark: #333333;
+  // 原 #a0aec0
+  --secondary-color: #757575;
+  // 原 #48bb78
+  --success-color: #38a169;
+  --success-light: #f0fff4;
+  // 原 #ecc94b
+  --warning-color: #d69e2e;
+  --warning-light: #fffff0;
+  // 原 #f56565
+  --danger-color: #e53e3e;
+  --danger-light: #fff5f5;
+  // 原 #4299e1
+  --info-color: #3182ce;
+  --info-light: #ebf8ff;
+
   --bg-main: #ffffff;
   --bg-card: #ffffff;
   --bg-header: #ffffff;
-  --bg-input: #ffffff;
-  --bg-hover: #f5f5f5;
-  --bg-button-group: #ffffff;
+  // 稍深的输入框背景
+  --bg-input: #f5f5f5;
+  // 更明显的悬浮效果
+  --bg-hover: #e0e0e0;
+  --bg-button-group: #f5f5f5;
   --bg-gradient: none;
-  
+  --bg-overlay: rgba(255, 255, 255, 0.8);
+
+  // 原 #1a202c
   --text-primary: #000000;
-  --text-secondary: #666666;
-  --text-muted: #cccccc;
+  // 原 #718096
+  --text-secondary: #555555;
+  // 原 #999
+  --text-muted: #888888;
   --text-white: #ffffff;
-  
-  --border-color: #e8e8e8;
-  --border-radius: 8px;
+
+  --btn-primary-text: #ffffff;
+  --btn-success-text: #ffffff;
+  --btn-danger-text: #ffffff;
+
+  // 更深的边框
+  --border-color: #cccccc;
+  --border-radius: 4px;
   --border-width: 1px;
-  
+
   --shadow-card: none;
   --shadow-hover: none;
   --shadow-sm: none;
   --shadow-md: none;
   --shadow-lg: none;
   --shadow-xl: none;
-  
+  --danger-shadow: none;
+  --primary-color-shadow: transparent;
+
+  --scrollbar-track-bg: #ffffff;
+  --scrollbar-thumb-bg: #cbd5e1;
+  --scrollbar-thumb-hover-bg: #a0aec0;
+
   --btn-success: #28a745;
   --btn-primary: #000000;
   --btn-warning: #ffc107;
   --btn-danger: #dc3545;
   --btn-info: #17a2b8;
   --btn-secondary: #666666;
-  
+
   --font-weight-normal: 400;
   --font-weight-medium: 500;
   --font-weight-bold: 600;
-  
+
   /* ===== 差异化样式 - 仅极简主题特有 ===== */
-  
+
   color: var(--text-primary);
-  
+
   .app-container {
     background: #ffffff;
   }
-  
+
   .header {
     border-bottom: 1px solid var(--border-color);
     box-shadow: none;
   }
-  
+
   /* 极简卡片 - 只保留分类的边框 */
   .add-category-section {
     border: none;
     box-shadow: none;
   }
-  
+
   .category {
     border: none;
     box-shadow: none;
     background: transparent;
   }
-  
+
   .category-content {
     background: transparent;
   }
-  
+
   .stats {
     border: none;
     box-shadow: none;
     background: transparent;
   }
-  
+
   .category-header {
     background: transparent;
     color: #000000;
     border-bottom: 1px solid var(--border-color);
   }
-  
+
   .category-title {
     color: #000000;
   }
-  
+
   .category-collapse-btn {
     background: transparent;
     border: 1px solid var(--border-color);
     color: #000000;
   }
-  
+
   .category-actions {
     .btn {
       background: transparent;
       border: 1px solid var(--border-color);
-      
+
       &:hover {
         background: transparent;
         border-color: #000000;
         box-shadow: none;
       }
     }
-    
+
     .btn-warning {
       color: #000000;
-      
+
       &:hover {
         background: transparent;
         border-color: #000000;
         color: #000000;
       }
     }
-    
+
     .btn-danger {
       color: var(--danger-color);
       border-color: var(--border-color);
-      
+
       &:hover {
         background: transparent;
         border-color: var(--danger-color);
@@ -140,29 +160,29 @@ body.theme-minimal {
       }
     }
   }
-  
+
   .section-title {
     background: transparent;
     border-bottom: 1px solid var(--border-color);
     color: #000000;
   }
-  
+
   /* 项目极简样式 */
   .item {
     border: none;
     border-bottom: 1px solid var(--border-color);
     box-shadow: none;
     background: transparent;
-    
+
     &:hover {
       background: transparent;
       border-bottom-color: #000000;
     }
-    
+
     &.completed {
       background: transparent;
       border-bottom-color: var(--border-color);
-      
+
       .item-status::before {
         content: '✓';
         position: absolute;
@@ -170,20 +190,20 @@ body.theme-minimal {
         font-weight: 600;
         color: #000000;
       }
-      
+
       .item-status {
         position: relative;
         color: transparent;
       }
     }
   }
-  
+
   .item-status {
     font-size: 1.2rem;
     color: #cccccc;
     font-weight: 300;
   }
-  
+
   /* 未完成装备的图标 */
   .item:not(.completed) .item-status::before {
     content: '○';
@@ -192,36 +212,36 @@ body.theme-minimal {
     font-weight: 300;
     color: #cccccc;
   }
-  
+
   .item:not(.completed) .item-status {
     position: relative;
     color: transparent;
   }
-  
+
   .item-actions {
     .btn {
       background: transparent;
       border: 1px solid var(--border-color);
-      
+
       &:hover {
         background: transparent;
         box-shadow: none;
       }
     }
-    
+
     .btn-warning {
       color: #000000;
-      
+
       &:hover {
         background: transparent;
         border-color: #000000;
         color: #000000;
       }
     }
-    
+
     .btn-danger {
       color: var(--danger-color);
-      
+
       &:hover {
         background: transparent;
         border-color: var(--danger-color);
@@ -229,7 +249,7 @@ body.theme-minimal {
       }
     }
   }
-  
+
   /* 统计项极简样式 */
   .stat-item {
     background: transparent;
@@ -237,130 +257,133 @@ body.theme-minimal {
     border: none;
     box-shadow: none;
   }
-  
+
   /* 导航栏 */
   .nav-menu {
     border-top: none;
     border-bottom: none;
   }
-  
+
   .nav-link:hover {
     color: #000000;
     border-bottom-color: #000000;
   }
-  
+
   .nav-link.danger:hover {
     color: var(--danger-color);
     border-bottom-color: var(--danger-color);
   }
-  
+
   .nav-divider {
     background: var(--border-color);
   }
-  
+
   /* 模态框极简样式 */
   .modal-content {
     border: none;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   }
-  
+
   .modal-header {
     background: #000000;
     color: #ffffff;
     border-bottom: none;
-    
-    h2, h3, .close, .close-btn {
+
+    h2,
+    h3,
+    .close,
+    .close-btn {
       color: #ffffff;
     }
   }
-  
+
   .tab-btn {
     background: transparent;
     border: none;
     border-bottom: 2px solid transparent;
-    
+
     &.active {
       background: transparent;
       color: #000000;
       border-bottom-color: #000000;
     }
   }
-  
+
   /* 日志极简样式 */
   .log-item {
     background: transparent;
     border: none;
     border-left: 3px solid var(--border-color);
-    
+
     &.log-add {
       border-left-color: var(--success-color);
     }
-    
+
     &.log-delete {
       border-left-color: var(--danger-color);
     }
-    
+
     &.log-edit {
       border-left-color: var(--warning-color);
     }
   }
-  
+
   /* 添加按钮极简效果 */
   .add-item-button {
     background: transparent;
     border: 1px solid #000000;
     color: #000000;
-    
+
     &:hover {
       background: #000000;
       color: #ffffff;
     }
-    
+
     &.cancel {
       border-color: var(--danger-color);
     }
-    
+
     &.cancel:hover {
       background: #000000;
       color: #ffffff;
     }
   }
-  
+
   /* 添加分类卡片 */
   .add-category-card {
     border: 1px dashed #cccccc;
     box-shadow: none;
-    
+
     &:hover {
       border-color: #000000;
       border-style: solid;
       box-shadow: none;
     }
   }
-  
+
   /* 区域分隔 */
   .add-item-section {
     background: transparent;
     border-top: none;
   }
-  
+
   .items-section {
     border-top: none;
   }
-  
+
   /* 配置信息 */
   .config-info {
     background: transparent;
     border: none;
     border-left: 3px solid #000000;
-    
+
     &.warning {
       border-left-color: var(--warning-color);
       background: transparent;
       color: var(--warning-color);
     }
   }
-  
+
   /* 测试结果 */
   .test-result,
   .recommendation-item {
@@ -368,21 +391,21 @@ body.theme-minimal {
     border: none;
     border-left: 3px solid var(--border-color);
   }
-  
+
   .test-result {
     &.success {
       color: var(--success-color);
       border-left-color: var(--success-color);
       background: transparent;
     }
-    
+
     &.error {
       color: var(--danger-color);
       border-left-color: var(--danger-color);
       background: transparent;
     }
   }
-  
+
   /* 焦点极简效果 */
   input:focus,
   select:focus,
@@ -390,32 +413,32 @@ body.theme-minimal {
     border-color: #000000;
     box-shadow: none;
   }
-  
+
   /* 主题切换器极简效果 */
   .theme-toggle-btn {
     box-shadow: none;
     border: none;
-    
+
     &:hover {
       border: none;
       box-shadow: none;
     }
   }
-  
+
   .theme-options {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
     border: none;
   }
-  
+
   .theme-option {
     border: none;
-    
+
     &:hover {
       border: none;
       background: transparent;
       color: #000000;
     }
-    
+
     &.active {
       border: none;
       background: transparent;
@@ -425,14 +448,14 @@ body.theme-minimal {
       text-decoration: underline;
     }
   }
-  
+
   /* 智能推荐按钮极简风格 */
   .btn-recommendation {
     background: transparent !important;
     color: #000000 !important;
     border: 1px solid #000000 !important;
     box-shadow: none;
-    
+
     &:hover:not(:disabled) {
       background: #000000 !important;
       color: #ffffff !important;
@@ -440,33 +463,33 @@ body.theme-minimal {
       box-shadow: none;
     }
   }
-  
+
   /* 撤销按钮极简风格 */
   .btn-undo {
     background: transparent !important;
     color: #000000 !important;
     border: 1px solid #000000 !important;
     box-shadow: none;
-    
+
     &:hover:not(:disabled) {
       background: #000000 !important;
       color: #ffffff !important;
       border-color: #000000 !important;
       box-shadow: none;
     }
-    
+
     &:disabled {
       background: transparent !important;
       color: #cccccc !important;
       border-color: #cccccc !important;
     }
   }
-  
+
   /* 添加分类卡片极简风格 */
   .add-category-card {
     border: 1px dashed var(--border-color) !important;
     box-shadow: none !important;
-    
+
     &:hover {
       border-color: var(--primary-color) !important;
       border-style: solid !important;
@@ -474,7 +497,7 @@ body.theme-minimal {
       box-shadow: none !important;
     }
   }
-  
+
   .add-category-input-card {
     border: 1px solid var(--primary-color) !important;
     box-shadow: none !important;
@@ -485,4 +508,3 @@ body.theme-minimal {
     box-shadow: none !important;
   }
 }
-

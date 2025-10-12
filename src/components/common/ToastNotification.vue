@@ -3,13 +3,8 @@
     <Transition name="toast-list">
       <div v-if="toasts.length > 0" class="toast-container">
         <TransitionGroup name="toast-item">
-          <div
-            v-for="toast in toasts"
-            :key="toast.id"
-            class="toast"
-            :class="[`toast-${toast.type}`]"
-            @click="removeToast(toast.id)"
-          >
+          <div v-for="toast in toasts" :key="toast.id" class="toast" :class="[`toast-${toast.type}`]"
+            @click="removeToast(toast.id)">
             <div class="toast-icon">
               {{ getIcon(toast.type) }}
             </div>
@@ -42,16 +37,16 @@ function show(message, type = 'success', duration = 3000) {
     message,
     type
   }
-  
+
   toasts.value.push(toast)
-  
+
   // 自动移除
   if (duration > 0) {
     setTimeout(() => {
       removeToast(id)
     }, duration)
   }
-  
+
   return id
 }
 
@@ -110,51 +105,51 @@ defineExpose({
   padding: 14px 16px;
   background: var(--bg-card);
   border-radius: 10px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-lg);
   pointer-events: auto;
   cursor: pointer;
   transition: all 0.3s ease;
   border-left: 4px solid;
-  
+
   &:hover {
     transform: translateX(-4px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    box-shadow: var(--shadow-xl);
   }
 }
 
 .toast-success {
   border-left-color: var(--success-color, #28a745);
-  
+
   .toast-icon {
     color: var(--success-color, #28a745);
-    background: rgba(40, 167, 69, 0.1);
+    background: var(--success-light, rgba(40, 167, 69, 0.1));
   }
 }
 
 .toast-error {
   border-left-color: var(--danger-color, #dc3545);
-  
+
   .toast-icon {
     color: var(--danger-color, #dc3545);
-    background: rgba(220, 53, 69, 0.1);
+    background: var(--danger-light, rgba(220, 53, 69, 0.1));
   }
 }
 
 .toast-warning {
-  border-left-color: #ffc107;
-  
+  border-left-color: var(--warning-color, #ffc107);
+
   .toast-icon {
-    color: #ffc107;
-    background: rgba(255, 193, 7, 0.1);
+    color: var(--warning-color, #ffc107);
+    background: var(--warning-light, rgba(255, 193, 7, 0.1));
   }
 }
 
 .toast-info {
-  border-left-color: var(--primary-color, #667eea);
-  
+  border-left-color: var(--info-color, #17a2b8);
+
   .toast-icon {
-    color: var(--primary-color, #667eea);
-    background: rgba(102, 126, 234, 0.1);
+    color: var(--info-color, #17a2b8);
+    background: var(--info-light, rgba(102, 126, 234, 0.1));
   }
 }
 
@@ -197,7 +192,7 @@ defineExpose({
   transition: all 0.2s ease;
   font-size: 1.1rem;
   flex-shrink: 0;
-  
+
   &:hover {
     background: var(--bg-hover, rgba(0, 0, 0, 0.05));
     color: var(--text-primary);
@@ -246,11 +241,10 @@ defineExpose({
     right: 10px;
     left: 10px;
   }
-  
+
   .toast {
     min-width: auto;
     max-width: none;
   }
 }
 </style>
-

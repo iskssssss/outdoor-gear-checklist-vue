@@ -15,7 +15,7 @@
           <p class="error-message">{{ error }}</p>
           <p v-if="hasCachedContent" class="fallback-hint">使用本地缓存数据</p>
         </div>
-        
+
         <!-- 内容 -->
         <div v-else class="markdown-content" @click="handleLinkClick">
           <div class="markdown-body" v-html="renderedContent"></div>
@@ -26,13 +26,9 @@
       <aside v-if="showToc && tableOfContents.length > 0" class="markdown-toc">
         <div class="toc-header">
           <h3>📑 目录</h3>
-          <button 
-            v-if="showRefreshButton"
-            class="refresh-btn" 
-            @click="$emit('refresh')"
+          <button v-if="showRefreshButton" class="refresh-btn" @click="$emit('refresh')"
             :disabled="loading || cooldownTime > 0"
-            :title="loading ? '加载中...' : cooldownTime > 0 ? `请等待 ${cooldownTime} 秒后再刷新` : '刷新内容'"
-          >
+            :title="loading ? '加载中...' : cooldownTime > 0 ? `请等待 ${cooldownTime} 秒后再刷新` : '刷新内容'">
             <span :class="{ 'spinning': loading }">
               {{ cooldownTime > 0 ? cooldownTime : '🔄' }}
             </span>
@@ -40,16 +36,9 @@
         </div>
         <nav class="toc-nav">
           <ul class="toc-list">
-            <li 
-              v-for="(item, index) in tableOfContents" 
-              :key="index"
-              :class="['toc-item', `toc-level-${item.level}`, { active: activeHeadingId === item.id }]"
-            >
-              <a 
-                :href="`#${item.id}`" 
-                @click.prevent="scrollToHeading(item.id)"
-                :title="item.text"
-              >
+            <li v-for="(item, index) in tableOfContents" :key="index"
+              :class="['toc-item', `toc-level-${item.level}`, { active: activeHeadingId === item.id }]">
+              <a :href="`#${item.id}`" @click.prevent="scrollToHeading(item.id)" :title="item.text">
                 {{ item.text }}
               </a>
             </li>
@@ -62,7 +51,8 @@
 
 <script setup>
 import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
-import { eventBus } from '../../utils/eventBus'; // 1. 导入 eventBus
+// 1. 导入 eventBus
+import { eventBus } from '../../utils/eventBus';
 
 const props = defineProps({
   content: {
@@ -132,13 +122,13 @@ function extractTableOfContents() {
     tableOfContents.value = []
     return
   }
-  
+
   // 规范化换行符，移除所有 \r
   const normalizedContent = props.content.replace(/\r\n/g, '\n').replace(/\r/g, '\n')
   const lines = normalizedContent.split('\n')
   const toc = []
   let idCounter = 0
-  
+
   lines.forEach(line => {
     const trimmedLine = line.trim()
     const match = trimmedLine.match(/^(#{1,6})\s+(.+)$/)
@@ -146,11 +136,11 @@ function extractTableOfContents() {
       const level = match[1].length
       const text = match[2].trim()
       const id = `heading-${hashCode(text)}-${idCounter++}`
-      
+
       toc.push({ id, level, text, originalText: text })
     }
   })
-  
+
   tableOfContents.value = toc
 }
 
@@ -159,17 +149,17 @@ function extractTableOfContents() {
  */
 function setupHeadingIds() {
   if (!contentRef.value) return
-  
+
   const headings = contentRef.value.querySelectorAll('h1, h2, h3, h4, h5, h6')
-  
+
   headings.forEach((heading, index) => {
     const text = heading.textContent.trim()
     const level = parseInt(heading.tagName.substring(1))
-    
-    const tocItem = tableOfContents.value.find(item => 
+
+    const tocItem = tableOfContents.value.find(item =>
       item.text === text && item.level === level
     )
-    
+
     if (tocItem) {
       heading.id = tocItem.id
     } else {
@@ -233,12 +223,12 @@ function scrollToHeading(headingId) {
 function highlightHeading(heading) {
   heading.style.transition = 'all 0.3s ease'
   heading.style.backgroundColor = 'var(--primary-color)'
-  heading.style.color = 'white'
+  heading.style.color = 'var(--btn-primary-text, white)'
   heading.style.padding = '0.5em'
   heading.style.marginLeft = '-0.5em'
   heading.style.marginRight = '-0.5em'
   heading.style.borderRadius = '4px'
-  
+
   setTimeout(() => {
     heading.style.backgroundColor = ''
     heading.style.color = ''
@@ -294,7 +284,7 @@ function handleScroll() {
  */
 function handleLinkClick(event) {
   const target = event.target
-  
+
   if (target.tagName === 'A' && target.getAttribute('href')?.startsWith('#')) {
     event.preventDefault()
     const targetId = target.getAttribute('href').substring(1)
@@ -385,7 +375,7 @@ const renderedContent = computed(() => {
         const nextMatch = itemMatch(next)
 
         if (next.trim() === '') {
-          contentLines.push('') 
+          contentLines.push('')
           i++
           continue
         }
@@ -521,7 +511,7 @@ onMounted(() => {
 // 组件卸载时清理
 onUnmounted(() => {
   eventBus.off('scroll', handleScroll); // 3. 取消订阅
-  
+
   if (scrollUnlockTimer) {
     clearTimeout(scrollUnlockTimer)
     scrollUnlockTimer = null
@@ -565,9 +555,11 @@ defineExpose({
   width: 260px;
   flex-shrink: 0;
   position: sticky;
-  top: 120px; /* 增加顶部偏移量，确保在导航栏下方并留出间距 */
+  // 增加顶部偏移量，确保在导航栏下方并留出间距
+  top: 120px;
   align-self: flex-start;
-  max-height: calc(100vh - 180px); /* 限制最大高度，防止目录过长 */
+  // 限制最大高度，防止目录过长
+  max-height: calc(100vh - 180px);
   overflow-y: auto;
   background: var(--bg-card);
   border: 2px solid var(--border-color);
@@ -583,7 +575,7 @@ defineExpose({
   margin-bottom: 12px;
   padding-bottom: 10px;
   border-bottom: 2px solid var(--border-color);
-  
+
   h3 {
     margin: 0;
     font-size: 1rem;
@@ -601,18 +593,18 @@ defineExpose({
   cursor: pointer;
   font-size: 0.9rem;
   transition: all 0.3s ease;
-  
+
   &:hover:not(:disabled) {
     background: var(--bg-hover);
     color: var(--primary-color);
     border-color: var(--primary-color);
   }
-  
+
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
   }
-  
+
   .spinning {
     display: inline-block;
     animation: spin 1s linear infinite;
@@ -620,8 +612,13 @@ defineExpose({
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .toc-nav {
@@ -630,10 +627,10 @@ defineExpose({
     padding: 0;
     margin: 0;
   }
-  
+
   .toc-item {
     margin: 3px 0;
-    
+
     a {
       display: block;
       padding: 5px 8px;
@@ -647,7 +644,7 @@ defineExpose({
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      
+
       &:hover {
         background: var(--bg-input);
         color: var(--text-primary);
@@ -655,38 +652,38 @@ defineExpose({
         transform: translateX(2px);
       }
     }
-    
+
     &.active a {
       background: var(--primary-color);
-      color: var(--text-white);
+      color: var(--btn-primary-text, var(--text-white));
       font-weight: 600;
       border-left-color: var(--primary-color);
       transform: translateX(0);
     }
   }
-  
+
   .toc-level-1 a {
     font-size: 0.9rem;
     font-weight: 600;
     padding-left: 8px;
   }
-  
+
   .toc-level-2 a {
     padding-left: 16px;
     font-size: 0.85rem;
   }
-  
+
   .toc-level-3 a {
     padding-left: 24px;
     font-size: 0.82rem;
   }
-  
+
   .toc-level-4 a {
     padding-left: 32px;
     font-size: 0.8rem;
     color: var(--text-muted);
   }
-  
+
   .toc-level-5 a,
   .toc-level-6 a {
     padding-left: 40px;
@@ -703,8 +700,9 @@ defineExpose({
   justify-content: center;
   padding: 80px 20px;
   color: var(--text-secondary);
-  min-height: 300px; /* 保证加载状态有一定高度 */
-  
+  // 保证加载状态有一定高度
+  min-height: 300px;
+
   p {
     margin-top: 20px;
     font-size: 1rem;
@@ -731,11 +729,11 @@ defineExpose({
   text-align: center;
   padding: 60px 20px;
   color: var(--text-secondary);
-  
+
   p {
     margin: 12px 0;
   }
-  
+
   .error-message {
     color: var(--danger-color);
     font-size: 0.95rem;
@@ -745,7 +743,7 @@ defineExpose({
     border-radius: 6px;
     display: inline-block;
   }
-  
+
   .fallback-hint {
     color: var(--primary-color);
     font-size: 0.9rem;
@@ -759,57 +757,62 @@ defineExpose({
   line-height: 1.6;
   font-size: 1rem;
   word-wrap: break-word;
-  
-  :deep(h1), :deep(h2), :deep(h3), :deep(h4), :deep(h5), :deep(h6) {
+
+  :deep(h1),
+  :deep(h2),
+  :deep(h3),
+  :deep(h4),
+  :deep(h5),
+  :deep(h6) {
     margin: 1.5em 0 0.6em;
     font-weight: 600;
     line-height: 1.3;
     color: var(--text-primary);
-    
+
     &:first-child {
       margin-top: 0;
     }
   }
-  
+
   :deep(h1) {
     font-size: 1.8em;
     padding-bottom: 0.3em;
     border-bottom: 2px solid var(--border-color);
   }
-  
+
   :deep(h2) {
     font-size: 1.5em;
     padding-bottom: 0.3em;
     border-bottom: 1px solid var(--border-color);
   }
-  
+
   :deep(h3) {
     font-size: 1.25em;
   }
-  
+
   :deep(h4) {
     font-size: 1.1em;
   }
-  
+
   :deep(p) {
     margin: 0.8em 0;
     line-height: 1.7;
     color: var(--text-primary);
   }
-  
+
   :deep(a) {
     color: var(--primary-color);
     text-decoration: none;
     border-bottom: 1px dashed var(--primary-color);
     transition: all 0.2s ease;
-    
+
     &:hover {
       background: var(--primary-color);
-      color: white;
+      color: var(--btn-primary-text, white);
       border-bottom-style: solid;
     }
   }
-  
+
   :deep(code) {
     background: var(--bg-input);
     padding: 2px 6px;
@@ -819,7 +822,7 @@ defineExpose({
     color: var(--danger-color, #dc3545);
     border: 1px solid var(--border-color);
   }
-  
+
   :deep(pre) {
     background: var(--bg-input);
     padding: 12px;
@@ -827,7 +830,7 @@ defineExpose({
     overflow-x: auto;
     margin: 1em 0;
     border: 1px solid var(--border-color);
-    
+
     code {
       background: none;
       padding: 0;
@@ -836,51 +839,52 @@ defineExpose({
       border: none;
     }
   }
-  
-  :deep(ul), :deep(ol) {
+
+  :deep(ul),
+  :deep(ol) {
     margin: 0.8em 0;
     padding-left: 2em;
-    
+
     li {
       margin: 0.3em 0;
       line-height: 1.6;
       color: var(--text-primary);
     }
   }
-  
+
   :deep(strong) {
     font-weight: 700;
     color: var(--text-primary);
   }
-  
+
   :deep(em) {
     font-style: italic;
     color: var(--text-secondary);
   }
-  
+
   :deep(del) {
     text-decoration: line-through;
     color: var(--text-muted);
     opacity: 0.7;
   }
-  
+
   :deep(li.task-item) {
     list-style: none;
     margin-left: -1.5em;
-    
+
     input[type="checkbox"] {
       margin-right: 0.5em;
       cursor: not-allowed;
     }
   }
-  
+
   :deep(hr) {
     border: none;
     height: 1px;
     background: var(--border-color);
     margin: 1.5em 0;
   }
-  
+
   :deep(blockquote) {
     border-left: 4px solid var(--primary-color);
     background: var(--bg-input);
@@ -889,12 +893,12 @@ defineExpose({
     color: var(--text-secondary);
     font-style: italic;
     border-radius: 0 4px 4px 0;
-    
+
     p {
       margin: 0.4em 0;
     }
   }
-  
+
   :deep(table) {
     width: 100%;
     border-collapse: collapse;
@@ -902,28 +906,29 @@ defineExpose({
     box-shadow: var(--shadow-sm);
     border-radius: 6px;
     overflow: hidden;
-    
-    th, td {
+
+    th,
+    td {
       padding: 8px 12px;
       border: 1px solid var(--border-color);
       text-align: left;
     }
-    
+
     th {
       background: var(--primary-color);
-      color: white;
+      color: var(--btn-primary-text, white);
       font-weight: 600;
     }
-    
+
     tr:nth-child(even) {
       background: var(--bg-input);
     }
-    
+
     tr:hover {
       background: var(--bg-hover);
     }
   }
-  
+
   :deep(img) {
     max-width: 100%;
     height: auto;
@@ -936,7 +941,7 @@ defineExpose({
   .markdown-layout {
     flex-direction: column;
   }
-  
+
   .markdown-toc {
     position: static;
     width: 100%;
@@ -946,4 +951,3 @@ defineExpose({
   }
 }
 </style>
-

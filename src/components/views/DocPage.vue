@@ -1,10 +1,5 @@
 <template>
-  <MarkdownPage 
-    title="使用指南"
-    :source-url="sourceUrl"
-    cache-key-prefix="outdoor-gear-doc"
-    @close="$router.push('/')"
-  />
+  <MarkdownPage title="使用指南" :source-url="sourceUrl" cache-key-prefix="outdoor-gear-doc" @close="$router.push('/')" />
 </template>
 
 <script setup>

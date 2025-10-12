@@ -1,11 +1,5 @@
 <template>
-  <BaseModal
-    ref="modalRef"
-    title="📋 操作日志"
-    width="800px"
-    max-height="90vh"
-    @close="handleClose"
-  >
+  <BaseModal ref="modalRef" title="📋 操作日志" width="800px" max-height="90vh" @close="handleClose">
     <div class="log-controls">
       <button class="btn btn-danger btn-sm" @click="debouncedClearLogs">清空日志</button>
       <button class="btn btn-primary btn-sm" @click="debouncedExportLogs">导出日志</button>
@@ -13,22 +7,18 @@
         ⟲ 快速撤销
       </button>
       <span class="log-count">
-        共 <span>{{ logStore.logCount }}</span> 条记录 | 
+        共 <span>{{ logStore.logCount }}</span> 条记录 |
         可撤销 <span class="undoable-count">{{ logStore.undoableCount }}</span> 条
       </span>
     </div>
-    
+
     <div class="log-content">
       <div v-if="logStore.logs.length === 0" class="empty-log">
         暂无操作记录
       </div>
-      
-      <div 
-        v-for="log in logStore.logs" 
-        :key="log.id"
-        class="log-item"
-        :class="[getLogClass(log.type), { 'log-undone': log.undone }]"
-      >
+
+      <div v-for="log in logStore.logs" :key="log.id" class="log-item"
+        :class="[getLogClass(log.type), { 'log-undone': log.undone }]">
         <div class="log-header">
           <span class="log-type">
             <span class="log-icon">{{ getLogIcon(log.type) }}</span>
@@ -37,19 +27,11 @@
           </span>
           <div class="log-actions">
             <span class="log-time">{{ logStore.formatTime(log.timestamp) }}</span>
-            <button 
-              v-if="log.undoable && !log.undone && log.beforeState && log.beforeState.categories"
-              class="btn-undo"
-              @click="debouncedHandleUndo(log)"
-              title="撤销此操作"
-            >
+            <button v-if="log.undoable && !log.undone && log.beforeState && log.beforeState.categories" class="btn-undo"
+              @click="debouncedHandleUndo(log)" title="撤销此操作">
               ⟲ 撤销
             </button>
-            <span 
-              v-else-if="log.undoable && !log.undone && !log.beforeState"
-              class="old-log-tag"
-              title="旧版本操作记录，不支持撤销"
-            >
+            <span v-else-if="log.undoable && !log.undone && !log.beforeState" class="old-log-tag" title="旧版本操作记录，不支持撤销">
               旧记录
             </span>
           </div>
@@ -108,7 +90,7 @@ async function clearLogs() {
     confirmButtonText: '清空',
     showDangerWarning: true
   })
-  
+
   if (confirmed) {
     logStore.clearLogs()
   }
@@ -226,7 +208,7 @@ defineExpose({ show, close })
 
 .btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  box-shadow: var(--shadow-sm);
 }
 
 .btn:disabled {
@@ -252,7 +234,7 @@ defineExpose({ show, close })
 
 .log-item:hover {
   transform: translateX(5px);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: var(--shadow-sm);
 }
 
 .log-item.log-add {
@@ -327,7 +309,7 @@ defineExpose({ show, close })
   padding: 2px 8px;
   margin-left: 8px;
   background: var(--text-muted);
-  color: white;
+  color: var(--text-white, white);
   border-radius: 12px;
   font-size: 0.75rem;
   font-weight: 600;
@@ -348,7 +330,7 @@ defineExpose({ show, close })
   padding: 4px 10px;
   font-size: 0.8rem;
   background: var(--success-color, #28a745);
-  color: white;
+  color: var(--btn-success-text, white);
   border: none;
   border-radius: 4px;
   cursor: pointer;
@@ -365,7 +347,7 @@ defineExpose({ show, close })
   display: inline-block;
   padding: 3px 8px;
   background: var(--text-muted);
-  color: white;
+  color: var(--text-white, white);
   border-radius: 4px;
   font-size: 0.7rem;
   font-weight: 500;
@@ -390,7 +372,7 @@ defineExpose({ show, close })
   .log-controls {
     flex-wrap: wrap;
   }
-  
+
   .log-count {
     width: 100%;
     margin-left: 0;
@@ -399,4 +381,3 @@ defineExpose({ show, close })
   }
 }
 </style>
-

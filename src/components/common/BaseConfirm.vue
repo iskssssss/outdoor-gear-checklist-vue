@@ -13,11 +13,7 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button
-              class="btn confirm-btn"
-              :class="{ 'danger': showDangerWarning }"
-              @click="debouncedConfirm"
-          >
+          <button class="btn confirm-btn" :class="{ 'danger': showDangerWarning }" @click="debouncedConfirm">
             {{ confirmButtonText }}
           </button>
           <button class="btn cancel-btn" @click="debouncedCancel">取消</button>
@@ -49,7 +45,7 @@ function show(options) {
   message.value = options.message || ''
   confirmButtonText.value = options.confirmButtonText || '确定'
   showDangerWarning.value = options.showDangerWarning || false
-  
+
   isVisible.value = true
   return new Promise(resolve => {
     resolvePromise = resolve
@@ -86,21 +82,22 @@ defineExpose({
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0, 0, 0, 0.5);
+  background: var(--bg-overlay, rgba(0, 0, 0, 0.5));
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 2000; /* 确保在 BaseModal (z-index: 1000) 之上 */
+  // 确保在 BaseModal (z-index: 1000) 之上
+  z-index: 2000;
 }
 
 .modal-container {
   background: var(--bg-card);
   border-radius: 12px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-xl);
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  
+
   transition: all 0.3s ease-out;
   transform: scale(1);
   opacity: 1;
@@ -127,7 +124,7 @@ defineExpose({
   color: var(--text-secondary);
   cursor: pointer;
   transition: color 0.2s ease;
-  
+
   &:hover {
     color: var(--text-primary);
   }
@@ -144,7 +141,8 @@ defineExpose({
   color: var(--text-primary);
   line-height: 1.5;
   margin-bottom: 15px;
-  white-space: pre-wrap; /* Support newlines */
+  // Support newlines
+  white-space: pre-wrap;
 }
 
 .danger-warning {
@@ -153,7 +151,7 @@ defineExpose({
   padding: 10px 15px;
   border-radius: 6px;
   margin-top: 15px;
-  
+
   p {
     color: var(--danger-color, #dc3545);
     font-weight: 500;
@@ -180,13 +178,13 @@ defineExpose({
 
 .btn-danger {
   background: var(--danger-color, #dc3545);
-  color: white;
+  color: var(--btn-danger-text, white);
   border: none;
-  
+
   &:hover {
     background: var(--danger-dark, #c82333);
     transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+    box-shadow: 0 2px 8px var(--danger-shadow, rgba(220, 53, 69, 0.3));
   }
 }
 
@@ -194,12 +192,12 @@ defineExpose({
   background: var(--bg-input);
   color: var(--text-primary);
   border: 1px solid var(--border-color);
-  
+
   &:hover {
     background: var(--bg-hover);
     border-color: var(--primary-color);
     transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-sm);
   }
 }
 
@@ -207,7 +205,7 @@ defineExpose({
 .modal-fade-enter-active,
 .modal-fade-leave-active {
   transition: all 0.3s ease-out;
-  
+
   .modal-container {
     transition: all 0.3s ease-out;
   }
@@ -216,7 +214,7 @@ defineExpose({
 .modal-fade-enter-from,
 .modal-fade-leave-to {
   opacity: 0;
-  
+
   .modal-container {
     transform: scale(0.9);
     opacity: 0;
@@ -229,12 +227,12 @@ defineExpose({
     width: 90% !important;
     margin: 0 10px;
   }
-  
+
   .modal-footer {
     flex-direction: column;
     gap: 8px;
   }
-  
+
   .btn {
     width: 100%;
   }

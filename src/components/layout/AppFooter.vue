@@ -28,7 +28,8 @@
 
     <div class="footer-bottom">
       <div class="copyright">
-        <p>© {{ currentYear }} <a href="https://nexttrail.top" target="_blank" rel="noopener">nexttrail.top</a> · 保留所有权利</p>
+        <p>© {{ currentYear }} <a href="https://nexttrail.top" target="_blank" rel="noopener">nexttrail.top</a> · 保留所有权利
+        </p>
       </div>
       <div class="footer-meta">
         <span>Made with ❤️ for outdoor enthusiasts</span>
@@ -52,9 +53,10 @@ const currentYear = computed(() => new Date().getFullYear())
 .app-footer {
   background: var(--bg-card);
   border-top: var(--border-width, 1px) solid var(--border-color);
-  // margin-top: 60px;
   padding: 40px 20px 20px;
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-sm);
+  /* 模拟向上阴影 */
+  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.08);
 }
 
 .footer-content {
@@ -74,7 +76,8 @@ const currentYear = computed(() => new Date().getFullYear())
 
 .footer-logo {
   display: flex;
-  align-items: baseline; // 改为 baseline 对齐
+  // 改为 baseline 对齐
+  align-items: baseline;
   gap: 10px;
   margin-bottom: 8px;
 }
@@ -88,7 +91,8 @@ const currentYear = computed(() => new Date().getFullYear())
   font-weight: 700;
   color: var(--text-primary);
   position: relative;
-  top: 3px; // 向下微调 3px
+  // 向下微调 3px
+  top: 3px;
 }
 
 .footer-description {
@@ -170,211 +174,13 @@ const currentYear = computed(() => new Date().getFullYear())
 
 .version-tag {
   padding: 4px 10px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
   border-radius: 12px;
   font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.5px;
-}
-
-/* ========== 主题适配 ========== */
-
-/* 默认主题 */
-body.theme-default .app-footer,
-body:not([class*="theme-"]) .app-footer {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-
-  .logo-text {
-    color: #ffffff;
-  }
-
-  .footer-description {
-    color: rgba(255, 255, 255, 0.85);
-  }
-
-  .footer-title {
-    color: #ffffff;
-  }
-
-  .footer-links li a {
-    color: rgba(255, 255, 255, 0.85);
-    
-    &:hover {
-      color: #ffffff;
-      transform: translateX(4px);
-    }
-  }
-
-
-  .copyright {
-    color: rgba(255, 255, 255, 0.85);
-  }
-
-  .copyright a {
-    color: #ffffff;
-    font-weight: 700;
-    
-    &:hover {
-      opacity: 0.8;
-    }
-  }
-
-  .footer-meta {
-    color: rgba(255, 255, 255, 0.7);
-  }
-
-  .version-tag {
-    background: rgba(255, 255, 255, 0.15);
-    border-color: rgba(255, 255, 255, 0.3);
-    color: #ffffff;
-  }
-}
-
-/* 暗黑主题 */
-body.theme-dark .app-footer {
-  background: linear-gradient(135deg, #1a1d29 0%, #0f1419 100%);
-  box-shadow: 0 -4px 20px rgba(0, 217, 255, 0.1);
-
-  .footer-links li a {
-    color: var(--text-secondary);
-    
-    &:hover {
-      color: var(--primary-color);
-      text-shadow: 0 0 8px rgba(0, 217, 255, 0.3);
-    }
-  }
-
-  .copyright a {
-    color: var(--primary-color);
-    
-    &:hover {
-      text-shadow: 0 0 8px rgba(0, 217, 255, 0.4);
-      opacity: 1;
-    }
-  }
-}
-
-/* 手绘主题 */
-body.theme-paper .app-footer {
-  background: var(--bg-card);
-  border-top: 2px solid var(--border-color);
-  box-shadow: -5px -5px 0 rgba(0, 0, 0, 0.05);
-
-  .footer-links li a {
-    color: var(--text-primary);
-    
-    &:hover {
-      color: var(--secondary-color);
-      text-decoration: underline;
-      text-decoration-style: wavy;
-    }
-  }
-
-  .copyright a {
-    color: var(--secondary-color);
-    
-    &:hover {
-      opacity: 0.8;
-      text-decoration: underline;
-    }
-  }
-}
-
-/* 柔和主题 */
-body.theme-soft .app-footer {
-  background: linear-gradient(135deg, rgba(255, 158, 205, 0.05) 0%, rgba(196, 176, 255, 0.05) 100%);
-  border-top: 2px solid var(--border-color);
-
-  .footer-links li a {
-    color: var(--text-secondary);
-    
-    &:hover {
-      color: var(--primary-color);
-      transform: translateX(4px) scale(1.05);
-    }
-  }
-
-  .copyright a {
-    color: var(--primary-color);
-    
-    &:hover {
-      opacity: 0.8;
-      transform: scale(1.05);
-    }
-  }
-}
-
-/* 极简主题 */
-body.theme-minimal .app-footer {
-  background: transparent;
-  border-top: 1px solid var(--border-color);
-  box-shadow: none;
-
-  .footer-links li a {
-    color: var(--text-primary);
-    
-    &:hover {
-      color: var(--text-primary);
-      transform: none;
-      text-shadow: none;
-      text-decoration: underline;
-    }
-  }
-
-  .copyright a {
-    color: var(--primary-color);
-    
-    &:hover {
-      opacity: 0.7;
-      text-decoration: underline;
-    }
-  }
-
-  .footer-logo,
-  .footer-title {
-    &:hover {
-      transform: none;
-      text-shadow: none;
-    }
-  }
-
-  .footer-meta {
-    color: #666666;
-  }
-
-  .version-tag {
-    background: transparent;
-    border-color: #cccccc;
-    color: #666666;
-  }
-}
-
-/* 像素主题 */
-body.theme-pixel .app-footer {
-  background: var(--bg-card);
-  border-top: 2px solid var(--pixel-border-color);
-  box-shadow: 0 -4px var(--pixel-shadow-color);
-
-  .footer-links li a {
-    color: var(--text-primary);
-    
-    &:hover {
-      color: var(--primary-color);
-      transform: translate(2px, -2px);
-      text-shadow: 2px 2px var(--pixel-shadow-color);
-    }
-  }
-
-  .copyright a {
-    color: var(--primary-color);
-    
-    &:hover {
-      opacity: 1;
-      text-shadow: 2px 2px var(--pixel-shadow-color);
-      transform: translate(1px, -1px);
-    }
-  }
+  color: var(--text-secondary);
 }
 
 /* 响应式设计 */
@@ -402,4 +208,3 @@ body.theme-pixel .app-footer {
   }
 }
 </style>
-

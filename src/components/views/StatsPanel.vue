@@ -11,7 +11,8 @@
     <div class="progress-section">
       <div class="progress-bar-container">
         <div class="progress-bar" :style="{ width: completionRate + '%' }">
-          <span class="progress-text" v-if="completionRate > 10">{{ equipmentStore.completedItems }} / {{ equipmentStore.totalItems }}</span>
+          <span class="progress-text" v-if="completionRate > 10">{{ equipmentStore.completedItems }} / {{
+            equipmentStore.totalItems }}</span>
         </div>
       </div>
       <div class="progress-info">
@@ -106,12 +107,12 @@ function formatPrice(priceString) {
   // 从字符串中提取数字和单位，如 "1234.56人民币"
   const match = priceString.match(/([\d.]+)(.*)/)
   if (!match) return priceString
-  
+
   const num = parseFloat(match[1])
   const unit = match[2]
-  
+
   if (isNaN(num)) return priceString
-  
+
   // 添加千位分隔符
   const formatted = num.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')
   return '¥' + formatted
@@ -198,6 +199,7 @@ function formatPrice(priceString) {
   0% {
     left: -100%;
   }
+
   100% {
     left: 100%;
   }
@@ -263,7 +265,7 @@ function formatPrice(priceString) {
   &:hover {
     transform: translateY(-4px);
     box-shadow: var(--shadow-hover, 0 8px 24px rgba(0, 0, 0, 0.12));
-    
+
     &::before {
       left: 100%;
     }
@@ -345,7 +347,7 @@ body:not([class*="theme-"]) .stats {
     &::before {
       background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.15), transparent);
     }
-    
+
     &:hover::before {
       background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.25), transparent);
     }
@@ -354,7 +356,7 @@ body:not([class*="theme-"]) .stats {
   .stat-categories {
     background: linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%);
     border-color: rgba(102, 126, 234, 0.2);
-    
+
     &:hover {
       border-color: rgba(102, 126, 234, 0.4);
     }
@@ -363,7 +365,7 @@ body:not([class*="theme-"]) .stats {
   .stat-items {
     background: linear-gradient(135deg, rgba(17, 153, 142, 0.08) 0%, rgba(56, 239, 125, 0.08) 100%);
     border-color: rgba(17, 153, 142, 0.2);
-    
+
     &:hover {
       border-color: rgba(17, 153, 142, 0.4);
     }
@@ -372,7 +374,7 @@ body:not([class*="theme-"]) .stats {
   .stat-weight {
     background: linear-gradient(135deg, rgba(247, 159, 31, 0.08) 0%, rgba(238, 69, 64, 0.08) 100%);
     border-color: rgba(247, 159, 31, 0.2);
-    
+
     &:hover {
       border-color: rgba(247, 159, 31, 0.4);
     }
@@ -381,7 +383,7 @@ body:not([class*="theme-"]) .stats {
   .stat-price {
     background: linear-gradient(135deg, rgba(255, 215, 0, 0.12) 0%, rgba(255, 140, 0, 0.12) 100%);
     border-color: rgba(255, 215, 0, 0.3);
-    
+
     &:hover {
       border-color: rgba(255, 215, 0, 0.5);
     }
@@ -401,7 +403,7 @@ body.theme-dark .stats {
     background: linear-gradient(135deg, #00d9ff 0%, #b388ff 100%);
     box-shadow: 0 0 15px rgba(0, 217, 255, 0.5);
     animation: pulse-glow 2s ease-in-out infinite;
-    
+
     &.completed {
       background: linear-gradient(135deg, #00e676 0%, #00c853 100%);
       box-shadow: 0 0 15px rgba(0, 230, 118, 0.5);
@@ -416,7 +418,7 @@ body.theme-dark .stats {
   .progress-bar {
     background: linear-gradient(90deg, #00d9ff 0%, #b388ff 100%);
     box-shadow: 0 0 15px rgba(0, 217, 255, 0.6);
-    
+
     &::after {
       background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
     }
@@ -424,7 +426,7 @@ body.theme-dark .stats {
 
   .info-item {
     color: var(--text-primary);
-    
+
     .icon {
       text-shadow: 0 0 8px rgba(0, 217, 255, 0.3);
     }
@@ -433,15 +435,15 @@ body.theme-dark .stats {
   .stat-item {
     background: linear-gradient(135deg, #1a1d29 0%, #252a3d 100%);
     border-color: rgba(0, 217, 255, 0.2);
-    
+
     &::before {
       background: linear-gradient(90deg, transparent, rgba(0, 217, 255, 0.2), transparent);
     }
-    
+
     &:hover {
       box-shadow: 0 0 20px rgba(0, 217, 255, 0.3);
       border-color: rgba(0, 217, 255, 0.4);
-      
+
       &::before {
         background: linear-gradient(90deg, transparent, rgba(0, 217, 255, 0.3), transparent);
       }
@@ -471,7 +473,7 @@ body.theme-paper .stats {
     background: linear-gradient(135deg, #86a361 0%, #6b8a4f 100%);
     border: 2px solid var(--border-color);
     box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.1);
-    
+
     &.completed {
       background: linear-gradient(135deg, #6b8a4f 0%, #86a361 100%);
       border-color: #374427;
@@ -487,7 +489,7 @@ body.theme-paper .stats {
   .progress-bar {
     background: linear-gradient(90deg, #86a361 0%, #6b8a4f 100%);
     border-radius: 15px 255px 225px 15px / 255px 15px 15px 225px;
-    
+
     &::after {
       display: none; // 手绘风格不需要流光效果
     }
@@ -503,11 +505,11 @@ body.theme-paper .stats {
     background: var(--bg-card);
     box-shadow: 5px 5px 0 rgba(0, 0, 0, 0.1);
     border: 2px solid var(--border-color);
-    
+
     &::before {
       display: none; // 手绘风格不需要流光效果
     }
-    
+
     &:hover {
       transform: translateY(-2px) rotate(0.5deg);
       box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.15);
@@ -532,7 +534,7 @@ body.theme-paper .stats {
   .stat-price {
     background: var(--success-light);
     border-color: var(--success-color);
-    
+
     .stat-number {
       color: var(--success-text);
       background: none;
@@ -547,7 +549,7 @@ body.theme-soft .stats {
   .completion-badge {
     background: linear-gradient(135deg, #ff9ecd 0%, #c4b0ff 100%);
     box-shadow: 0 4px 12px rgba(255, 158, 205, 0.3);
-    
+
     &.completed {
       background: linear-gradient(135deg, #90d9c5 0%, #6bc9b0 100%);
       box-shadow: 0 4px 12px rgba(144, 217, 197, 0.4);
@@ -574,15 +576,15 @@ body.theme-soft .stats {
     background: var(--bg-card);
     border: 2px solid var(--border-color);
     box-shadow: 0 4px 12px rgba(255, 158, 205, 0.15);
-    
+
     &::before {
       background: linear-gradient(90deg, transparent, rgba(255, 158, 205, 0.15), transparent);
     }
-    
+
     &:hover {
       transform: translateY(-4px) scale(1.02);
       box-shadow: 0 8px 20px rgba(255, 158, 205, 0.25);
-      
+
       &::before {
         background: linear-gradient(90deg, transparent, rgba(255, 158, 205, 0.25), transparent);
       }
@@ -592,7 +594,7 @@ body.theme-soft .stats {
   .stat-categories {
     background: linear-gradient(135deg, rgba(255, 158, 205, 0.12) 0%, rgba(196, 176, 255, 0.12) 100%);
     border-color: rgba(255, 158, 205, 0.3);
-    
+
     &:hover {
       border-color: rgba(255, 158, 205, 0.5);
     }
@@ -601,7 +603,7 @@ body.theme-soft .stats {
   .stat-items {
     background: linear-gradient(135deg, rgba(144, 217, 197, 0.12) 0%, rgba(107, 201, 176, 0.12) 100%);
     border-color: rgba(144, 217, 197, 0.3);
-    
+
     &:hover {
       border-color: rgba(144, 217, 197, 0.5);
     }
@@ -610,7 +612,7 @@ body.theme-soft .stats {
   .stat-weight {
     background: linear-gradient(135deg, rgba(255, 210, 128, 0.12) 0%, rgba(255, 198, 92, 0.12) 100%);
     border-color: rgba(255, 210, 128, 0.3);
-    
+
     &:hover {
       border-color: rgba(255, 210, 128, 0.5);
     }
@@ -619,7 +621,7 @@ body.theme-soft .stats {
   .stat-price {
     background: linear-gradient(135deg, rgba(255, 210, 128, 0.15) 0%, rgba(255, 198, 92, 0.15) 100%);
     border-color: rgba(255, 210, 128, 0.4);
-    
+
     &:hover {
       border-color: rgba(255, 210, 128, 0.6);
     }
@@ -645,7 +647,7 @@ body.theme-minimal .stats {
     color: var(--primary-color);
     animation: none;
     box-shadow: none;
-    
+
     &.completed {
       background: var(--primary-color);
       color: var(--text-white);
@@ -662,7 +664,7 @@ body.theme-minimal .stats {
   .progress-bar {
     background: #000000;
     border-radius: 0;
-    
+
     &::after {
       display: none; // 极简风格不需要流光效果
     }
@@ -699,7 +701,7 @@ body.theme-minimal .stats {
   .stat-weight,
   .stat-price {
     background: transparent;
-    
+
     &:hover {
       background: rgba(0, 0, 0, 0.02);
     }
@@ -720,7 +722,7 @@ body.theme-pixel .stats {
     box-shadow: 4px 4px var(--pixel-shadow-color);
     animation: none;
     border: 2px solid var(--pixel-border-color);
-    
+
     &.completed {
       background: linear-gradient(90deg, #00a000 0%, #00c000 100%);
       box-shadow: 4px 4px #004000;
@@ -738,7 +740,7 @@ body.theme-pixel .stats {
     border-radius: 0;
     background: linear-gradient(90deg, #008080 0%, #00a0a0 50%, #008080 100%);
     box-shadow: 2px 2px var(--pixel-shadow-color);
-    
+
     &::after {
       display: none; // 像素风格不需要流光效果
     }
@@ -784,7 +786,7 @@ body.theme-pixel .stats {
   .stat-price {
     background: linear-gradient(135deg, #ffa0a0 0%, #e08080 100%);
     border-color: var(--danger-color);
-    
+
     .stat-number {
       color: var(--text-primary);
       background: none;
@@ -794,18 +796,24 @@ body.theme-pixel .stats {
 }
 
 @keyframes pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: scale(1);
   }
+
   50% {
     transform: scale(1.05);
   }
 }
 
 @keyframes pulse-glow {
-  0%, 100% {
+
+  0%,
+  100% {
     box-shadow: 0 0 15px rgba(0, 217, 255, 0.5);
   }
+
   50% {
     box-shadow: 0 0 25px rgba(0, 217, 255, 0.8);
   }
@@ -871,4 +879,3 @@ body.theme-pixel .stats {
   }
 }
 </style>
-

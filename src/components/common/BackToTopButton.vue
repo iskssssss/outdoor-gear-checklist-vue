@@ -1,11 +1,6 @@
 <template>
   <transition name="fade">
-    <button
-      v-show="showBackToTop"
-      class="back-to-top"
-      @click="scrollToTop"
-      title="回到顶部"
-    >
+    <button v-show="showBackToTop" class="back-to-top" @click="scrollToTop" title="回到顶部">
       <span class="arrow">↑</span>
     </button>
   </transition>
@@ -35,7 +30,7 @@ function handleScroll() {
   } else {
     scrollTop = scrollTarget.value?.scrollTop;
   }
-  
+
   if (props.debug) {
     console.log('[BackToTopButton Debug] Scroll Top:', scrollTop, 'Target:', scrollTarget.value)
   }
@@ -51,7 +46,7 @@ function setupScrollListener(newTarget) {
   if (scrollTarget.value) {
     scrollTarget.value.removeEventListener('scroll', handleScroll)
   }
-  
+
   scrollTarget.value = newTarget || window
   scrollTarget.value.addEventListener('scroll', handleScroll, { passive: true })
 }
@@ -69,35 +64,35 @@ onUnmounted(() => {
 
 <style scoped lang="scss">
 .back-to-top {
-  position: fixed;
-  bottom: 50px;
-  right: 50px;
-  width: 55px;
-  height: 55px;
-  background: var(--primary-color);
-  color: var(--text-white);
-  border: none;
+  /* 移除了 position, bottom, right, z-index 以便由 FAB Group 控制 */
+  width: 50px;
+  height: 50px;
+  // 使用主题变量
+  background: var(--bg-card);
+  // 使用主题变量
+  color: var(--text-primary);
+  // 添加边框以匹配 FAB 风格
+  border: 2px solid var(--border-color);
   border-radius: 50%;
   cursor: pointer;
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-md);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.6rem;
   font-weight: 700;
   transition: all 0.3s ease;
-  z-index: 100;
-  
+
   &:hover {
-    background: var(--primary-dark, var(--primary-color));
-    transform: translateY(-6px);
-    box-shadow: var(--shadow-xl);
+    // 与 FAB Group 统一的悬停效果
+    transform: scale(1.1);
+    box-shadow: var(--shadow-lg);
   }
-  
+
   &:active {
-    transform: translateY(-3px);
+    transform: scale(1.05);
   }
-  
+
   .arrow {
     line-height: 1;
   }
@@ -116,10 +111,7 @@ onUnmounted(() => {
 
 @media (max-width: 768px) {
   .back-to-top {
-    bottom: 30px;
-    right: 20px;
-    width: 50px;
-    height: 50px;
+    /* 尺寸由 fab-item 控制，此处无需额外设置 */
     font-size: 1.4rem;
   }
 }

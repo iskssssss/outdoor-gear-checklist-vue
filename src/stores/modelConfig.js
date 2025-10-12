@@ -75,7 +75,7 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
     try {
       Object.assign(settings.value, newSettings)
       localStorage.setItem(localStorageKeys.modelSettings, JSON.stringify(settings.value))
-      
+
       // toast 通知已移至 ModelConfigModal.vue
       // toast.success('模型配置保存成功')
       console.log('✅ 模型配置已保存')
@@ -196,7 +196,7 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
           .replace(/\{\{prompt\}\}/g, JSON.stringify(testPrompt).slice(1, -1))
           .replace(/\{\{max_tokens\}\}/g, maxTokens.toString())
           .replace(/\{\{temperature\}\}/g, temperature.toString())
-        
+
         requestBody = JSON.parse(template)
       } else {
         requestBody = {
@@ -224,7 +224,7 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
       if (customHeaders) {
         const customHeadersObj = JSON.parse(customHeaders)
         Object.assign(headers, customHeadersObj)
-        
+
         Object.keys(headers).forEach(key => {
           if (typeof headers[key] === 'string') {
             headers[key] = headers[key].replace('{{apiKey}}', apiKey)
@@ -253,8 +253,8 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
 
     if (!response.ok) {
       let errorMsg = `API请求失败 (${response.status} ${response.statusText})\n\n`
-      
-      switch(response.status) {
+
+      switch (response.status) {
         case 401:
           errorMsg += '认证失败 - API Key不正确或已过期'
           break
@@ -269,14 +269,14 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
             errorMsg += '\n错误详情：\n' + (typeof data.error === 'string' ? data.error : JSON.stringify(data.error, null, 2))
           }
       }
-      
+
       throw new Error(errorMsg)
     }
 
     // 解析响应内容
     let content = ''
     const { responseParser, responsePath } = settings.value
-    
+
     try {
       if (responseParser === 'custom' && responsePath) {
         const pathParts = responsePath.split('.')
@@ -294,7 +294,7 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
       } else {
         content = data.choices?.[0]?.message?.content || ''
       }
-      
+
       if (!content) {
         content = '响应解析成功，但未找到内容\n\n完整响应：\n' + JSON.stringify(data, null, 2)
       }

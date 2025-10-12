@@ -1,171 +1,112 @@
 <template>
-  <BaseModal
-    ref="modalRef"
-    title="⚙️ 模型配置"
-    width="800px"
-    max-height="90vh"
-    :close-on-overlay-click="false"
-    @close="handleClose"
-  >
-        <div class="config-tabs">
-          <button 
-            class="tab-btn" 
-            :class="{ active: activeTab === 'basic' }"
-            @click="activeTab = 'basic'"
-          >
-            基础配置
+  <BaseModal ref="modalRef" title="⚙️ 模型配置" width="800px" max-height="90vh" :close-on-overlay-click="false"
+    @close="handleClose">
+    <div class="config-tabs">
+      <button class="tab-btn" :class="{ active: activeTab === 'basic' }" @click="activeTab = 'basic'">
+        基础配置
+      </button>
+      <button class="tab-btn" :class="{ active: activeTab === 'advanced' }" @click="activeTab = 'advanced'">
+        高级配置
+      </button>
+      <button class="tab-btn" :class="{ active: activeTab === 'test' }" @click="activeTab = 'test'">
+        连接测试
+      </button>
+    </div>
+
+    <!-- 基础配置标签页 -->
+    <div v-show="activeTab === 'basic'" class="config-tab">
+      <div class="config-info">
+        <strong>💾 自动保存到本地存储</strong>
+        所有配置信息都会保存到浏览器本地缓存，刷新页面后自动恢复。
+      </div>
+      <div class="config-info warning">
+        <strong>📘 OpenAI接口规范</strong>
+        本应用遵循OpenAI标准API格式。所有API提供商（DeepSeek、OpenAI等）都应兼容OpenAI规范，使用标准的Bearer认证和messages格式。
+      </div>
+      <div class="config-section">
+        <h4>基本配置</h4>
+        <div class="setting-group">
+          <label>API URL：</label>
+          <input type="text" v-model="localSettings.apiUrl" placeholder="https://api.deepseek.com/v1">
+          <small>基础URL，系统将自动拼接 /chat/completions</small>
+        </div>
+        <div class="setting-group">
+          <label>API Key：</label>
+          <input type="password" v-model="localSettings.apiKey" placeholder="sk-xxxxxxxxxxxxxxxx">
+          <small>格式：sk-开头的密钥</small>
+        </div>
+        <div class="setting-group">
+          <label>模型名称：</label>
+          <input type="text" v-model="localSettings.modelName" placeholder="deepseek-chat">
+          <small>如：deepseek-chat, gpt-3.5-turbo等</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- 高级配置标签页 -->
+    <div v-show="activeTab === 'advanced'" class="config-tab">
+      <div class="config-section">
+        <h4>请求参数</h4>
+        <div class="setting-group">
+          <label>最大Token：</label>
+          <input type="number" v-model.number="localSettings.maxTokens" placeholder="1000" min="100" max="4000">
+        </div>
+        <div class="setting-group">
+          <label>温度：</label>
+          <input type="number" v-model.number="localSettings.temperature" placeholder="0.7" min="0" max="2" step="0.1">
+        </div>
+        <div class="setting-group">
+          <label>请求头：</label>
+          <textarea v-model="localSettings.customHeaders"
+            placeholder='{"Authorization": "Bearer your-key", "Content-Type": "application/json"}' rows="3"></textarea>
+        </div>
+        <div class="setting-group">
+          <label>请求体模板：</label>
+          <textarea v-model="localSettings.requestTemplate"
+            placeholder='{"model": "{{model}}", "messages": [{"role": "user", "content": "{{prompt}}"}], "max_tokens": {{max_tokens}}, "temperature": {{temperature}}}'
+            rows="4"></textarea>
+        </div>
+      </div>
+
+      <div class="config-section">
+        <h4>响应解析</h4>
+        <div class="setting-group">
+          <label>响应解析器：</label>
+          <select v-model="localSettings.responseParser">
+            <option value="openai">OpenAI格式</option>
+            <option value="claude">Claude格式</option>
+            <option value="custom">自定义解析</option>
+          </select>
+        </div>
+        <div class="setting-group">
+          <label>响应路径：</label>
+          <input type="text" v-model="localSettings.responsePath"
+            placeholder="choices[0].message.content 或 content[0].text">
+        </div>
+      </div>
+    </div>
+
+    <!-- 连接测试标签页 -->
+    <div v-show="activeTab === 'test'" class="config-tab">
+      <div class="config-section">
+        <h4>连接测试</h4>
+        <div class="test-area">
+          <textarea v-model="testPrompt" placeholder="输入测试提示词..." rows="3"></textarea>
+          <button class="btn btn-primary" @click="testConnection" :disabled="isTestingConnection">
+            {{ isTestingConnection ? '正在测试...' : '测试连接' }}
           </button>
-          <button 
-            class="tab-btn" 
-            :class="{ active: activeTab === 'advanced' }"
-            @click="activeTab = 'advanced'"
-          >
-            高级配置
-          </button>
-          <button 
-            class="tab-btn" 
-            :class="{ active: activeTab === 'test' }"
-            @click="activeTab = 'test'"
-          >
-            连接测试
-          </button>
+          <div v-if="testResult" class="test-result" :class="testResultType">
+            {{ testResult }}
+          </div>
         </div>
+      </div>
+    </div>
 
-        <!-- 基础配置标签页 -->
-        <div v-show="activeTab === 'basic'" class="config-tab">
-          <div class="config-info">
-            <strong>💾 自动保存到本地存储</strong>
-            所有配置信息都会保存到浏览器本地缓存，刷新页面后自动恢复。
-          </div>
-          <div class="config-info warning">
-            <strong>📘 OpenAI接口规范</strong>
-            本应用遵循OpenAI标准API格式。所有API提供商（DeepSeek、OpenAI等）都应兼容OpenAI规范，使用标准的Bearer认证和messages格式。
-          </div>
-          <div class="config-section">
-            <h4>基本配置</h4>
-            <div class="setting-group">
-              <label>API URL：</label>
-              <input 
-                type="text" 
-                v-model="localSettings.apiUrl" 
-                placeholder="https://api.deepseek.com/v1"
-              >
-              <small>基础URL，系统将自动拼接 /chat/completions</small>
-            </div>
-            <div class="setting-group">
-              <label>API Key：</label>
-              <input 
-                type="password" 
-                v-model="localSettings.apiKey" 
-                placeholder="sk-xxxxxxxxxxxxxxxx"
-              >
-              <small>格式：sk-开头的密钥</small>
-            </div>
-            <div class="setting-group">
-              <label>模型名称：</label>
-              <input 
-                type="text" 
-                v-model="localSettings.modelName" 
-                placeholder="deepseek-chat"
-              >
-              <small>如：deepseek-chat, gpt-3.5-turbo等</small>
-            </div>
-          </div>
-        </div>
-
-        <!-- 高级配置标签页 -->
-        <div v-show="activeTab === 'advanced'" class="config-tab">
-          <div class="config-section">
-            <h4>请求参数</h4>
-            <div class="setting-group">
-              <label>最大Token：</label>
-              <input 
-                type="number" 
-                v-model.number="localSettings.maxTokens" 
-                placeholder="1000" 
-                min="100" 
-                max="4000"
-              >
-            </div>
-            <div class="setting-group">
-              <label>温度：</label>
-              <input 
-                type="number" 
-                v-model.number="localSettings.temperature" 
-                placeholder="0.7" 
-                min="0" 
-                max="2" 
-                step="0.1"
-              >
-            </div>
-            <div class="setting-group">
-              <label>请求头：</label>
-              <textarea 
-                v-model="localSettings.customHeaders" 
-                placeholder='{"Authorization": "Bearer your-key", "Content-Type": "application/json"}' 
-                rows="3"
-              ></textarea>
-            </div>
-            <div class="setting-group">
-              <label>请求体模板：</label>
-              <textarea 
-                v-model="localSettings.requestTemplate" 
-                placeholder='{"model": "{{model}}", "messages": [{"role": "user", "content": "{{prompt}}"}], "max_tokens": {{max_tokens}}, "temperature": {{temperature}}}' 
-                rows="4"
-              ></textarea>
-            </div>
-          </div>
-          
-          <div class="config-section">
-            <h4>响应解析</h4>
-            <div class="setting-group">
-              <label>响应解析器：</label>
-              <select v-model="localSettings.responseParser">
-                <option value="openai">OpenAI格式</option>
-                <option value="claude">Claude格式</option>
-                <option value="custom">自定义解析</option>
-              </select>
-            </div>
-            <div class="setting-group">
-              <label>响应路径：</label>
-              <input 
-                type="text" 
-                v-model="localSettings.responsePath" 
-                placeholder="choices[0].message.content 或 content[0].text"
-              >
-            </div>
-          </div>
-        </div>
-
-        <!-- 连接测试标签页 -->
-        <div v-show="activeTab === 'test'" class="config-tab">
-          <div class="config-section">
-            <h4>连接测试</h4>
-            <div class="test-area">
-              <textarea 
-                v-model="testPrompt" 
-                placeholder="输入测试提示词..." 
-                rows="3"
-              ></textarea>
-              <button 
-                class="btn btn-primary" 
-                @click="testConnection"
-                :disabled="isTestingConnection"
-              >
-                {{ isTestingConnection ? '正在测试...' : '测试连接' }}
-              </button>
-              <div v-if="testResult" class="test-result" :class="testResultType">
-                {{ testResult }}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="config-actions">
-          <button class="btn btn-primary" @click="saveConfig" :disabled="!isChanged || isLoading">保存配置</button>
-          <button class="btn btn-secondary" @click="resetConfig" :disabled="!isChanged || isLoading">重置配置</button>
-          <button class="btn btn-secondary" @click="close">取消</button>
-        </div>
+    <div class="config-actions">
+      <button class="btn btn-primary" @click="saveConfig" :disabled="!isChanged || isLoading">保存配置</button>
+      <button class="btn btn-secondary" @click="resetConfig" :disabled="!isChanged || isLoading">重置配置</button>
+      <button class="btn btn-secondary" @click="close">取消</button>
+    </div>
   </BaseModal>
 </template>
 
@@ -186,7 +127,7 @@ const localPreferences = ref({});
 
 const isChanged = computed(() => {
   return JSON.stringify(localSettings.value) !== JSON.stringify(modelConfigStore.settings) ||
-         JSON.stringify(localPreferences.value) !== JSON.stringify(modelConfigStore.recommendationPreferences)
+    JSON.stringify(localPreferences.value) !== JSON.stringify(modelConfigStore.recommendationPreferences)
 });
 
 function show() {
@@ -207,7 +148,7 @@ function saveConfig() {
   modelConfigStore.saveSettings(localSettings.value);
   modelConfigStore.savePreferences(localPreferences.value);
   toast?.success('模型配置和偏好设置已保存');
-  
+
   setTimeout(() => {
     close();
   }, 300);
@@ -216,7 +157,8 @@ function saveConfig() {
 function resetConfig() {
   localSettings.value = { ...modelConfigStore.defaultSettings };
   localPreferences.value = { ...modelConfigStore.defaultRecommendationPreferences };
-  toast?.info('本地配置已重置为默认值'); // 添加重置后的提示
+  // 添加重置后的提示
+  toast?.info('本地配置已重置为默认值');
 }
 
 async function testConnection() {
@@ -234,12 +176,12 @@ async function testConnection() {
     // 临时应用当前设置
     const tempSettings = { ...modelConfigStore.settings };
     const currentSettings = { ...localSettings.value };
-    
+
     const result = await modelConfigStore.testConnection(testPrompt.value, currentSettings);
-    
+
     testResultType.value = 'success';
     testResult.value = `✅ 连接成功！\n\n🤖 模型响应：\n${result.content}\n\n━━━━━━━━━━━━━━━━━━\n📊 请求信息：\n• 基础URL: ${currentSettings.apiUrl}\n• 完整URL: ${result.apiUrl}\n• 模型: ${result.modelName}\n• 温度: ${result.temperature}\n• Max Tokens: ${result.maxTokens}`;
-    
+
     Object.assign(modelConfigStore.settings, tempSettings);
   } catch (err) {
     testResultType.value = 'error'
@@ -339,7 +281,7 @@ defineExpose({ show, close })
 .setting-group textarea:focus {
   outline: none;
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  box-shadow: 0 0 0 3px var(--primary-color-shadow, rgba(102, 126, 234, 0.1));
 }
 
 .setting-group small {
@@ -424,18 +366,17 @@ defineExpose({ show, close })
 
 .btn:not(:disabled):hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  box-shadow: var(--shadow-md);
 }
 
 @media (max-width: 768px) {
   .config-tabs {
     flex-wrap: wrap;
   }
-  
+
   .tab-btn {
     flex: 1;
     min-width: 100px;
   }
 }
 </style>
-

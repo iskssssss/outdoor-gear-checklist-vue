@@ -1,68 +1,32 @@
 <template>
   <div class="category" :class="{ collapsed: category.collapsed, 'waterfall-mode': layoutMode === 'waterfall' }">
     <div class="category-header">
-      <button 
-        class="category-collapse-btn" 
-        @click="debouncedToggleCollapse"
-        :title="category.collapsed ? '展开' : '收起'"
-      >
+      <button class="category-collapse-btn" @click="debouncedToggleCollapse" :title="category.collapsed ? '展开' : '收起'">
         {{ category.collapsed ? '▶' : '▼' }}
       </button>
-      
-      <div 
-        v-if="!isEditingName" 
-        class="category-title" 
-        @click="debouncedStartEditName"
-        title="点击编辑分类名称"
-      >
-        <span 
-          class="category-icon" 
-          :class="{ 'is-editing-icon': isEditingIcon }"
-          @click.stop="debouncedStartEditIcon"
-          :title="isEditingIcon ? '保存或取消图标编辑' : '点击编辑图标'"
-        >
+
+      <div v-if="!isEditingName" class="category-title" @click="debouncedStartEditName" title="点击编辑分类名称">
+        <span class="category-icon" :class="{ 'is-editing-icon': isEditingIcon }" @click.stop="debouncedStartEditIcon"
+          :title="isEditingIcon ? '保存或取消图标编辑' : '点击编辑图标'">
           {{ category.icon || '✨' }}
         </span>
-        <input 
-          v-if="isEditingIcon"
-          ref="iconInput"
-          v-model="editingIcon"
-          class="category-icon-input"
-          @blur="debouncedSaveEditIcon"
-          @keypress.enter="debouncedSaveEditIcon"
-          @keypress.esc="debouncedCancelEditIcon"
-          @click.stop
-          placeholder="输入图标"
-          :style="{ width: `${editingIcon.length + 2}ch` }"
-        >
+        <input v-if="isEditingIcon" ref="iconInput" v-model="editingIcon" class="category-icon-input"
+          @blur="debouncedSaveEditIcon" @keypress.enter="debouncedSaveEditIcon" @keypress.esc="debouncedCancelEditIcon"
+          @click.stop placeholder="输入图标" :style="{ width: `${editingIcon.length + 2}ch` }">
         <span v-else class="category-name-display">{{ category.name }}</span>
       </div>
-      <div 
-        v-else
-        class="category-name-edit-group" 
-      >
+      <div v-else class="category-name-edit-group">
         <span class="category-icon edit-icon">{{ category.icon || '✨' }}</span>
-        <input 
-          ref="nameInput"
-          v-model="editingName"
-          class="category-name-input"
-          @blur="debouncedSaveEditName"
-          @keypress.enter="debouncedSaveEditName"
-          @keypress.esc="debouncedCancelEditName"
-          @click.stop
-        >
+        <input ref="nameInput" v-model="editingName" class="category-name-input" @blur="debouncedSaveEditName"
+          @keypress.enter="debouncedSaveEditName" @keypress.esc="debouncedCancelEditName" @click.stop>
       </div>
-      
+
       <div class="category-actions" v-if="!isEditingName && !isEditingIcon">
         <div class="category-dropdown">
           <button class="category-menu-btn">⋯</button>
           <div class="category-menu">
             <a class="category-menu-item" @click="debouncedStartEditName">✏️ 编辑名称</a>
-            <a 
-              v-if="category.items.length > 0" 
-              class="category-menu-item" 
-              @click="debouncedReindexItems"
-            >
+            <a v-if="category.items.length > 0" class="category-menu-item" @click="debouncedReindexItems">
               🔢 重新编码
             </a>
             <a class="category-menu-item danger" @click="debouncedDeleteCategory">🗑️ 删除分类</a>
@@ -80,14 +44,8 @@
             <div v-if="pendingItems.length > 0" class="items-section">
               <div class="section-title">📋 待准备</div>
               <div class="items-container">
-                <EquipmentItem
-                  v-for="item in pendingItems"
-                  :key="item.id"
-                  :item="item"
-                  :category-id="category.id"
-                  :item-index="item.index"
-                  @save="handleEditItem"
-                />
+                <EquipmentItem v-for="item in pendingItems" :key="item.id" :item="item" :category-id="category.id"
+                  :item-index="item.index" @save="handleEditItem" />
               </div>
             </div>
 
@@ -95,15 +53,8 @@
             <div v-if="completedItems.length > 0" class="items-section">
               <div class="section-title">✅ 已准备</div>
               <div class="items-container">
-                <EquipmentItem
-                  v-for="item in completedItems"
-                  :key="item.id"
-                  :item="item"
-                  :category-id="category.id"
-                  :item-index="item.index"
-                  completed
-                  @save="handleEditItem"
-                />
+                <EquipmentItem v-for="item in completedItems" :key="item.id" :item="item" :category-id="category.id"
+                  :item-index="item.index" completed @save="handleEditItem" />
               </div>
             </div>
           </template>
@@ -112,15 +63,8 @@
           <template v-else>
             <div class="items-section">
               <div class="items-container">
-                <EquipmentItem
-                  v-for="item in category.items"
-                  :key="item.id"
-                  :item="item"
-                  :category-id="category.id"
-                  :item-index="item.index"
-                  :completed="item.completed"
-                  @save="handleEditItem"
-                />
+                <EquipmentItem v-for="item in category.items" :key="item.id" :item="item" :category-id="category.id"
+                  :item-index="item.index" :completed="item.completed" @save="handleEditItem" />
               </div>
             </div>
           </template>
@@ -131,13 +75,8 @@
           <div v-if="!isAddingItem" class="add-item-button-container">
             <button class="add-item-button" @click="debouncedShowAddItemInput">+ 添加装备</button>
           </div>
-          <EquipmentItem
-            v-else
-            :category-id="category.id"
-            :is-adding="true"
-            @save="handleAddItem"
-            @cancel="cancelAddItem"
-          />
+          <EquipmentItem v-else :category-id="category.id" :is-adding="true" @save="handleAddItem"
+            @cancel="cancelAddItem" />
         </div>
       </div>
     </div>
@@ -163,7 +102,8 @@ const props = defineProps({
 
 const equipmentStore = useEquipmentStore()
 const toast = inject('toast')
-const showConfirm = inject('showConfirm') // 注入全局确认框方法
+// 注入全局确认框方法
+const showConfirm = inject('showConfirm')
 
 // 监听分类数据变化，检查数据完整性
 watch(() => props.category.items, (newItems) => {
@@ -171,7 +111,7 @@ watch(() => props.category.items, (newItems) => {
   const ids = newItems.map(i => i.id)
   const uniqueIds = new Set(ids)
   if (ids.length !== uniqueIds.size) {
-    console.error(`❌ 分类"${props.category.name}"发现重复的装备ID!`, 
+    console.error(`❌ 分类"${props.category.name}"发现重复的装备ID!`,
       '请点击"重编码"按钮修复。', ids)
   }
 }, { deep: true })
@@ -196,11 +136,11 @@ const newItem = ref({
 const itemNameInput = ref(null)
 
 // 计算属性：待准备和已完成的装备
-const pendingItems = computed(() => 
+const pendingItems = computed(() =>
   props.category.items.filter(item => !item.completed)
 )
 
-const completedItems = computed(() => 
+const completedItems = computed(() =>
   props.category.items.filter(item => item.completed)
 )
 
@@ -269,11 +209,11 @@ async function reindexItems() {
   if (confirmed) {
     // 先修复重复ID（如果有）
     const fixedCount = equipmentStore.fixDuplicateIds(props.category.id)
-    
+
     // 再重新编码序号
     equipmentStore.reindexCategory(props.category.id)
     equipmentStore.saveData()
-    
+
     if (fixedCount > 0) {
       toast?.success(`重编码完成！同时修复了 ${fixedCount} 个重复的装备ID`)
     } else {
@@ -308,9 +248,11 @@ function saveEditIcon() {
     } else {
       console.log('Icon not changed, no store update needed.');
     }
-    
-    isEditingIcon.value = false; // 无论是否修改，都退出编辑状态
-    editingIcon.value = ''; // 强制清除输入框内容
+
+    // 无论是否修改，都退出编辑状态
+    isEditingIcon.value = false;
+    // 强制清除输入框内容
+    editingIcon.value = '';
     console.log('saveEditIcon finished.', { isEditingIconAfter: isEditingIcon.value, editingIconAfter: editingIcon.value });
   }
 }
@@ -321,7 +263,8 @@ function saveEditIcon() {
 function cancelEditIcon() {
   console.log('cancelEditIcon triggered.', { isEditingIconBefore: isEditingIcon.value, editingIconValue: editingIcon.value });
   isEditingIcon.value = false;
-  editingIcon.value = ''; // 强制清除输入框内容
+  // 强制清除输入框内容
+  editingIcon.value = '';
   console.log('cancelEditIcon finished.', { isEditingIconAfter: isEditingIcon.value, editingIconAfter: editingIcon.value });
 }
 
@@ -331,7 +274,8 @@ function cancelEditIcon() {
 function showAddItemInput() {
   isAddingItem.value = true
   nextTick(() => {
-    // itemNameInput.value?.focus() // EquipmentItem will handle focus
+    // EquipmentItem will handle focus
+    // itemNameInput.value?.focus() 
   })
 }
 
@@ -358,7 +302,8 @@ function handleEditItem(updatedItem) {
  */
 function cancelAddItem() {
   isAddingItem.value = false
-  // newItem.value = { // EquipmentItem will handle its own reset
+  // EquipmentItem will handle its own reset
+  // newItem.value = { 
   //   name: '',
   //   quantity: 1,
   //   quantityUnit: '个',
@@ -381,18 +326,22 @@ const debouncedShowAddItemInput = debounce(showAddItemInput, 300)
 
 <style scoped lang="scss">
 .category {
+  // 为伪元素提供定位上下文
+  position: relative;
   background: var(--bg-card);
   border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  box-shadow: var(--shadow-sm);
   overflow: hidden;
   transition: max-height 0.5s ease, box-shadow 0.3s ease;
-  max-height: 2000px; /* 默认展开的最大高度，足够容纳大量装备 */
+  // 默认展开的最大高度，足够容纳大量装备
+  max-height: 2000px;
 }
 
 .category.collapsed {
   /* 收起时使用更快的动画 */
   transition: max-height 0.3s ease, box-shadow 0.3s ease;
-  max-height: 95px; /* 折叠时只显示标题栏 */
+  // 折叠时只显示标题栏
+  max-height: 95px;
 }
 
 /* 瀑布流模式下禁用所有动画，避免干扰布局计算 */
@@ -404,8 +353,23 @@ const debouncedShowAddItemInput = debounce(showAddItemInput, 300)
   transition: none !important;
 }
 
+/* 纸张主题下的特殊伪元素效果 */
+body.theme-paper .category::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  border: 2px solid var(--border-light);
+  border-radius: inherit;
+  transform: rotate(-0.5deg);
+  pointer-events: none;
+  opacity: 0.3;
+}
+
 .category:hover {
-  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+  box-shadow: var(--shadow-md);
 }
 
 .category-header {
@@ -413,13 +377,14 @@ const debouncedShowAddItemInput = debounce(showAddItemInput, 300)
   align-items: center;
   gap: 10px;
   padding: 16px;
-  flex-wrap: nowrap; /* 确保不换行 */
+  // 确保不换行
+  flex-wrap: nowrap;
 }
 
 .category-collapse-btn {
-  background: var(--bg-button-overlay, rgba(255,255,255,0.2));
-  border: none;
-  color: var(--text-white, white);
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
   width: 32px;
   height: 32px;
   border-radius: 6px;
@@ -433,7 +398,7 @@ const debouncedShowAddItemInput = debounce(showAddItemInput, 300)
 }
 
 .category-collapse-btn:hover {
-  background: var(--bg-button-overlay-hover, rgba(255,255,255,0.3));
+  background: var(--bg-hover);
   transform: scale(1.1);
 }
 
@@ -450,18 +415,22 @@ const debouncedShowAddItemInput = debounce(showAddItemInput, 300)
   padding: 5px 10px;
   border-radius: 6px;
   transition: background 0.3s ease;
-  display: flex; /* 让图标和文本在一行 */
+  // 让图标和文本在一行
+  display: flex;
   align-items: center;
-  gap: 8px; /* 图标与文本间距 */
+  // 图标与文本间距
+  gap: 8px;
 }
 
 .category-title:hover {
-  background: var(--bg-hover, rgba(255,255,255,0.1));
+  background: var(--bg-hover, rgba(255, 255, 255, 0.1));
 }
 
 .category-name-input {
-  flex: 1 1 auto; /* 允许收缩，但至少保持内容宽度 */
-  min-width: 0;   /* 允许在必要时收缩到0 */
+  // 允许收缩，但至少保持内容宽度
+  flex: 1 1 auto;
+  // 允许在必要时收缩到0
+  min-width: 0;
   padding: 8px 12px;
   border: 2px solid var(--border-color);
   border-radius: 8px;
@@ -474,7 +443,7 @@ const debouncedShowAddItemInput = debounce(showAddItemInput, 300)
 .category-name-input:focus {
   outline: none;
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  box-shadow: 0 0 0 3px var(--primary-color-shadow, rgba(102, 126, 234, 0.1));
 }
 
 .category-actions {
@@ -485,7 +454,7 @@ const debouncedShowAddItemInput = debounce(showAddItemInput, 300)
 .category-dropdown {
   position: relative;
   display: inline-block;
-  
+
   /* 扩展hover区域，确保鼠标在按钮和菜单之间移动时不会断开 */
   &::after {
     content: '';
@@ -493,7 +462,8 @@ const debouncedShowAddItemInput = debounce(showAddItemInput, 300)
     top: 100%;
     left: 0;
     right: 0;
-    height: 10px; /* 扩展10px的hover区域 */
+    // 扩展10px的hover区域
+    height: 10px;
     background: transparent;
   }
 }
@@ -521,15 +491,17 @@ const debouncedShowAddItemInput = debounce(showAddItemInput, 300)
   position: absolute;
   right: 0;
   top: 100%;
-  margin-top: 0; /* 无间隙，直接连接 */
+  // 无间隙，直接连接
+  margin-top: 0;
   background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-lg);
   min-width: 150px;
   z-index: 100;
   overflow: hidden;
-  padding-top: 4px; /* 顶部留一点呼吸空间 */
+  // 顶部留一点呼吸空间
+  padding-top: 4px;
 }
 
 .category-dropdown:hover .category-menu,
@@ -547,17 +519,17 @@ const debouncedShowAddItemInput = debounce(showAddItemInput, 300)
   transition: all 0.2s ease;
   font-size: 0.9rem;
   white-space: nowrap;
-  
+
   &:hover {
     background: var(--bg-hover);
     color: var(--primary-color);
   }
-  
+
   &.danger {
     color: var(--danger-color, #dc3545);
-    
+
     &:hover {
-      background: rgba(220, 53, 69, 0.1);
+      background: var(--danger-light, rgba(220, 53, 69, 0.1));
       color: var(--danger-color, #dc3545);
     }
   }
@@ -568,6 +540,7 @@ const debouncedShowAddItemInput = debounce(showAddItemInput, 300)
     opacity: 0;
     transform: translateY(-8px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -577,12 +550,14 @@ const debouncedShowAddItemInput = debounce(showAddItemInput, 300)
 .category-content {
   padding: 16px;
   opacity: 1;
-  transition: opacity 0.4s ease 0.1s; /* 延迟0.1s开始淡入，持续0.4s */
+  // 延迟0.1s开始淡入，持续0.4s
+  transition: opacity 0.4s ease 0.1s;
 }
 
 .category.collapsed .category-content {
   opacity: 0;
-  transition: opacity 0.2s ease; /* 收起时快速淡出 */
+  // 收起时快速淡出
+  transition: opacity 0.2s ease;
 }
 
 .items-section {
@@ -656,15 +631,19 @@ const debouncedShowAddItemInput = debounce(showAddItemInput, 300)
 .category-name-edit-group {
   flex: 1 1 auto;
   min-width: 0;
-  display: flex; /* 让图标和输入框在一行 */
+  // 让图标和输入框在一行
+  display: flex;
   align-items: center;
-  gap: 8px; /* 图标与输入框间距 */
+  // 图标与输入框间距
+  gap: 8px;
 }
 
 .category-icon {
   font-size: 1.2rem;
-  line-height: 1; /* 确保图标垂直居中 */
-  cursor: pointer; /* 默认可点击，之后添加编辑功能 */
+  // 确保图标垂直居中
+  line-height: 1;
+  // 默认可点击，之后添加编辑功能
+  cursor: pointer;
   transition: transform 0.2s ease;
 }
 
@@ -673,11 +652,13 @@ const debouncedShowAddItemInput = debounce(showAddItemInput, 300)
 }
 
 .category-icon.edit-icon {
-  cursor: default; /* 编辑模式下图标不可点击 */
+  // 编辑模式下图标不可点击
+  cursor: default;
 }
 
 .category-icon.is-editing-icon {
-  cursor: text; /* 编辑模式下图标可点击 */
+  // 编辑模式下图标可点击
+  cursor: text;
 }
 
 .category-name-display {
@@ -703,7 +684,6 @@ const debouncedShowAddItemInput = debounce(showAddItemInput, 300)
 .category-icon-input:focus {
   outline: none;
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  box-shadow: 0 0 0 3px var(--primary-color-shadow, rgba(102, 126, 234, 0.1));
 }
 </style>
-

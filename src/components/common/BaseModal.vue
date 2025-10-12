@@ -144,15 +144,16 @@ async function attemptClose() {
   if (props.beforeClose) {
     try {
       const canClose = await props.beforeClose()
-      if (!canClose) {
-        return // 如果 beforeClose 返回 false，则阻止关闭
+      if (canClose === false) {
+        return;
       }
     } catch (e) {
-      console.error("`beforeClose` hook failed:", e)
-      return // a hook error should prevent closing
+      console.error("`beforeClose` hook failed:", e);
+      // a hook error should prevent closing
+      return;
     }
   }
-  close()
+  close();
 }
 
 /**
@@ -204,7 +205,7 @@ defineExpose({
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: var(--modal-overlay-bg, rgba(0, 0, 0, 0.5));
+  background-color: var(--bg-overlay, rgba(0, 0, 0, 0.5));
   backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
@@ -216,7 +217,7 @@ defineExpose({
 .base-modal-content {
   background: var(--bg-card);
   border-radius: 12px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-xl);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -268,11 +269,11 @@ defineExpose({
   flex: 1;
   min-height: 0;
   display: flex;
-  /* 新增：使用Flexbox布局 */
+  // 新增：使用Flexbox布局
   flex-direction: column;
-  /* 新增：垂直堆叠子元素 */
+  // 新增：垂直堆叠子元素
   gap: 20px;
-  /* 新增：子元素之间的间距 */
+  // 新增：子元素之间的间距
 }
 
 .base-modal-body.no-inner-scroll {

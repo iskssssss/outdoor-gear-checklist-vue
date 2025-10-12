@@ -3,7 +3,7 @@
     <div class="export-header">
       <h1>🏔️ 户外装备清单</h1>
     </div>
-    
+
     <!-- 装备统计 -->
     <div class="export-stats">
       <div class="stats-grid">
@@ -33,22 +33,14 @@
         </div>
       </div>
     </div>
-    
+
     <div class="export-body">
-      <div 
-        class="categories-grid" 
-        v-if="validCategories.length > 0"
-        :class="{
-          'grid-cols-1': gridColumns === 1,
-          'grid-cols-2': gridColumns === 2,
-          'grid-cols-3': gridColumns === 3
-        }"
-      >
-        <div 
-          v-for="category in validCategories" 
-          :key="category.id" 
-          class="category"
-        >
+      <div class="categories-grid" v-if="validCategories.length > 0" :class="{
+        'grid-cols-1': gridColumns === 1,
+        'grid-cols-2': gridColumns === 2,
+        'grid-cols-3': gridColumns === 3
+      }">
+        <div v-for="category in validCategories" :key="category.id" class="category">
           <div class="category-header">
             <div class="category-title">
               <span class="category-icon-export">{{ category.icon || '✨' }}</span>
@@ -57,12 +49,7 @@
           </div>
           <div class="category-content">
             <div class="items-list">
-              <div 
-                v-for="item in category.items" 
-                :key="item.id" 
-                class="item"
-                :class="{ completed: item.completed }"
-              >
+              <div v-for="item in category.items" :key="item.id" class="item" :class="{ completed: item.completed }">
                 <div class="item-status">
                   {{ item.completed ? '✅' : '⭕' }}
                 </div>
@@ -77,7 +64,8 @@
                   <span v-if="item.notes && item.notes.trim()" class="item-notes">
                     📝 {{ item.notes }}
                   </span>
-                  <span v-if="item.priority && item.priority !== 'medium'" class="item-priority" :class="`priority-${item.priority}`">
+                  <span v-if="item.priority && item.priority !== 'medium'" class="item-priority"
+                    :class="`priority-${item.priority}`">
                     {{ getPriorityLabel(item.priority) }}
                   </span>
                 </div>
@@ -125,10 +113,10 @@ const validCategories = computed(() => {
     return []
   }
   return props.categories.filter(category => {
-    return category && 
-           category.items && 
-           Array.isArray(category.items) && 
-           category.items.length > 0
+    return category &&
+      category.items &&
+      Array.isArray(category.items) &&
+      category.items.length > 0
   })
 })
 
@@ -158,7 +146,8 @@ defineExpose({
 </script>
 
 <style scoped lang="scss">
-@use "../../assets/styles/_mixins" as *; /* 引入mixin */
+@use "../../assets/styles/_mixins" as *;
+/* 引入mixin */
 
 .export-preview {
   font-family: var(--font-family-base, 'PingFang SC', 'Microsoft YaHei', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
@@ -168,7 +157,8 @@ defineExpose({
   background-color: var(--bg-card);
   display: flex;
   flex-direction: column;
-  align-items: center; /* 居中内容 */
+  align-items: center;
+  /* 居中内容 */
   /* text-align: center; 移除全局文本居中 */
   box-sizing: border-box;
 }
@@ -179,7 +169,7 @@ defineExpose({
   margin-bottom: 40px;
   padding-bottom: 20px;
   border-bottom: 2px solid var(--border-color);
-  
+
   h1 {
     font-family: var(--font-family-heading, 'PingFang SC', 'Microsoft YaHei');
     font-size: 2.2rem;
@@ -209,7 +199,7 @@ defineExpose({
   border-radius: var(--border-radius, 8px);
   color: var(--text-white);
   box-shadow: var(--shadow-card);
-  
+
   /* 极简主题特殊样式 */
   body.theme-minimal & {
     background: transparent;
@@ -229,7 +219,7 @@ defineExpose({
 .stat-label {
   font-size: 0.85rem;
   opacity: 0.9;
-  
+
   body.theme-minimal & {
     opacity: 0.6;
   }
@@ -239,7 +229,8 @@ defineExpose({
   display: flex;
   flex-direction: column;
   width: 100%;
-  align-items: center; /* 居中内容 */
+  align-items: center;
+  /* 居中内容 */
   margin-top: 20px;
 }
 
@@ -266,11 +257,11 @@ defineExpose({
 .category {
   background: var(--bg-card);
   border-radius: var(--border-radius, 12px);
-  box-shadow: var(--shadow-card, 0 2px 10px rgba(0,0,0,0.1));
+  box-shadow: var(--shadow-card, 0 2px 10px rgba(0, 0, 0, 0.1));
   overflow: hidden;
   border: var(--border-width, 1px) solid var(--border-color, transparent);
   margin-bottom: 20px;
-  
+
   /* 主题特定样式 - 纸张主题 */
   body.theme-paper & {
     @include paper-shadow;
@@ -286,17 +277,20 @@ defineExpose({
   background: var(--bg-gradient, linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%));
   color: var(--text-white);
   margin-bottom: 12px;
+
   /* 主题特定样式 */
   body.theme-dark & {
     background: linear-gradient(135deg, #1a1d29 0%, #0f1419 100%);
     color: var(--text-primary);
   }
+
   body.theme-pixel & {
     background: var(--primary-color);
     color: var(--text-white);
     border: var(--pixel-size, 2px) solid var(--pixel-border-color, #202020);
     box-shadow: var(--pixel-size, 2px) var(--pixel-size, 2px) var(--pixel-shadow-color, #101010);
   }
+
   body.theme-paper & {
     background: var(--success-color);
     color: var(--text-white);
@@ -308,16 +302,20 @@ defineExpose({
   flex: 1;
   font-size: 1.1rem;
   font-weight: 600;
-  display: flex; /* 确保图标和文本在一行 */
+  display: flex;
+  /* 确保图标和文本在一行 */
   align-items: center;
-  gap: 10px; /* 图标与文本的间距 */
+  gap: 10px;
+  /* 图标与文本的间距 */
   letter-spacing: 0.3px;
 }
 
 .category-icon-export {
-  font-size: 1.1rem; /* 调整图标大小 */
+  font-size: 1.1rem;
+  /* 调整图标大小 */
   line-height: 1;
-  flex-shrink: 0; /* 防止图标被挤压 */
+  flex-shrink: 0;
+  /* 防止图标被挤压 */
 }
 
 .category-content {
@@ -348,10 +346,12 @@ defineExpose({
   body.theme-dark & {
     border: 1px solid var(--border-color);
   }
+
   body.theme-pixel & {
     border: var(--pixel-size, 2px) solid var(--border-color);
     border-radius: var(--border-radius);
   }
+
   body.theme-paper & {
     border: 1px solid var(--border-light);
   }
@@ -369,8 +369,10 @@ defineExpose({
   flex: 1;
   display: flex;
   flex-direction: column;
-  align-items: flex-start; /* 装备项内容左对齐 */
-  text-align: left; /* 确保文本左对齐 */
+  align-items: flex-start;
+  /* 装备项内容左对齐 */
+  text-align: left;
+  /* 确保文本左对齐 */
   gap: 4px;
 }
 
@@ -409,13 +411,13 @@ defineExpose({
   border-radius: 4px;
   margin-top: 4px;
   font-weight: 500;
-  
+
   &.priority-high {
     background: rgba(255, 107, 107, 0.15);
     color: var(--danger-color, #dc3545);
     border: 1px solid rgba(255, 107, 107, 0.3);
   }
-  
+
   &.priority-low {
     background: rgba(102, 126, 234, 0.1);
     color: var(--primary-color, #667eea);
@@ -434,4 +436,3 @@ defineExpose({
   border: 1px dashed var(--border-color);
 }
 </style>
-

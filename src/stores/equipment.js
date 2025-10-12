@@ -16,25 +16,25 @@ export const useEquipmentStore = defineStore('equipment', () => {
 
   // Getters - 统计信息
   const totalCategories = computed(() => categories.value.length)
-  
-  const totalItems = computed(() => 
+
+  const totalItems = computed(() =>
     categories.value.reduce((sum, cat) => sum + cat.items.length, 0)
   )
-  
-  const completedItems = computed(() => 
-    categories.value.reduce((sum, cat) => 
+
+  const completedItems = computed(() =>
+    categories.value.reduce((sum, cat) =>
       sum + cat.items.filter(item => item.completed).length, 0
     )
   )
-  
+
   const remainingItems = computed(() => totalItems.value - completedItems.value)
-  
+
   const totalWeight = computed(() => {
-    const weightInGrams = categories.value.reduce((sum, cat) => 
+    const weightInGrams = categories.value.reduce((sum, cat) =>
       sum + cat.items.reduce((itemSum, item) => {
         let weightInGrams = item.weight
         // 单位转换
-        switch(item.weightUnit) {
+        switch (item.weightUnit) {
           case 'kg': weightInGrams = item.weight * 1000; break
           case '斤': weightInGrams = item.weight * 500; break
           case '磅': weightInGrams = item.weight * 453.592; break
@@ -47,11 +47,11 @@ export const useEquipmentStore = defineStore('equipment', () => {
   })
 
   const totalPrice = computed(() => {
-    const priceInYuan = categories.value.reduce((sum, cat) => 
+    const priceInYuan = categories.value.reduce((sum, cat) =>
       sum + cat.items.reduce((itemSum, item) => {
         let priceInYuan = item.price || 0
         // 单位转换到人民币
-        switch(item.priceUnit) {
+        switch (item.priceUnit) {
           case '美元': priceInYuan = (item.price || 0) * 7; break // 简单汇率转换
           case '英镑': priceInYuan = (item.price || 0) * 9; break
           case '日元': priceInYuan = (item.price || 0) * 0.05; break
@@ -72,9 +72,9 @@ export const useEquipmentStore = defineStore('equipment', () => {
     if (data) {
       try {
         categories.value = JSON.parse(data)
-        
+
         let needsReindex = false
-        
+
         // 确保导入时 icon 属性存在，并检查序号，补充默认价格单位
         categories.value = categories.value.map(cat => {
           const items = cat.items.map((item, index) => {
@@ -92,14 +92,14 @@ export const useEquipmentStore = defineStore('equipment', () => {
             }
             return updatedItem
           })
-          
+
           return {
             ...cat,
             icon: cat.icon || '✨',
             items
           }
         })
-        
+
         // 如果有装备没有序号，重新编码并保存
         if (needsReindex) {
           console.log('🔢 检测到装备缺少序号，正在重新编码...')
@@ -108,18 +108,18 @@ export const useEquipmentStore = defineStore('equipment', () => {
           })
           saveData()
         }
-        
+
         // 检查并修复重复的装备ID
         let totalFixed = 0
         categories.value.forEach(cat => {
           const fixed = fixDuplicateIds(cat.id)
           totalFixed += fixed
         })
-        
+
         if (totalFixed > 0) {
           console.warn(`⚠️ 总共修复了 ${totalFixed} 个重复的装备ID`)
         }
-        
+
         console.log('✅ 数据已从缓存加载', {
           分类数: categories.value.length,
           装备总数: totalItems.value,
@@ -142,7 +142,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
    * 初始化预设分类
    */
   function initializeDefaultCategories() {
-    
+
     categories.value = defaultCategories.map((cat, index) => ({
       id: Date.now() + index,
       name: cat.name,
@@ -150,9 +150,9 @@ export const useEquipmentStore = defineStore('equipment', () => {
       items: [],
       collapsed: false
     }))
-    
+
     saveData()
-    
+
     const logStore = useOperationLogStore()
     logStore.log('add', '初始化了8个预设分类', {
       categories: defaultCategories.map(cat => cat.name).join('、')
@@ -182,7 +182,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
   function syncData() {
     const currentData = JSON.stringify(categories.value)
     const savedData = localStorage.getItem(localStorageKeys.equipmentChecklist)
-    
+
     if (savedData && currentData !== savedData) {
       console.log('🔄 检测到数据变化，重新加载...')
       loadData()
@@ -222,7 +222,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
 
     const logStore = useOperationLogStore()
     logStore.log('add', `添加了分类：${name}`, { category: name }, beforeState)
-    
+
     return true
   }
 
@@ -248,7 +248,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
     saveData()
 
     const logStore = useOperationLogStore()
-    logStore.log('edit', `修改了分类图标：${category.name}`, { 
+    logStore.log('edit', `修改了分类图标：${category.name}`, {
       category: category.name,
       oldIcon: oldIcon,
       newIcon: newIcon
@@ -276,11 +276,11 @@ export const useEquipmentStore = defineStore('equipment', () => {
     saveData()
 
     const logStore = useOperationLogStore()
-    logStore.log('delete', `删除了分类：${categoryName}`, { 
-      category: categoryName, 
-      itemCount: itemCount 
+    logStore.log('delete', `删除了分类：${categoryName}`, {
+      category: categoryName,
+      itemCount: itemCount
     }, beforeState)
-      
+
     toast.success(`分类"${categoryName}"已删除`)
     return true
   }
@@ -331,7 +331,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
 
     category.collapsed = !category.collapsed
     saveData()
-    
+
     // UI状态操作不记录日志
   }
 
@@ -346,7 +346,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
     category.items.forEach((item, index) => {
       item.index = index + 1
     })
-    
+
     console.log(`🔢 重新编码分类 "${category.name}"，共 ${category.items.length} 个装备`)
   }
 
@@ -377,7 +377,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
       console.log(`✅ 修复了 ${fixedCount} 个重复的装备ID`)
       saveData()
     }
-    
+
     return fixedCount
   }
 
@@ -393,7 +393,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
 
     categories.value = newOrder
     saveData()
-    
+
     const logStore = useOperationLogStore()
     logStore.log('sort', '重新排序了分类', {
       categories: newOrder.map(cat => cat.name).join('、')
@@ -413,7 +413,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
     }
 
     // 计算新装备的序号（最大序号+1）
-    const maxIndex = category.items.reduce((max, item) => 
+    const maxIndex = category.items.reduce((max, item) =>
       Math.max(max, item.index || 0), 0)
 
     // 生成唯一ID：时间戳 + 随机数，避免快速连续添加时ID重复
@@ -475,7 +475,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
     }
 
     category.items = category.items.filter(item => item.id !== itemId)
-      
+
     // 删除后重新编码
     reindexCategory(categoryId)
     saveData()
@@ -586,7 +586,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
     }
 
     const oldCount = categories.value.length
-      
+
     // 导入数据并为每个装备分配序号和唯一ID，补充默认值
     categories.value = data.map(cat => {
       const categoryData = {
@@ -603,23 +603,23 @@ export const useEquipmentStore = defineStore('equipment', () => {
       }
       return categoryData
     })
-      
+
     // 重新编码所有分类（确保序号连续）
     categories.value.forEach(cat => {
       reindexCategory(cat.id)
     })
-      
+
     // 修复所有重复的ID
     let totalFixed = 0
     categories.value.forEach(cat => {
       const fixed = fixDuplicateIds(cat.id)
       totalFixed += fixed
     })
-      
+
     if (totalFixed > 0) {
       console.warn(`⚠️ 导入数据时修复了 ${totalFixed} 个重复的装备ID`)
     }
-      
+
     saveData()
 
     const logStore = useOperationLogStore()
@@ -661,7 +661,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
    */
   function toggleGroupByStatus() {
     groupByStatus.value = !groupByStatus.value
-    
+
     // UI状态操作不记录日志
   }
 
@@ -671,7 +671,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
   function undoOperation(logId) {
     const logStore = useOperationLogStore()
     const targetLog = logStore.logs.find(log => log.id === logId)
-    
+
     if (!targetLog) {
       toast.warning('未找到要撤销的操作')
       return false
@@ -725,7 +725,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
   function quickUndo() {
     const logStore = useOperationLogStore()
     const latestLog = logStore.getLatestUndoableLog()
-    
+
     if (!latestLog) {
       toast.info('没有可以撤销的操作')
       return false
