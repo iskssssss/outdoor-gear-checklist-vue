@@ -91,26 +91,23 @@ git log --since="YYYY-MM-DD" --pretty=format:"%h - %s (%ci)" --no-merges
 
 ### Step 2: 更新版本号
 
-需要更新以下文件中的版本号：
+**版本号统一在 `package.json` 中维护**，构建时会自动注入到应用中。
 
-#### 2.1 更新 `package.json`
+#### 更新 `package.json`
 
 ```json
 {
   "name": "outdoor-gear-checklist",
-  "version": "1.4.1",  // 更新此处
+  "version": "1.4.3",  // 更新此处（唯一需要维护版本号的地方）
   ...
 }
 ```
 
-#### 2.2 更新 `src/config/appConfig.ts`
-
-```typescript
-/**
- * 应用版本号
- */
-export const APP_VERSION = '1.4.1';  // 更新此处
-```
+> 💡 **自动同步**：版本号会通过 Vite 构建时自动注入到全局变量 `__APP_VERSION__`，并在以下位置使用：
+> - 页面底部显示版本号
+> - 版本更新检测功能
+> 
+> 无需在其他文件中手动维护版本号！
 
 ### Step 3: 更新文档
 
@@ -347,8 +344,7 @@ VITE_API_TIMEOUT=30000 ← 新增
 发布前确认以下文档已更新：
 
 **必须更新** ✅：
-- [ ] `package.json` - 版本号
-- [ ] `src/config/appConfig.ts` - APP_VERSION
+- [ ] `package.json` - 版本号（唯一需要维护版本号的地方）
 - [ ] `docs/CHANGELOG.md` - 版本更新记录
 - [ ] `README.md` - 功能特性（如有新功能）
 
@@ -418,7 +414,6 @@ git status
 **基础文件（必须）**：
 ```bash
 git add package.json
-git add src/config/appConfig.ts
 git add docs/CHANGELOG.md
 ```
 
@@ -468,12 +463,13 @@ git add package.json src/config/appConfig.ts docs/
 
 **标准提交格式**：
 ```bash
-git commit -m "docs: 发布 v1.4.1 版本并更新相关文档
+git commit -m "docs: 发布 v1.4.3 版本并更新相关文档
 
-- 更新应用版本号至 v1.4.1
-- 添加 v1.4.1 更新日志（表格视图、草稿编辑、TypeScript迁移等）
+- 更新应用版本号至 v1.4.3
+- 添加 v1.4.3 更新日志（版本更新提示、版本号统一管理等）
 - 更新 README.md 功能特性和技术栈
-- 更新 USAGE.md 添加新功能详细说明"
+- 更新 USAGE.md 添加新功能详细说明
+- 更新 RELEASE.md 简化版本号维护流程"
 ```
 
 **完整示例（包含多个文档）**：
@@ -692,8 +688,7 @@ git log --oneline -10
 # 2. 更新版本号和文档（手动编辑文件）
 
 ## 必须更新：
-# - package.json (版本号)
-# - src/config/appConfig.ts (APP_VERSION)
+# - package.json (版本号 - 唯一需要维护版本号的地方)
 # - docs/CHANGELOG.md (更新日志)
 
 ## 建议更新：
@@ -716,7 +711,7 @@ npm run build
 # 4. 提交变更（添加修改的文档）
 
 # 基础文件
-git add package.json src/config/appConfig.ts docs/CHANGELOG.md
+git add package.json docs/CHANGELOG.md
 
 # 功能文档（根据实际修改选择）
 git add README.md docs/USAGE.md docs/ROADMAP.md docs/FAQ.md

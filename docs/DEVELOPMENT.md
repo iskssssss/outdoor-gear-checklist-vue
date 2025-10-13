@@ -596,6 +596,64 @@ npm run build --verbose
 
 ---
 
+## 📦 版本号管理
+
+### 版本号统一维护
+
+**版本号只在一个地方维护**：`package.json`
+
+```json
+{
+  "version": "1.4.3"  // 唯一需要维护版本号的地方
+}
+```
+
+### 自动注入机制
+
+构建时，Vite 会自动将版本号注入到全局变量：
+
+```typescript
+// vite.config.ts
+define: {
+  __APP_VERSION__: JSON.stringify(packageJson.version)
+}
+```
+
+### 使用版本号
+
+在组件中使用版本号：
+
+```vue
+<script setup>
+// 直接使用全局变量
+const version = __APP_VERSION__;
+</script>
+
+<template>
+  <div>v{{ version }}</div>
+</template>
+```
+
+在 TypeScript 文件中使用：
+
+```typescript
+// src/vite-env.d.ts 中已声明类型
+declare const __APP_VERSION__: string;
+
+// 直接使用
+const currentVersion = __APP_VERSION__;
+```
+
+### 版本更新提示
+
+应用内置版本更新检测功能：
+- 用户访问时自动检测版本变化
+- 显示更新提示对话框
+- 支持查看更新日志或稍后提醒
+- 使用 localStorage 记录版本历史
+
+---
+
 ## 📚 参考资源
 
 - [Vue 3 文档](https://cn.vuejs.org/)

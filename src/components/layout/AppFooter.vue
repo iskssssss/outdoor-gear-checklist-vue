@@ -41,12 +41,13 @@
 
 <script setup>
 import { computed } from 'vue'
-import { APP_VERSION } from '../../config/appConfig'
 
 // 定义事件
 defineEmits(['show-changelog', 'show-doc'])
 
 const currentYear = computed(() => new Date().getFullYear())
+// 版本号从 Vite 注入（来自 package.json）
+const APP_VERSION = __APP_VERSION__
 </script>
 
 <style scoped lang="scss">

@@ -10,6 +10,7 @@
     <RecommendationModal ref="recommendationModalRef" />
     <ModelConfigModal ref="modelConfigModalRef" />
     <OperationLogModal ref="operationLogModalRef" />
+    <ChangelogModal ref="changelogModalRef" />
 
     <!-- Toast 通知组件 -->
     <ToastNotification ref="toastRef" />
@@ -51,6 +52,7 @@ import AppFooter from './components/layout/AppFooter.vue';
 import RecommendationModal from './components/modals/RecommendationModal.vue';
 import ModelConfigModal from './components/modals/ModelConfigModal.vue';
 import OperationLogModal from './components/modals/OperationLogModal.vue';
+import ChangelogModal from './components/modals/ChangelogModal.vue';
 import ToastNotification from './components/common/ToastNotification.vue';
 import BaseConfirm from './components/common/BaseConfirm.vue';
 import BackToTopButton from './components/common/BackToTopButton.vue';
@@ -62,6 +64,7 @@ import { toast as toastService } from './utils/toast';
 import { eventBus } from './utils/eventBus';
 // 引入 Composable
 import { useResponsiveMenu } from './composables/useResponsiveMenu';
+import { useVersionChecker } from './composables/useVersionChecker';
 
 // 初始化stores
 const equipmentStore = useEquipmentStore()
@@ -88,6 +91,10 @@ provide('showConfirm', (options) => confirmModalRef.value?.show(options))
 const recommendationModalRef = ref(null)
 const modelConfigModalRef = ref(null)
 const operationLogModalRef = ref(null)
+const changelogModalRef = ref(null)
+
+// 版本检测
+const { checkVersion, currentVersion, previousVersion, confirmUpdate, remindLater } = useVersionChecker()
 
 // --- 主题切换器 ---
 const themeSwitcherExpanded = ref(false)
@@ -158,6 +165,14 @@ onMounted(() => {
   
   console.log('🚀 户外装备清单系统已初始化 (Vue 3版本)');
   console.log('💡 提示: 按 Ctrl+Z (或 Cmd+Z) 可以撤销最近的操作');
+
+  // 检查版本更新
+  setTimeout(() => {
+    const hasUpdate = checkVersion()
+    if (hasUpdate) {
+      showVersionUpdateDialog()
+    }
+  }, 1500) // 延迟1.5秒显示，避免干扰初始化
 })
 
 // 组件卸载时移除事件监听
@@ -193,6 +208,27 @@ function showModelConfig() {
 
 function showOperationLog() {
   operationLogModalRef.value?.show()
+}
+
+function showChangelog() {
+  changelogModalRef.value?.show()
+}
+
+// 显示版本更新对话框
+function showVersionUpdateDialog() {
+  confirmModalRef.value?.show({
+    title: '🎉 版本更新',
+    message: `应用已更新至 v${currentVersion.value}！\n${previousVersion.value ? `（从 v${previousVersion.value} 升级）` : ''}`,
+    confirmText: '查看更新日志',
+    cancelText: '稍后查看',
+    onConfirm: () => {
+      confirmUpdate()
+      showChangelog()
+    },
+    onCancel: () => {
+      remindLater()
+    }
+  })
 }
 </script>
 
