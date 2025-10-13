@@ -33,6 +33,8 @@
 
 ### 用户体验
 - 📱 **响应式设计** - 完美支持桌面端和移动端
+- 📊 **多视图模式** - 支持卡片视图、瀑布流布局和表格视图
+- 💾 **草稿保存** - 编辑装备时自动保存草稿，防止误操作丢失数据
 - 🎯 **二级菜单** - 节省空间的下拉菜单设计
 - 🔒 **防误操作** - 导入过程保护机制
 - 📝 **操作日志** - 详细记录所有操作历史
@@ -213,6 +215,7 @@ outdoor-gear-checklist/
 
 ### 核心框架
 - **Vue 3.5.22** - 渐进式 JavaScript 框架
+- **TypeScript 5.x** - 类型安全的 JavaScript 超集
 - **Vite 5.x** - 下一代前端构建工具
 - **Pinia 2.x** - Vue 官方状态管理库
 
@@ -221,7 +224,12 @@ outdoor-gear-checklist/
 - **CSS Variables** - 动态主题切换
 - **html2canvas** - Canvas 截图库（图片导出）
 
+### 工具库
+- **@vueuse/core** - Vue Composition API 工具集
+- **uuid** - 唯一标识符生成
+
 ### 开发工具
+- **vue-tsc** - Vue TypeScript 类型检查
 - **ESLint** - 代码质量检查（已配置）
 - **Git** - 版本控制
 - **npm** - 包管理器

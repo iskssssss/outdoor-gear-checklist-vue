@@ -112,7 +112,9 @@ git log --since="YYYY-MM-DD" --pretty=format:"%h - %s (%ci)" --no-merges
 export const APP_VERSION = '1.4.1';  // 更新此处
 ```
 
-### Step 3: 更新 CHANGELOG.md
+### Step 3: 更新文档
+
+#### 3.1 更新 CHANGELOG.md
 
 在文件顶部添加新版本记录（参考历史记录格式）：
 
@@ -149,20 +151,52 @@ export const APP_VERSION = '1.4.1';  // 更新此处
 | 📦 | 依赖 | 依赖更新 |
 | 🧹 | 清理 | 代码清理 |
 
+#### 3.2 更新 README.md
+
+根据新功能更新以下部分：
+- **功能特性**：添加新功能描述
+- **技术栈**：更新使用的技术和库
+- **使用指南**：补充新功能的简要说明
+
+**示例**（v1.4.1）：
+- 在"用户体验"部分添加"多视图模式"和"草稿保存"
+- 在"技术栈"部分添加"TypeScript"和"@vueuse/core"
+
+#### 3.3 更新 USAGE.md
+
+详细更新使用文档：
+- 在对应章节添加新功能的详细说明
+- 添加使用方法和示例
+- 更新常见问题（FAQ）
+
+**示例**（v1.4.1）：
+- 在"视图模式"章节添加"表格视图"详细说明
+- 在"编辑装备"部分添加"草稿保存功能"说明
+- 在"常见问题"添加相关FAQ
+
+#### 3.4 检查其他文档
+
+如有需要，同时更新：
+- **项目结构图**：如有大的结构调整
+- **API 文档**：如有接口变更
+- **配置说明**：如有新配置项
+
 ### Step 4: 提交变更
 
 ```bash
 # 查看变更文件
 git status
 
-# 添加文件到暂存区
-git add package.json src/config/appConfig.ts CHANGELOG.md
+# 添加文件到暂存区（包括所有更新的文档）
+git add package.json src/config/appConfig.ts CHANGELOG.md README.md USAGE.md
 
 # 提交变更（使用规范的提交信息）
 git commit -m "docs: 发布 v1.4.1 版本并更新相关文档
 
 - 更新应用版本号至 v1.4.1
-- 添加 v1.4.1 更新日志（功能摘要）"
+- 添加 v1.4.1 更新日志（表格视图、草稿编辑、TypeScript迁移等）
+- 更新 README.md 功能特性和技术栈
+- 更新 USAGE.md 添加新功能详细说明"
 ```
 
 #### 提交信息格式
@@ -349,21 +383,24 @@ git push origin --delete v1.4.1
 # 1. 查看提交记录，确定版本号
 git log --oneline -10
 
-# 2. 更新版本号（手动编辑文件）
+# 2. 更新版本号和文档（手动编辑文件）
 # - package.json
 # - src/config/appConfig.ts
 # - CHANGELOG.md
+# - README.md（根据新功能更新）
+# - USAGE.md（添加详细说明）
 
 # 3. 运行测试和构建
 npm run type-check
 npm run build
 
 # 4. 提交变更
-git add package.json src/config/appConfig.ts CHANGELOG.md
+git add package.json src/config/appConfig.ts CHANGELOG.md README.md USAGE.md
 git commit -m "docs: 发布 v1.4.1 版本并更新相关文档
 
 - 更新应用版本号至 v1.4.1
-- 添加 v1.4.1 更新日志"
+- 添加 v1.4.1 更新日志
+- 更新 README.md 和 USAGE.md"
 
 # 5. 创建标签
 git tag -a v1.4.1 -m "Release v1.4.1
