@@ -3,6 +3,16 @@ import vue from '@vitejs/plugin-vue'
 import viteCompression from 'vite-plugin-compression'
 // 引入 path 模块
 import path from 'path'
+import { fileURLToPath } from 'node:url'
+// 读取 package.json
+import { readFileSync } from 'fs'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+
+// 从 package.json 读取版本号
+const packageJson = JSON.parse(
+  readFileSync(path.resolve(__dirname, 'package.json'), 'utf-8')
+)
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -30,6 +40,9 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, './src'),
     }
+  },
+  define: {
+    __APP_VERSION__: JSON.stringify(packageJson.version)
   }
 })
 
