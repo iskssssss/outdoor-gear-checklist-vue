@@ -4,7 +4,7 @@
     <template #header>
       <h2 class="changelog-title">📝 更新日志</h2>
       <div class="header-actions">
-        <button class="close-btn" @click="close">✕</button>
+        <BaseButton class="close-btn" variant="text" icon="✕" @click="close" />
       </div>
     </template>
 
@@ -22,8 +22,7 @@
 <script setup>
 import { ref, defineExpose, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import BaseModal from '../common/feedback/BaseModal.vue'
-import MarkdownViewer from '../common/data/MarkdownViewer.vue'
+import { BaseModal, MarkdownViewer, BaseButton } from '@/components/common'
 import MarkdownPage from './MarkdownPage.vue'
 
 const props = defineProps({
@@ -183,17 +182,10 @@ defineExpose({
   align-items: center;
 }
 
-.close-btn {
-  background: none;
-  border: none;
+:deep(.close-btn) {
   font-size: 24px;
-  cursor: pointer;
   color: var(--text-secondary);
   padding: 8px 12px;
-  border-radius: var(--border-radius-sm);
-  font-size: 0.9rem;
-  font-weight: 500;
-  transition: all 0.2s ease;
 
   &:hover {
     background: var(--bg-hover);

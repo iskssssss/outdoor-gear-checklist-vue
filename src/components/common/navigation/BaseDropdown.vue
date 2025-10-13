@@ -47,8 +47,8 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   triggerText: '更多',
-  trigger: 'click',
-  placement: 'bottom-end',
+  trigger: 'hover',  // 改为默认hover，更友好
+  placement: 'bottom-start',  // 默认左下对齐
   disabled: false,
   size: 'md',
   showArrow: false

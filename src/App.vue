@@ -19,16 +19,20 @@
     <!-- 自定义确认模态框 -->
     <BaseConfirm ref="confirmModalRef" />
 
-    <!-- 浮动操作按钮组 -->
+    <!-- 浮动操作按钮组（数据驱动） -->
     <div class="fab-group">
-      <!-- 主题切换器触发按钮 -->
-      <button class="fab-item theme-toggle-btn" @click="showThemeSelector"
-        :title="`当前主题: ${getCurrentTheme.name}`">
-        <span class="icon">🎨</span>
-      </button>
-
-      <!-- 回到顶部按钮 -->
-      <BackToTopButton class="fab-item" />
+      <template v-for="fab in fabButtons" :key="fab.value">
+        <!-- 主题切换按钮 -->
+        <BaseButton
+          v-if="fab.type === 'theme'"
+          :class="fab.class"
+          :icon="fab.icon"
+          :title="fab.title"
+          @click="fab.handler"
+        />
+        <!-- 回到顶部按钮（保留独立组件） -->
+        <BackToTopButton v-else-if="fab.type === 'back-to-top'" :class="fab.class" />
+      </template>
     </div>
   </div>
 </template>
@@ -43,9 +47,8 @@ import ModelConfigModal from './components/modals/ModelConfigModal.vue';
 import OperationLogModal from './components/modals/OperationLogModal.vue';
 import ChangelogPage from './components/views/ChangelogPage.vue';
 import ThemeSelectorModal from './components/modals/ThemeSelectorModal.vue';
-import ToastNotification from './components/common/feedback/ToastNotification.vue';
-import BaseConfirm from './components/common/feedback/BaseConfirm.vue';
-import BackToTopButton from './components/common/others/BackToTopButton.vue';
+import { ToastNotification, BaseConfirm, BaseButton } from '@/components/common'
+import { BackToTopButton } from '@/components/common'
 import { useEquipmentStore } from './stores/equipment';
 import { useModelConfigStore } from './stores/modelConfig';
 import { useThemeStore } from './stores/themeStore';
@@ -91,6 +94,27 @@ const { checkVersion, currentVersion, previousVersion, confirmUpdate, remindLate
 const getCurrentTheme = computed(() => {
   return themeStore.themes.find(t => t.id === themeStore.currentTheme) || themeStore.themes[0]
 })
+
+// ==================== 数据驱动的浮动按钮配置 ====================
+
+// 浮动操作按钮配置
+const fabButtons = computed(() => [
+  {
+    type: 'theme',
+    value: 'theme-toggle',
+    icon: '🎨',
+    class: 'fab-item theme-toggle-btn',
+    title: `当前主题: ${getCurrentTheme.value.name}`,
+    handler: showThemeSelector
+  },
+  {
+    type: 'back-to-top',
+    value: 'back-to-top',
+    class: 'fab-item'
+  }
+])
+
+// ==================== 数据驱动配置结束 ====================
 
 // 键盘快捷键处理
 const keys = useMagicKeys();
@@ -247,7 +271,7 @@ function showVersionUpdateDialog() {
   gap: var(--spacing-md);
 }
 
-.fab-item {
+:deep(.fab-item) {
   width: 50px;
   height: 50px;
   border-radius: var(--radius-full);
@@ -259,19 +283,19 @@ function showVersionUpdateDialog() {
   align-items: center;
   justify-content: center;
   transition: all 0.3s ease;
-}
 
-.fab-item:hover {
-  transform: scale(1.1);
-  box-shadow: var(--shadow-lg);
-}
+  &:hover {
+    transform: scale(1.1);
+    box-shadow: var(--shadow-lg);
+  }
 
-.fab-item .icon {
-  font-size: 1.8rem;
+  .icon {
+    font-size: 1.8rem;
+  }
 }
 
 /* 主题切换器在 FAB Group 中的特定样式 */
-.theme-toggle-btn {
+:deep(.theme-toggle-btn) {
   &:hover {
     transform: scale(1.1) rotate(20deg);
   }
@@ -285,7 +309,7 @@ function showVersionUpdateDialog() {
     gap: var(--spacing-md);
   }
 
-  .fab-item {
+  :deep(.fab-item) {
     width: 48px;
     height: 48px;
   }

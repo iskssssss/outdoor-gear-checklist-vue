@@ -58,9 +58,7 @@
 
       <!-- 底部操作按钮 -->
       <div class="modal-actions">
-        <button class="btn btn-secondary" @click="close">
-          关闭
-        </button>
+        <BaseButton variant="secondary" @click="close">关闭</BaseButton>
       </div>
     </div>
   </BaseModal>
@@ -68,7 +66,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import BaseModal from '../common/feedback/BaseModal.vue';
+import { BaseModal, BaseButton } from '@/components/common'
 import { useThemeStore } from '../../stores/themeStore';
 
 const themeStore = useThemeStore();

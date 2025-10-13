@@ -6,5 +6,6 @@
 export { default as BaseBadge } from './BaseBadge.vue'
 export { default as BaseCard } from './BaseCard.vue'
 export { default as BaseTable } from './BaseTable.vue'
+export { default as BaseStatCard } from './BaseStatCard.vue'
 export { default as MarkdownViewer } from './MarkdownViewer.vue'
 

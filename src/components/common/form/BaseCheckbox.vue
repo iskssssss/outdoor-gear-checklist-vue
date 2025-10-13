@@ -29,8 +29,9 @@
 import { computed } from 'vue'
 
 interface Props {
-  modelValue?: boolean | string | number
+  modelValue?: boolean | string | number | Array<string | number>
   label?: string
+  value?: string | number  // 当 modelValue 是数组时使用
   trueValue?: boolean | string | number
   falseValue?: boolean | string | number
   disabled?: boolean
@@ -48,19 +49,45 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const emit = defineEmits<{
-  (e: 'update:modelValue', value: boolean | string | number): void
-  (e: 'change', value: boolean | string | number): void
+  (e: 'update:modelValue', value: boolean | string | number | Array<string | number>): void
+  (e: 'change', value: boolean | string | number | Array<string | number>): void
 }>()
 
 const isChecked = computed(() => {
+  // 如果 modelValue 是数组，检查 value 是否在数组中
+  if (Array.isArray(props.modelValue) && props.value !== undefined) {
+    return props.modelValue.includes(props.value)
+  }
+  // 否则使用原来的逻辑
   return props.modelValue === props.trueValue
 })
 
 function handleChange(event: Event) {
   const target = event.target as HTMLInputElement
-  const value = target.checked ? props.trueValue : props.falseValue
-  emit('update:modelValue', value)
-  emit('change', value)
+  
+  // 如果 modelValue 是数组，处理数组值
+  if (Array.isArray(props.modelValue) && props.value !== undefined) {
+    const newValue = [...props.modelValue]
+    if (target.checked) {
+      // 添加到数组
+      if (!newValue.includes(props.value)) {
+        newValue.push(props.value)
+      }
+    } else {
+      // 从数组中移除
+      const index = newValue.indexOf(props.value)
+      if (index > -1) {
+        newValue.splice(index, 1)
+      }
+    }
+    emit('update:modelValue', newValue)
+    emit('change', newValue)
+  } else {
+    // 原来的逻辑
+    const value = target.checked ? props.trueValue : props.falseValue
+    emit('update:modelValue', value)
+    emit('change', value)
+  }
 }
 </script>
 

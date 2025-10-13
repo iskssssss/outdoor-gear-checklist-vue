@@ -75,7 +75,7 @@ const props = withDefaults(defineProps<Props>(), {
   readonly: false,
   required: false,
   maxlength: undefined,
-  showCount: false,
+  showCount: true,  // 默认显示字符计数，用户体验更好
   hint: '',
   error: '',
   textareaId: `textarea-${Math.random().toString(36).substr(2, 9)}`,

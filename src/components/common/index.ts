@@ -9,6 +9,7 @@
 export { default as BaseBadge } from './data/BaseBadge.vue';
 export { default as BaseCard } from './data/BaseCard.vue';
 export { default as BaseTable } from './data/BaseTable.vue';
+export { default as BaseStatCard } from './data/BaseStatCard.vue';
 export { default as MarkdownViewer } from './data/MarkdownViewer.vue';
 
 // Feedback Components
@@ -17,6 +18,8 @@ export { default as BaseModal } from './feedback/BaseModal.vue';
 export { default as ToastNotification } from './feedback/ToastNotification.vue';
 export { default as BaseEmpty } from './feedback/BaseEmpty.vue';
 export { default as BaseLoading } from './feedback/BaseLoading.vue';
+export { default as BaseLoadingOverlay } from './feedback/BaseLoadingOverlay.vue';
+export { default as BaseAlert } from './feedback/BaseAlert.vue';
 
 // Form Components
 export { default as BaseButton } from './form/BaseButton.vue';
@@ -25,12 +28,22 @@ export { default as BaseSelect } from './form/BaseSelect.vue';
 export { default as BaseTextarea } from './form/BaseTextarea.vue';
 export { default as BaseCheckbox } from './form/BaseCheckbox.vue';
 export { default as BaseRadio } from './form/BaseRadio.vue';
+export { default as BaseSwitch } from './form/BaseSwitch.vue';
 export { default as InputSelect } from './form/InputSelect.vue';
+export { default as BaseFormField } from './form/BaseFormField.vue';
+export { default as BaseButtonGroup } from './form/BaseButtonGroup.vue';
+export { default as BaseForm } from './form/BaseForm.vue';
+export type { ButtonConfig } from './form/BaseButtonGroup.vue';
+export type { FormField } from './form/BaseForm.vue';
 
 // Navigation Components
 export { default as BaseTabs } from './navigation/BaseTabs.vue';
 export { default as BaseDropdown } from './navigation/BaseDropdown.vue';
 export { default as BaseDropdownItem } from './navigation/BaseDropdownItem.vue';
+export { default as BaseDropdownSubmenu } from './navigation/BaseDropdownSubmenu.vue';
+export { default as BaseButtonDropdown } from './navigation/BaseButtonDropdown.vue';
+export { default as BaseMenuDropdown } from './navigation/BaseMenuDropdown.vue';
+export type { MenuItem } from './navigation/BaseMenuDropdown.vue';
 
 // Others Components
 export { default as BackToTopButton } from './others/BackToTopButton.vue';

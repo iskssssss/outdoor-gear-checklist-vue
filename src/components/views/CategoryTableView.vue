@@ -17,22 +17,17 @@
           <div v-else class="add-category-form">
             <input ref="categoryInput" v-model="newCategoryName" placeholder="新分类名称" class="category-input-inline"
               @keyup.enter="addCategory" @blur="cancelAdd" />
-            <button @click="addCategory" class="btn-confirm">✓</button>
-            <button @click="cancelAdd" class="btn-cancel-add">✕</button>
+            <BaseButton @click="addCategory" variant="success" size="sm" icon="✓" />
+            <BaseButton @click="cancelAdd" variant="danger" size="sm" icon="✕" />
           </div>
         </div>
       </div>
     </div>
 
     <div v-if="categories && categories.length > 0">
+      <!-- 表格操作按钮组（数据驱动） -->
       <div class="table-actions">
-        <button v-if="!isEditing" @click="enterEditMode" class="btn-edit">✏️ 编辑</button>
-        <template v-else>
-          <button @click="saveChanges" class="btn-save">💾 保存</button>
-          <button @click="cancelEdit" class="btn-cancel">❌ 取消</button>
-          <button v-if="selectedCategory" @click="reindexDraftItems" class="btn-reindex">🔢 重新编码</button>
-          <button @click="addNewDraftItem" class="btn-add">➕ 添加新装备</button>
-        </template>
+        <BaseButtonGroup :buttons="tableActionButtons" />
       </div>
       <div class="table-content">
         <table v-if="selectedCategory" class="equipment-table">
@@ -86,12 +81,14 @@
               <td data-label="小计价格" class="subtotal">{{ ((item.price || 0) * (item.quantity || 0)).toFixed(2) }} {{
                 item.priceUnit }}</td>
               <td data-label="准备状态">
-                <div class="status-switch" :class="{ 'completed': item.completed }" @click="toggleItemStatus(item)">
-                  <div class="switch-handle"></div>
-                </div>
+                <BaseSwitch 
+                  v-model="item.completed" 
+                  @change="toggleItemStatus(item)"
+                  :title="item.completed ? '已准备' : '待准备'"
+                />
               </td>
               <td v-if="isEditing" data-label="操作">
-                <button @click="removeDraftItem(item.id)" class="btn-remove">删除</button>
+                <BaseButton @click="removeDraftItem(item.id)" variant="danger" size="sm">删除</BaseButton>
               </td>
             </tr>
           </tbody>
@@ -117,6 +114,7 @@ import { ref, watch, onMounted, computed, nextTick, onUpdated, inject } from 'vu
 import { useEventListener } from '@vueuse/core'
 import { useEquipmentStore } from '../../stores/equipment'
 import { useOperationLogStore } from '../../stores/operationLog'
+import { BaseButton, BaseSwitch, BaseButtonGroup } from '@/components/common'
 
 const props = defineProps({
   categories: {
@@ -147,6 +145,65 @@ const selectedCategory = computed(() => {
   if (!selectedCategoryId.value) return null
   return props.categories.find(c => c.id === selectedCategoryId.value)
 })
+
+// ==================== 数据驱动的按钮组配置 ====================
+
+// 表格操作按钮配置（动态）
+const tableActionButtons = computed(() => {
+  if (!isEditing.value) {
+    // 非编辑模式：只显示编辑按钮
+    return [
+      {
+        value: 'edit',
+        label: '编辑',
+        variant: 'outline',
+        icon: '✏️',
+        handler: enterEditMode
+      }
+    ]
+  } else {
+    // 编辑模式：显示保存、取消、重新编码、添加装备
+    const buttons = [
+      {
+        value: 'save',
+        label: '保存',
+        variant: 'success',
+        icon: '💾',
+        handler: saveChanges
+      },
+      {
+        value: 'cancel',
+        label: '取消',
+        variant: 'secondary',
+        icon: '❌',
+        handler: cancelEdit
+      }
+    ]
+    
+    // 只有选中分类时才显示重新编码按钮
+    if (selectedCategory.value) {
+      buttons.push({
+        value: 'reindex',
+        label: '重新编码',
+        variant: 'info',
+        icon: '🔢',
+        handler: reindexDraftItems
+      })
+    }
+    
+    buttons.push({
+      value: 'add',
+      label: '添加新装备',
+      variant: 'primary',
+      icon: '➕',
+      handler: addNewDraftItem
+    })
+    
+    return buttons
+  }
+})
+
+// ==================== 数据驱动配置结束 ====================
 
 // 显示的数据：编辑模式下使用草稿，否则使用原始数据
 const displayItems = computed(() => {
@@ -545,22 +602,7 @@ onMounted(() => {
   }
 }
 
-.btn-confirm,
-.btn-cancel-add {
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  font-size: 1.2rem;
-  padding: 4px;
-}
-
-.btn-confirm {
-  color: var(--success-color);
-}
-
-.btn-cancel-add {
-  color: var(--danger-color);
-}
+// BaseButton 已接管按钮样式
 
 .equipment-table {
   width: 100%;
@@ -587,35 +629,7 @@ onMounted(() => {
     background-color: var(--bg-card);
   }
 
-  .status-switch {
-    position: relative;
-    width: 44px;
-    height: 24px;
-    background-color: var(--text-muted);
-    border-radius: 12px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    margin: 0 auto;
-
-    &.completed {
-      background-color: var(--success-color);
-    }
-
-    .switch-handle {
-      position: absolute;
-      top: 2px;
-      left: 2px;
-      width: 20px;
-      height: 20px;
-      background-color: #fff;
-      border-radius: 50%;
-      transition: transform 0.3s ease;
-    }
-
-    &.completed .switch-handle {
-      transform: translateX(20px);
-    }
-  }
+  // BaseSwitch 已接管状态开关样式
 
   tbody tr {
     transition: background-color 0.2s ease-in-out;
@@ -748,80 +762,7 @@ onMounted(() => {
   gap: 10px;
 }
 
-.btn-add,
-.btn-remove,
-.btn-reindex,
-.btn-edit,
-.btn-save,
-.btn-cancel {
-  padding: 8px 12px;
-  border: var(--border-width) solid transparent;
-  border-radius: var(--border-radius-sm);
-  cursor: pointer;
-  font-weight: 500;
-  transition: all 0.3s ease;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
-  }
-}
-
-.btn-add {
-  background-color: var(--primary-color);
-  color: var(--btn-primary-text);
-
-  &:hover {
-    background-color: var(--primary-dark);
-  }
-}
-
-.btn-edit {
-  background-color: transparent;
-  color: var(--primary-color);
-  border-color: var(--primary-color);
-
-  &:hover {
-    background-color: var(--primary-color);
-    color: var(--btn-primary-text);
-  }
-}
-
-.btn-save {
-  background-color: var(--success-color);
-  color: #fff;
-
-  &:hover {
-    background-color: var(--success-dark);
-  }
-}
-
-.btn-cancel {
-  background-color: var(--text-muted);
-  color: #fff;
-
-  &:hover {
-    background-color: var(--danger-color);
-  }
-}
-
-.btn-reindex {
-  background-color: var(--secondary-color);
-  color: var(--btn-secondary-text);
-
-  &:hover {
-    background-color: var(--secondary-dark);
-  }
-}
-
-.btn-remove {
-  background-color: var(--danger-color);
-  color: var(--btn-danger-text);
-
-  &:hover {
-    background-color: var(--danger-dark);
-  }
-}
+// BaseButton 已接管所有按钮样式
 
 @media (max-width: 768px) {
   .equipment-table {

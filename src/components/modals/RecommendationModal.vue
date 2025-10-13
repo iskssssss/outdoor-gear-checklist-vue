@@ -31,16 +31,13 @@
     </div>
 
 
-    <div class="config-info">
-      <strong>⚙️ 使用模型配置</strong>
+    <BaseAlert type="info" title="⚙️ 使用模型配置">
       推荐功能将使用"⚙️ 模型配置"中保存的API设置。如需修改API配置，请点击顶部"⚙️ 模型配置"按钮。
-    </div>
+    </BaseAlert>
 
+    <!-- 推荐操作按钮组（数据驱动） -->
     <div class="recommendation-actions">
-      <button class="btn btn-primary" @click="debouncedGetRecommendations" :disabled="isLoading">
-        {{ isLoading ? '正在获取推荐...' : '获取推荐' }}
-      </button>
-      <button class="btn btn-secondary" @click="debouncedClose">取消</button>
+      <BaseButtonGroup :buttons="recommendActionButtons" justify="end" />
     </div>
 
     <div v-if="showResults" class="recommendation-results">
@@ -81,8 +78,7 @@ import { ref, computed } from 'vue'
 import { useModelConfigStore } from '../../stores/modelConfig'
 import { useEquipmentStore } from '../../stores/equipment'
 import { activityTypeOptions, seasonOptions, weatherOptions, difficultyOptions, budgetOptions } from '../../config/appConfig'
-import InputSelect from '../common/form/InputSelect.vue'
-import BaseModal from '../common/feedback/BaseModal.vue'
+import { InputSelect, BaseModal, BaseButton, BaseAlert, BaseButtonGroup } from '@/components/common'
 import { useDebounceFn } from '@vueuse/core';
 
 const modelConfigStore = useModelConfigStore()
@@ -96,6 +92,28 @@ const recommendations = ref([])
 
 const prefs = computed(() => modelConfigStore.recommendationPreferences)
 const customOptions = computed(() => modelConfigStore.customRecommendationOptions)
+
+// ==================== 数据驱动的按钮组配置 ====================
+
+// 推荐操作按钮组
+const recommendActionButtons = computed(() => [
+  {
+    value: 'recommend',
+    label: isLoading.value ? '获取中...' : '获取推荐',
+    variant: 'primary',
+    disabled: isLoading.value,
+    loading: isLoading.value,
+    handler: debouncedGetRecommendations
+  },
+  {
+    value: 'cancel',
+    label: '取消',
+    variant: 'secondary',
+    handler: debouncedClose
+  }
+])
+
+// ==================== 数据驱动配置结束 ====================
 
 const allActivityTypeOptions = computed(() => [
   ...activityTypeOptions,

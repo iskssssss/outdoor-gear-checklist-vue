@@ -9,6 +9,7 @@
       <span v-if="prefixIcon" class="input-prefix-icon">{{ prefixIcon }}</span>
       
       <input
+        ref="inputRef"
         :id="inputId"
         :type="type"
         :value="modelValue"
@@ -44,6 +45,8 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+
+const inputRef = ref<HTMLInputElement | null>(null)
 
 interface Props {
   // v-model 绑定值
@@ -87,7 +90,7 @@ const props = withDefaults(defineProps<Props>(), {
   disabled: false,
   readonly: false,
   required: false,
-  clearable: false,
+  clearable: true,  // 默认可清空，提升用户体验
   maxlength: undefined,
   prefixIcon: '',
   suffixIcon: '',
@@ -141,6 +144,25 @@ function handleClear() {
   emit('update:modelValue', '')
   emit('clear')
 }
+
+// 暴露方法供父组件调用
+function focus() {
+  inputRef.value?.focus()
+}
+
+function blur() {
+  inputRef.value?.blur()
+}
+
+function select() {
+  inputRef.value?.select()
+}
+
+defineExpose({
+  focus,
+  blur,
+  select
+})
 </script>
 
 <style scoped lang="scss">

@@ -31,43 +31,35 @@
 
     <!-- 统计网格 -->
     <div class="stats-grid">
-      <div class="stat-item stat-categories">
-        <div class="stat-icon">📦</div>
-        <div class="stat-content">
-          <div class="stat-number">{{ equipmentStore.totalCategories }}</div>
-          <div class="stat-label">装备分类</div>
-        </div>
-      </div>
+      <BaseStatCard
+        icon="📦"
+        :number="equipmentStore.totalCategories"
+        label="装备分类"
+        clickable
+      />
 
-      <div class="stat-item stat-items">
-        <div class="stat-icon">🎒</div>
-        <div class="stat-content">
-          <div class="stat-number">{{ equipmentStore.totalItems }}</div>
-          <div class="stat-label">装备总数</div>
-        </div>
-      </div>
+      <BaseStatCard
+        icon="🎒"
+        :number="equipmentStore.totalItems"
+        label="装备总数"
+        clickable
+      />
 
-      <div class="stat-item stat-weight">
-        <div class="stat-icon">⚖️</div>
-        <div class="stat-content">
-          <div class="stat-number">{{ equipmentStore.totalWeight }}</div>
-          <div class="stat-label">总重量</div>
-          <div class="stat-extra" v-if="averageWeight > 0">
-            平均 {{ averageWeight }}kg/件
-          </div>
-        </div>
-      </div>
+      <BaseStatCard
+        icon="⚖️"
+        :number="equipmentStore.totalWeight"
+        label="总重量"
+        :extra="averageWeight > 0 ? `平均 ${averageWeight}kg/件` : undefined"
+        clickable
+      />
 
-      <div class="stat-item stat-price">
-        <div class="stat-icon">💰</div>
-        <div class="stat-content">
-          <div class="stat-number">{{ formatPrice(equipmentStore.totalPrice) }}</div>
-          <div class="stat-label">总价格</div>
-          <div class="stat-extra" v-if="averagePrice > 0">
-            平均 ¥{{ averagePrice }}/件
-          </div>
-        </div>
-      </div>
+      <BaseStatCard
+        icon="💰"
+        :number="formatPrice(equipmentStore.totalPrice)"
+        label="总价格"
+        :extra="averagePrice > 0 ? `平均 ¥${averagePrice}/件` : undefined"
+        clickable
+      />
     </div>
   </div>
 </template>
@@ -75,6 +67,7 @@
 <script setup>
 import { computed } from 'vue'
 import { useEquipmentStore } from '../../stores/equipment'
+import { BaseStatCard } from '@/components/common'
 
 const equipmentStore = useEquipmentStore()
 
@@ -316,86 +309,7 @@ function formatPrice(priceString) {
   gap: 16px;
 }
 
-.stat-item {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 18px;
-  border-radius: var(--border-radius-lg);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  background: var(--bg-input);
-  border: var(--border-width) solid transparent;
-  position: relative;
-  overflow: hidden;
-  box-shadow: var(--shadow-xs, 0 1px 2px rgba(0, 0, 0, 0.05));
-  
-  // 确保内容在交互效果之上
-  > * {
-    position: relative;
-    z-index: 1;
-  }
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: var(--shimmer-gradient-light, linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent));
-    transition: left 0.5s;
-    z-index: 0;
-  }
-
-  &:hover {
-    transform: translateY(-3px);
-    box-shadow: var(--shadow-md);
-    background: var(--bg-hover, var(--bg-input));
-    border-color: var(--border-color);
-
-    &::before {
-      left: 100%;
-    }
-  }
-}
-
-.stat-icon {
-  font-size: 2rem;
-  flex-shrink: 0;
-  transition: transform 0.3s ease;
-  
-  .stat-item:hover & {
-    transform: scale(1.1);
-  }
-}
-
-.stat-content {
-  flex: 1;
-  text-align: left;
-}
-
-.stat-number {
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin-bottom: 4px;
-  color: var(--text-primary);
-  line-height: 1.2;
-}
-
-.stat-label {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-  font-weight: 500;
-  opacity: 0.85;
-}
-
-.stat-extra {
-  font-size: 0.7rem;
-  color: var(--text-secondary);
-  margin-top: 4px;
-  opacity: 0.7;
-  font-weight: 400;
-}
+// BaseStatCard 已接管统计卡片样式
 
 // 标题呼吸动画
 .stats-header h3 {
