@@ -284,8 +284,11 @@ outdoor-gear-checklist/
 
 ### 提交规范
 
-遵循 [Conventional Commits](https://www.conventionalcommits.org/) 规范：
+本项目遵循 [Conventional Commits](https://www.conventionalcommits.org/) 规范。
 
+详细的提交信息格式和最佳实践请参考：[COMMIT_CONVENTION.md](COMMIT_CONVENTION.md)
+
+**提交类型**：
 - `feat:` 新功能
 - `fix:` 修复 Bug
 - `docs:` 文档更新

@@ -199,23 +199,7 @@ git commit -m "docs: 发布 v1.4.1 版本并更新相关文档
 - 更新 USAGE.md 添加新功能详细说明"
 ```
 
-#### 提交信息格式
-
-```
-<type>: <subject>
-
-<body>
-```
-
-**Type 类型**：
-- `feat`: 新功能
-- `fix`: 修复
-- `docs`: 文档变更
-- `style`: 代码格式（不影响代码运行）
-- `refactor`: 重构
-- `perf`: 性能优化
-- `test`: 测试相关
-- `chore`: 构建/工具相关
+> 📝 **提交规范**：详细的提交信息格式和规范请参考 [COMMIT_CONVENTION.md](COMMIT_CONVENTION.md)
 
 ### Step 5: 创建版本标签
 
