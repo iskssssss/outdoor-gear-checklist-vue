@@ -1,22 +1,26 @@
 // src/utils/eventBus.js
-const listeners = {};
+interface EventListeners {
+  [event: string]: Function[];
+}
+
+const listeners: EventListeners = {};
 
 export const eventBus = {
   // 订阅事件
-  on(event, callback) {
+  on(event: string, callback: Function): void {
     if (!listeners[event]) {
       listeners[event] = [];
     }
     listeners[event].push(callback);
   },
   // 发射事件
-  emit(event, data) {
+  emit(event: string, data?: any): void {
     if (listeners[event]) {
       listeners[event].forEach(callback => callback(data));
     }
   },
   // 取消订阅
-  off(event, callback) {
+  off(event: string, callback: Function): void {
     if (listeners[event]) {
       listeners[event] = listeners[event].filter(cb => cb !== callback);
     }

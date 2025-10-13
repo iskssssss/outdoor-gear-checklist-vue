@@ -1,4 +1,22 @@
-import { ref, onMounted, onBeforeUnmount, nextTick, watch } from 'vue';
+import { ref, onMounted, onBeforeUnmount, nextTick, watch, Ref } from 'vue';
+
+interface MenuOptions {
+  isOpen: Ref<boolean>;
+  offset?: number;
+  setWidth?: boolean;
+}
+
+interface MenuStyle {
+  position: string;
+  top: string;
+  left: string;
+  opacity: number;
+  visibility: string;
+  transform: string;
+  transition: string;
+  width?: string;
+  maxHeight?: string;
+}
 
 /**
  * 一个 Vue Composable 函数，用于动态调整菜单元素的位置，以确保其在视口内可见。
@@ -10,8 +28,8 @@ import { ref, onMounted, onBeforeUnmount, nextTick, watch } from 'vue';
  * @param {boolean} [options.setWidth=false] - 是否将菜单宽度设置为与触发器相同.
  * @returns {object} 包含菜单样式的 ref.
  */
-export function useResponsiveMenu(triggerRef, menuRef, { isOpen, offset = 8, setWidth = false }) {
-  const menuStyle = ref({
+export function useResponsiveMenu(triggerRef: Ref<HTMLElement | null>, menuRef: Ref<HTMLElement | null>, { isOpen, offset = 8, setWidth = false }: MenuOptions) {
+  const menuStyle = ref<MenuStyle>({
     position: 'fixed',
     top: '0px',
     left: '0px',
@@ -21,7 +39,7 @@ export function useResponsiveMenu(triggerRef, menuRef, { isOpen, offset = 8, set
     transition: 'opacity 0.2s, transform 0.2s',
   });
 
-  const updatePosition = async () => {
+  const updatePosition = async (): Promise<void> => {
     if (!isOpen.value || !triggerRef.value || !menuRef.value) {
       menuStyle.value.opacity = 0;
       menuStyle.value.visibility = 'hidden';
@@ -30,7 +48,7 @@ export function useResponsiveMenu(triggerRef, menuRef, { isOpen, offset = 8, set
     }
 
     // 关键修复：先将菜单在屏幕外设为可见，以便正确测量其尺寸
-    const menu = menuRef.value;
+    const menu = menuRef.value as HTMLElement;
     menu.style.visibility = 'visible';
     menu.style.opacity = '0';
     menu.style.top = '-9999px';
@@ -39,37 +57,37 @@ export function useResponsiveMenu(triggerRef, menuRef, { isOpen, offset = 8, set
     // 等待 DOM 更新以应用上述样式
     await nextTick();
 
-    const triggerRect = triggerRef.value.getBoundingClientRect();
+    const triggerRect: DOMRect = triggerRef.value.getBoundingClientRect();
     // 现在可以获取到真实的尺寸
-    const menuRect = menu.getBoundingClientRect();
-    const computedStyle = window.getComputedStyle(menu);
-    const cssMaxHeight = computedStyle.maxHeight;
-    let preferredMaxHeight = Infinity;
+    const menuRect: DOMRect = menu.getBoundingClientRect();
+    const computedStyle: CSSStyleDeclaration = window.getComputedStyle(menu);
+    const cssMaxHeight: string = computedStyle.maxHeight;
+    let preferredMaxHeight: number = Infinity;
     if (cssMaxHeight && cssMaxHeight !== 'none') {
       preferredMaxHeight = parseFloat(cssMaxHeight);
     }
-    const targetHeight = Math.min(menuRect.height, preferredMaxHeight);
+    const targetHeight: number = Math.min(menuRect.height, preferredMaxHeight);
 
-    const viewportWidth = window.innerWidth;
-    const viewportHeight = window.innerHeight;
+    const viewportWidth: number = window.innerWidth;
+    const viewportHeight: number = window.innerHeight;
 
-    let top;
-    let left = triggerRect.left;
-    let finalMaxHeight;
+    let top: number;
+    let left: number = triggerRect.left;
+    let finalMaxHeight: number;
 
     // --- 最终的垂直定位与高度限制逻辑 ---
-    const spaceBelow = viewportHeight - triggerRect.bottom;
-    const spaceAbove = triggerRect.top;
+    const spaceBelow: number = viewportHeight - triggerRect.bottom;
+    const spaceAbove: number = triggerRect.top;
 
-    const goesAbove = (spaceBelow < targetHeight + offset) && (spaceAbove > spaceBelow);
+    const goesAbove: boolean = (spaceBelow < targetHeight + offset) && (spaceAbove > spaceBelow);
 
     if (goesAbove) {
-      const availableHeight = spaceAbove - offset;
+      const availableHeight: number = spaceAbove - offset;
       finalMaxHeight = Math.min(preferredMaxHeight, availableHeight);
-      const finalMenuHeight = Math.min(menuRect.height, finalMaxHeight);
+      const finalMenuHeight: number = Math.min(menuRect.height, finalMaxHeight);
       top = triggerRect.top - finalMenuHeight - offset;
     } else {
-      const availableHeight = spaceBelow - offset;
+      const availableHeight: number = spaceBelow - offset;
       finalMaxHeight = Math.min(preferredMaxHeight, availableHeight);
       top = triggerRect.bottom + offset;
     }
@@ -90,7 +108,7 @@ export function useResponsiveMenu(triggerRef, menuRef, { isOpen, offset = 8, set
       left = offset;
     }
 
-    let width = setWidth ? triggerRect.width : menuRect.width;
+    let width: number = setWidth ? triggerRect.width : menuRect.width;
     // 如果菜单宽度大于视口宽度，则强制适应
     if (width > viewportWidth - (offset * 2)) {
       width = viewportWidth - (offset * 2);
@@ -98,7 +116,7 @@ export function useResponsiveMenu(triggerRef, menuRef, { isOpen, offset = 8, set
     }
 
 
-    const finalStyle = {
+    const finalStyle: MenuStyle = {
       ...menuStyle.value,
       top: `${top}px`,
       left: `${left}px`,
@@ -120,7 +138,7 @@ export function useResponsiveMenu(triggerRef, menuRef, { isOpen, offset = 8, set
     menuStyle.value = finalStyle;
   };
 
-  let observer;
+  let observer: MutationObserver | null = null;
 
   onMounted(() => {
     // 使用 MutationObserver 监视菜单内容变化，以便在内容变化时更新位置
@@ -142,9 +160,11 @@ export function useResponsiveMenu(triggerRef, menuRef, { isOpen, offset = 8, set
   });
 
   // 监视 isOpen 状态的变化
-  watch(isOpen, (newValue) => {
+  watch(isOpen, (newValue: boolean) => {
     if (newValue) {
-      updatePosition();
+      updatePosition().then(r => {
+
+      });
     } else {
       menuStyle.value.opacity = 0;
       menuStyle.value.visibility = 'hidden';

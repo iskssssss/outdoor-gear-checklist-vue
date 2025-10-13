@@ -7,24 +7,57 @@ import { ref } from 'vue'
 import { defaultModelSettings, defaultRecommendationPreferences, localStorageKeys } from '../config/appConfig'
 import { toast } from '../utils/toast'
 
+interface ModelSettings {
+  apiKey: string;
+  apiUrl: string;
+  modelName: string;
+  maxTokens: number;
+  temperature: number;
+  customHeaders: string;
+  requestTemplate: string;
+  responseParser: string;
+  responsePath: string;
+}
+
+interface RecommendationPreference {
+  value: string;
+  label: string;
+}
+
+interface CustomRecommendationOptions {
+  activityType: RecommendationPreference[];
+  season: RecommendationPreference[];
+  weather: RecommendationPreference[];
+  difficulty: RecommendationPreference[];
+  budget: RecommendationPreference[];
+}
+
+interface RecommendationResult {
+  // Define the structure of your recommendation result here
+  // This is a placeholder, adjust based on actual data structure
+  id: string;
+  name: string;
+  // Add other properties as needed
+}
+
 export const useModelConfigStore = defineStore('modelConfig', () => {
   // 状态
-  const settings = ref({ ...defaultModelSettings })
-  const recommendationPreferences = ref({ ...defaultRecommendationPreferences })
-  const customRecommendationOptions = ref({
+  const settings = ref<ModelSettings>({ ...defaultModelSettings })
+  const recommendationPreferences = ref<Record<string, string>>({ ...defaultRecommendationPreferences })
+  const customRecommendationOptions = ref<CustomRecommendationOptions>({
     activityType: [],
     season: [],
     weather: [],
     difficulty: [],
     budget: []
   })
-  const lastRecommendations = ref([]) // 新增：保存上次的推荐结果
+  const lastRecommendations = ref<RecommendationResult[]>([]) // 新增：保存上次的推荐结果
 
   // Actions
   /**
    * 加载配置
    */
-  function loadSettings() {
+  function loadSettings(): void {
     // 加载模型配置
     const modelSettings = localStorage.getItem(localStorageKeys.modelSettings)
     if (modelSettings) {
@@ -71,7 +104,7 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
    * @param {Object} newSettings - 新的设置对象
    * （系统配置操作，不记录日志）
    */
-  function saveSettings(newSettings) {
+  function saveSettings(newSettings: Partial<ModelSettings>): boolean {
     try {
       Object.assign(settings.value, newSettings)
       localStorage.setItem(localStorageKeys.modelSettings, JSON.stringify(settings.value))
@@ -91,9 +124,11 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
    * 保存推荐偏好
    * @param {Object} newPreferences - 新的偏好对象
    */
-  function savePreferences(newPreferences) {
+  function savePreferences(newPreferences?: Partial<Record<string, string>>): boolean {
     try {
-      Object.assign(recommendationPreferences.value, newPreferences)
+      if (newPreferences) {
+        Object.assign(recommendationPreferences.value, newPreferences)
+      }
       localStorage.setItem(localStorageKeys.recommendationPreferences, JSON.stringify(recommendationPreferences.value))
       localStorage.setItem(localStorageKeys.customRecommendationOptions, JSON.stringify(customRecommendationOptions.value))
       // toast 通知已移至 ModelConfigModal.vue
@@ -112,7 +147,7 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
    * @param {string} categoryName - 类别名称 (e.g., 'activityType')
    * @param {{value: string, label: string}} option - 新的选项对象
    */
-  function addCustomOption(categoryName, value, label) {
+  function addCustomOption(categoryName: keyof CustomRecommendationOptions, value: string, label: string): void {
     if (customRecommendationOptions.value[categoryName]) {
       // 避免重复添加
       if (!customRecommendationOptions.value[categoryName].some(item => item.value === value)) {
@@ -127,7 +162,7 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
    * @param {string} categoryName - 类别名称
    * @param {string} value - 要移除的选项值
    */
-  function removeCustomOption(categoryName, value) {
+  function removeCustomOption(categoryName: keyof CustomRecommendationOptions, value: string): void {
     if (customRecommendationOptions.value[categoryName]) {
       const index = customRecommendationOptions.value[categoryName].findIndex(item => item.value === value)
       if (index !== -1) {
@@ -142,7 +177,7 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
    * @param {Array} recs - 推荐结果数组
    * （UI状态操作，不记录日志）
    */
-  function saveRecommendations(recs) {
+  function saveRecommendations(recs: RecommendationResult[]): void {
     try {
       lastRecommendations.value = recs;
       localStorage.setItem(localStorageKeys.lastRecommendations, JSON.stringify(recs));
@@ -155,7 +190,7 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
   /**
    * 构建完整的API URL
    */
-  function buildApiUrl(baseUrl) {
+  function buildApiUrl(baseUrl: string): string {
     let url = baseUrl.trim().replace(/\/+$/, '')
     if (url.endsWith('/chat/completions')) {
       return url
@@ -166,7 +201,7 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
   /**
    * 测试API连接
    */
-  async function testConnection(testPrompt) {
+  async function testConnection(testPrompt: string): Promise<{ success: boolean; content: string; apiUrl: string; modelName: string; temperature: number; maxTokens: number }> {
     if (!testPrompt || !testPrompt.trim()) {
       throw new Error('请输入测试提示词')
     }
@@ -188,7 +223,7 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
     const fullApiUrl = buildApiUrl(apiUrl)
 
     // 构建请求体
-    let requestBody
+    let requestBody: any
     try {
       if (requestTemplate) {
         const template = requestTemplate
@@ -210,12 +245,12 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
           stream: false
         }
       }
-    } catch (e) {
+    } catch (e: any) {
       throw new Error(`请求体构建失败：${e.message}`)
     }
 
     // 构建请求头
-    let headers = {
+    let headers: Record<string, string> = {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${apiKey}`
     }
@@ -231,7 +266,7 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
           }
         })
       }
-    } catch (e) {
+    } catch (e: any) {
       throw new Error(`请求头解析失败：${e.message}`)
     }
 
@@ -243,11 +278,11 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
     })
 
     const responseText = await response.text()
-    let data
+    let data: any
 
     try {
       data = JSON.parse(responseText)
-    } catch (e) {
+    } catch (e: any) {
       throw new Error(`响应解析失败\n\nHTTP状态: ${response.status}\n响应内容:\n${responseText.substring(0, 500)}`)
     }
 
@@ -298,7 +333,7 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
       if (!content) {
         content = '响应解析成功，但未找到内容\n\n完整响应：\n' + JSON.stringify(data, null, 2)
       }
-    } catch (e) {
+    } catch (e: any) {
       content = '响应内容解析失败\n\n错误：' + e.message + '\n\n完整响应：\n' + JSON.stringify(data, null, 2)
     }
 

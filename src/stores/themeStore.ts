@@ -5,9 +5,16 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
+interface Theme {
+  id: string;
+  name: string;
+  icon: string;
+  description: string;
+}
+
 export const useThemeStore = defineStore('theme', () => {
   // 可用的主题列表
-  const themes = ref([
+  const themes = ref<Theme[]>([
     {
       id: 'default',
       name: '默认风格',
@@ -95,12 +102,12 @@ export const useThemeStore = defineStore('theme', () => {
   ])
 
   // 当前激活的主题 (默认为默认风格)
-  const currentTheme = ref('default')
+  const currentTheme = ref<string>('default')
 
   /**
    * 从 localStorage 加载主题设置
    */
-  function loadTheme() {
+  function loadTheme(): void {
     const saved = localStorage.getItem('appTheme')
     if (saved && themes.value.some(t => t.id === saved)) {
       currentTheme.value = saved
@@ -115,7 +122,7 @@ export const useThemeStore = defineStore('theme', () => {
    * 切换到指定主题
    * @param {string} themeId - 主题ID
    */
-  function switchTheme(themeId, event) {
+  function switchTheme(themeId: string, event?: MouseEvent): void {
     const theme = themes.value.find(t => t.id === themeId)
     if (!theme) {
       console.error('❌ 未找到主题:', themeId)
@@ -176,7 +183,7 @@ export const useThemeStore = defineStore('theme', () => {
    * 应用主题样式 - 通过切换 body 的 class
    * @param {string} themeId - 主题ID
    */
-  function applyTheme(themeId) {
+  function applyTheme(themeId: string): void {
     // 获取 <html> 元素
     const html = document.documentElement;
     const body = document.body;
@@ -197,7 +204,7 @@ export const useThemeStore = defineStore('theme', () => {
   /**
    * 获取当前主题信息
    */
-  const getCurrentThemeInfo = () => {
+  const getCurrentThemeInfo = (): Theme => {
     return themes.value.find(t => t.id === currentTheme.value) || themes.value[0]
   }
 

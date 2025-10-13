@@ -7,15 +7,35 @@ import { ref, computed } from 'vue'
 import { localStorageKeys } from '../config/appConfig'
 import { toast } from '../utils/toast'
 
+interface CategoryState {
+  // Define the structure of your category state here
+  // For example:
+  // id: string;
+  // name: string;
+  // items: any[];
+  categories: any[]; // Assuming categories is an array of any for now
+}
+
+interface LogEntry {
+  id: number;
+  timestamp: string;
+  type: string;
+  action: string;
+  details: any | null;
+  beforeState: { categories: any[] } | null; // More specific type if possible
+  undoable: boolean;
+  undone: boolean;
+}
+
 export const useOperationLogStore = defineStore('operationLog', () => {
   // 状态
-  const logs = ref([])
+  const logs = ref<LogEntry[]>([])
 
   // Getters
-  const logCount = computed(() => logs.value.length)
+  const logCount = computed<number>(() => logs.value.length)
 
   // 计算可撤销的操作数量（只计算有状态数据的）
-  const undoableCount = computed(() =>
+  const undoableCount = computed<number>(() =>
     logs.value.filter(log => log.undoable && !log.undone && log.beforeState && log.beforeState.categories).length
   )
 
@@ -23,8 +43,8 @@ export const useOperationLogStore = defineStore('operationLog', () => {
   /**
    * 记录操作日志
    */
-  function log(type, action, details = null, beforeState = null, undoable = true) {
-    const logEntry = {
+  function log(type: string, action: string, details: any | null = null, beforeState: { categories: any[] } | null = null, undoable: boolean = true): void {
+    const logEntry: LogEntry = {
       id: Date.now(),
       timestamp: new Date().toISOString(),
       type: type,
@@ -59,11 +79,11 @@ export const useOperationLogStore = defineStore('operationLog', () => {
   /**
    * 加载操作日志
    */
-  function loadLogs() {
+  function loadLogs(): void {
     const saved = localStorage.getItem(localStorageKeys.operationLogs)
     if (saved) {
       try {
-        const loadedLogs = JSON.parse(saved)
+        const loadedLogs: LogEntry[] = JSON.parse(saved)
 
         // 处理旧版本日志数据，确保新字段存在
         logs.value = loadedLogs.map(log => ({
@@ -93,7 +113,7 @@ export const useOperationLogStore = defineStore('operationLog', () => {
    * 注意：确认对话框应该由调用方处理
    * （日志管理操作，不记录日志）
    */
-  function clearLogs() {
+  function clearLogs(): boolean {
     logs.value = []
     localStorage.removeItem(localStorageKeys.operationLogs)
     return true
@@ -102,7 +122,7 @@ export const useOperationLogStore = defineStore('operationLog', () => {
   /**
    * 导出操作日志
    */
-  function exportLogs() {
+  function exportLogs(): boolean {
     if (logs.value.length === 0) {
       toast.info('暂无日志可导出')
       return false
@@ -126,7 +146,7 @@ export const useOperationLogStore = defineStore('operationLog', () => {
   /**
    * 格式化日志详细信息
    */
-  function formatDetails(details) {
+  function formatDetails(details: any): string {
     if (typeof details === 'string') {
       return details
     }
@@ -143,7 +163,7 @@ export const useOperationLogStore = defineStore('operationLog', () => {
   /**
    * 格式化时间
    */
-  function formatTime(timestamp) {
+  function formatTime(timestamp: string): string {
     const time = new Date(timestamp)
     return `${time.getMonth() + 1}/${time.getDate()} ${time.getHours()}:${String(time.getMinutes()).padStart(2, '0')}:${String(time.getSeconds()).padStart(2, '0')}`
   }
@@ -151,7 +171,7 @@ export const useOperationLogStore = defineStore('operationLog', () => {
   /**
    * 标记日志为已撤销
    */
-  function markAsUndone(logId) {
+  function markAsUndone(logId: number): void {
     const log = logs.value.find(l => l.id === logId)
     if (log) {
       log.undone = true
@@ -167,7 +187,7 @@ export const useOperationLogStore = defineStore('operationLog', () => {
   /**
    * 获取最近的可撤销操作（必须有状态数据）
    */
-  function getLatestUndoableLog() {
+  function getLatestUndoableLog(): LogEntry | undefined {
     return logs.value.find(log => log.undoable && !log.undone && log.beforeState && log.beforeState.categories)
   }
 

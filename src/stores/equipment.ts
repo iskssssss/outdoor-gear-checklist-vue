@@ -7,32 +7,62 @@ import { ref, computed } from 'vue'
 import { useOperationLogStore } from './operationLog'
 import { defaultCategories, localStorageKeys } from '../config/appConfig'
 import { toast } from '../utils/toast'
+import { v4 as uuidv4 } from 'uuid';
+
+export interface Category {
+  id: string;
+  name: string;
+  icon: string;
+  items: Item[];
+  collapsed: boolean;
+}
+
+interface Item {
+  id: number | string;
+  index: number;
+  name: string;
+  completed: boolean;
+  quantity: number;
+  quantityUnit: string;
+  weight: number;
+  weightUnit: string;
+  price: number;
+  priceUnit: string;
+  isRecommended: boolean;
+  notes: string;
+  priority: string;
+}
+
+interface BeforeState {
+  action: string;
+  categories: Category[];
+}
 
 export const useEquipmentStore = defineStore('equipment', () => {
   // 状态
-  const categories = ref([])
-  const groupByStatus = ref(true) // 是否按准备状态分栏显示
-  const hasLoaded = ref(false) // 新增：数据是否已加载完成
+  const categories = ref<Category[]>([])
+  const groupByStatus = ref<boolean>(true) // 是否按准备状态分栏显示
+  const hasLoaded = ref<boolean>(false) // 新增：数据是否已加载完成
 
   // Getters - 统计信息
-  const totalCategories = computed(() => categories.value.length)
+  const totalCategories = computed<number>(() => categories.value.length)
 
-  const totalItems = computed(() =>
+  const totalItems = computed<number>(() =>
     categories.value.reduce((sum, cat) => sum + cat.items.length, 0)
   )
 
-  const completedItems = computed(() =>
+  const completedItems = computed<number>(() =>
     categories.value.reduce((sum, cat) =>
       sum + cat.items.filter(item => item.completed).length, 0
     )
   )
 
-  const remainingItems = computed(() => totalItems.value - completedItems.value)
+  const remainingItems = computed<number>(() => totalItems.value - completedItems.value)
 
-  const totalWeight = computed(() => {
+  const totalWeight = computed<string>(() => {
     const weightInGrams = categories.value.reduce((sum, cat) =>
       sum + cat.items.reduce((itemSum, item) => {
-        let weightInGrams = item.weight
+        let weightInGrams: number = item.weight
         // 单位转换
         switch (item.weightUnit) {
           case 'kg': weightInGrams = item.weight * 1000; break
@@ -46,10 +76,10 @@ export const useEquipmentStore = defineStore('equipment', () => {
     return (weightInGrams / 1000).toFixed(2) + 'kg'
   })
 
-  const totalPrice = computed(() => {
+  const totalPrice = computed<string>(() => {
     const priceInYuan = categories.value.reduce((sum, cat) =>
       sum + cat.items.reduce((itemSum, item) => {
-        let priceInYuan = item.price || 0
+        let priceInYuan: number = item.price || 0
         // 单位转换到人民币
         switch (item.priceUnit) {
           case '美元': priceInYuan = (item.price || 0) * 7; break // 简单汇率转换
@@ -67,7 +97,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
   /**
    * 从localStorage加载数据
    */
-  function loadData() {
+  function loadData(): void {
     const data = localStorage.getItem(localStorageKeys.equipmentChecklist)
     if (data) {
       try {
@@ -78,7 +108,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
         // 确保导入时 icon 属性存在，并检查序号，补充默认价格单位
         categories.value = categories.value.map(cat => {
           const items = cat.items.map((item, index) => {
-            const updatedItem = { ...item }
+            const updatedItem: Item = { ...item }
             if (!item.index) {
               needsReindex = true
               updatedItem.index = index + 1
@@ -141,10 +171,10 @@ export const useEquipmentStore = defineStore('equipment', () => {
   /**
    * 初始化预设分类
    */
-  function initializeDefaultCategories() {
+  function initializeDefaultCategories(): void {
 
     categories.value = defaultCategories.map((cat, index) => ({
-      id: Date.now() + index,
+      id: (Date.now() + index).toString(), // 确保ID是字符串
       name: cat.name,
       icon: cat.icon,
       items: [],
@@ -162,7 +192,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
   /**
    * 保存数据到localStorage
    */
-  function saveData() {
+  function saveData(): void {
     try {
       const dataString = JSON.stringify(categories.value)
       localStorage.setItem(localStorageKeys.equipmentChecklist, dataString)
@@ -179,7 +209,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
   /**
    * 同步数据（多标签页同步）
    */
-  function syncData() {
+  function syncData(): void {
     const currentData = JSON.stringify(categories.value)
     const savedData = localStorage.getItem(localStorageKeys.equipmentChecklist)
 
@@ -194,17 +224,17 @@ export const useEquipmentStore = defineStore('equipment', () => {
   /**
    * 添加分类
    */
-  function addCategory(name, icon = '✨') {
+  function addCategory(name: string, icon: string = '✨'): boolean {
     if (!name || name.trim() === '') {
       toast.warning('请输入分类名称')
       return false
     }
 
     // 生成唯一ID：时间戳 + 随机数，避免快速连续添加时ID重复
-    const uniqueId = Date.now() + Math.floor(Math.random() * 10000)
+    const uniqueId: number = Date.now() + Math.floor(Math.random() * 10000)
 
-    const newCategory = {
-      id: uniqueId,
+    const newCategory: Category = {
+      id: uniqueId.toString(), // 确保ID是字符串
       name: name.trim(),
       icon: icon,
       items: [],
@@ -212,7 +242,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
     }
 
     // 保存操作前的状态
-    const beforeState = {
+    const beforeState: BeforeState = {
       action: 'addCategory',
       categories: JSON.parse(JSON.stringify(categories.value))
     }
@@ -229,7 +259,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
   /**
    * 编辑分类图标
    */
-  function editCategoryIcon(categoryId, newIcon) {
+  function editCategoryIcon(categoryId: string, newIcon: string): boolean {
     const category = categories.value.find(cat => cat.id === categoryId)
     if (!category) return false
 
@@ -238,7 +268,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
     }
 
     // 保存操作前的状态
-    const beforeState = {
+    const beforeState: BeforeState = {
       action: 'editCategoryIcon',
       categories: JSON.parse(JSON.stringify(categories.value))
     }
@@ -259,7 +289,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
   /**
    * 删除分类
    */
-  async function deleteCategory(categoryId) {
+  async function deleteCategory(categoryId: string): Promise<boolean> {
     const category = categories.value.find(cat => cat.id === categoryId)
     if (!category) return false
 
@@ -267,7 +297,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
     const itemCount = category.items.length
 
     // 保存操作前的状态
-    const beforeState = {
+    const beforeState: BeforeState = {
       action: 'deleteCategory',
       categories: JSON.parse(JSON.stringify(categories.value))
     }
@@ -288,7 +318,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
   /**
    * 编辑分类名称
    */
-  function editCategoryName(categoryId, newName) {
+  function editCategoryName(categoryId: string, newName: string): boolean {
     const category = categories.value.find(cat => cat.id === categoryId)
     if (!category) return false
 
@@ -303,7 +333,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
     }
 
     // 保存操作前的状态
-    const beforeState = {
+    const beforeState: BeforeState = {
       action: 'editCategoryName',
       categories: JSON.parse(JSON.stringify(categories.value))
     }
@@ -325,7 +355,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
    * 切换分类折叠状态
    * （UI状态操作，不记录日志）
    */
-  function toggleCategoryCollapse(categoryId) {
+  function toggleCategoryCollapse(categoryId: string): void {
     const category = categories.value.find(cat => cat.id === categoryId)
     if (!category) return
 
@@ -338,7 +368,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
   /**
    * 重新编码分类中的所有装备序号
    */
-  function reindexCategory(categoryId) {
+  function reindexCategory(categoryId: string): void {
     const category = categories.value.find(cat => cat.id === categoryId)
     if (!category) return
 
@@ -353,11 +383,11 @@ export const useEquipmentStore = defineStore('equipment', () => {
   /**
    * 修复分类中重复的装备ID
    */
-  function fixDuplicateIds(categoryId) {
+  function fixDuplicateIds(categoryId: string): number {
     const category = categories.value.find(cat => cat.id === categoryId)
     if (!category) return 0
 
-    const idSet = new Set()
+    const idSet = new Set<string | number>()
     let fixedCount = 0
 
     category.items.forEach((item, index) => {
@@ -384,9 +414,9 @@ export const useEquipmentStore = defineStore('equipment', () => {
   /**
    * 更新分类顺序
    */
-  function updateCategoriesOrder(newOrder) {
+  function updateCategoriesOrder(newOrder: Category[]): void {
     // 保存操作前的状态
-    const beforeState = {
+    const beforeState: BeforeState = {
       action: 'updateCategoriesOrder',
       categories: JSON.parse(JSON.stringify(categories.value))
     }
@@ -403,7 +433,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
   /**
    * 添加装备项目
    */
-  function addItem(categoryId, itemData) {
+  function addItem(categoryId: string, itemData: Partial<Item> & { description?: string }): boolean {
     const category = categories.value.find(cat => cat.id === categoryId)
     if (!category) return false
 
@@ -417,10 +447,10 @@ export const useEquipmentStore = defineStore('equipment', () => {
       Math.max(max, item.index || 0), 0)
 
     // 生成唯一ID：时间戳 + 随机数，避免快速连续添加时ID重复
-    const uniqueId = Date.now() + Math.floor(Math.random() * 10000)
+    const uniqueId: number = Date.now() + Math.floor(Math.random() * 10000)
 
-    const newItem = {
-      id: uniqueId,
+    const newItem: Item = {
+      id: uniqueId.toString(), // 确保ID是字符串
       index: maxIndex + 1,  // 固定序号
       name: itemData.name.trim(),
       completed: itemData.completed || false,
@@ -436,7 +466,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
     }
 
     // 保存操作前的状态
-    const beforeState = {
+    const beforeState: BeforeState = {
       action: 'addItem',
       categories: JSON.parse(JSON.stringify(categories.value))
     }
@@ -461,7 +491,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
   /**
    * 删除装备项目
    */
-  async function deleteItem(categoryId, itemId) {
+  async function deleteItem(categoryId: string, itemId: string | number): Promise<boolean> {
     const category = categories.value.find(cat => cat.id === categoryId)
     if (!category) return false
 
@@ -469,7 +499,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
     if (!item) return false
 
     // 保存操作前的状态
-    const beforeState = {
+    const beforeState: BeforeState = {
       action: 'deleteItem',
       categories: JSON.parse(JSON.stringify(categories.value))
     }
@@ -494,7 +524,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
   /**
    * 删除装备项目
    */
-  async function removeItem(categoryId, itemId) {
+  async function removeItem(categoryId: string, itemId: string | number): Promise<boolean> {
     const category = categories.value.find(cat => cat.id === categoryId)
     if (!category) return false
 
@@ -502,7 +532,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
     if (!item) return false
 
     // 保存操作前的状态
-    const beforeState = {
+    const beforeState: BeforeState = {
       action: 'removeItem',
       categories: JSON.parse(JSON.stringify(categories.value))
     }
@@ -527,7 +557,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
   /**
    * 编辑装备项目
    */
-  function editItem(categoryId, itemId, itemData) {
+  function editItem(categoryId: string, itemId: string | number, itemData: Partial<Item>): boolean {
     const category = categories.value.find(cat => cat.id === categoryId)
     if (!category) return false
 
@@ -545,7 +575,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
     const oldPrice = `${item.price || 0}${item.priceUnit || '人民币'}`
 
     // 保存操作前的状态
-    const beforeState = {
+    const beforeState: BeforeState = {
       action: 'editItem',
       categories: JSON.parse(JSON.stringify(categories.value))
     }
@@ -577,7 +607,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
   /**
    * 更新装备（专为表格视图设计）
    */
-  function updateEquipment(categoryId, itemId, itemData) {
+  function updateEquipment(categoryId: string, itemId: string | number, itemData: Partial<Item>): void {
     const category = categories.value.find(cat => cat.id === categoryId);
     if (!category) return;
     const itemIndex = category.items.findIndex(i => i.id === itemId);
@@ -589,7 +619,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
   /**
    * 切换装备完成状态
    */
-  function toggleEquipmentStatus(categoryId, itemId) {
+  function toggleEquipmentStatus(categoryId: string, itemId: string | number): boolean {
     const category = categories.value.find(cat => cat.id === categoryId)
     if (!category) {
       console.error('❌ 未找到分类:', categoryId)
@@ -603,7 +633,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
     }
 
     // 保存操作前的状态
-    const beforeState = {
+    const beforeState: BeforeState = {
       action: 'toggleEquipmentStatus',
       categories: JSON.parse(JSON.stringify(categories.value))
     }
@@ -624,7 +654,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
   /**
    * 导入数据
    */
-  async function importData(data) {
+  async function importData(data: Category[]): Promise<boolean> {
     if (!Array.isArray(data)) {
       toast.error('导入的数据格式不正确')
       return false
@@ -634,13 +664,13 @@ export const useEquipmentStore = defineStore('equipment', () => {
 
     // 导入数据并为每个装备分配序号和唯一ID，补充默认值
     categories.value = data.map(cat => {
-      const categoryData = {
+      const categoryData: Category = {
         ...cat,
         icon: cat.icon || '✨', // 确保导入时 icon 属性存在
         items: cat.items.map((item, index) => ({
           ...item,
           // 如果没有ID或ID不是数字，生成新的唯一ID
-          id: (item.id && typeof item.id === 'number') ? item.id : Date.now() + Math.random() * 10000 + index,
+          id: (item.id && typeof item.id === 'number') ? item.id.toString() : uuidv4(), // 确保ID是字符串
           index: item.index || (index + 1), // 如果没有序号就分配一个
           price: item.price !== undefined ? item.price : 0, // 确保价格字段存在
           priceUnit: item.priceUnit || '人民币' // 确保价格单位存在
@@ -683,7 +713,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
    * 清空所有数据
    * 注意：确认对话框应该由调用方处理
    */
-  function clearAllData() {
+  function clearAllData(): boolean {
     const oldCategories = categories.value.length
     const oldItems = totalItems.value
 
@@ -704,7 +734,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
    * 切换装备分栏显示模式
    * （UI状态操作，不记录日志）
    */
-  function toggleGroupByStatus() {
+  function toggleGroupByStatus(): void {
     groupByStatus.value = !groupByStatus.value
 
     // UI状态操作不记录日志
@@ -713,7 +743,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
   /**
    * 撤销操作
    */
-  function undoOperation(logId) {
+  function undoOperation(logId: number): boolean {
     const logStore = useOperationLogStore()
     const targetLog = logStore.logs.find(log => log.id === logId)
 
@@ -767,7 +797,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
   /**
    * 快速撤销最近的操作
    */
-  function quickUndo() {
+  function quickUndo(): boolean {
     const logStore = useOperationLogStore()
     const latestLog = logStore.getLatestUndoableLog()
 
@@ -779,7 +809,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
     return undoOperation(latestLog.id)
   }
 
-  function getLatestUndoableLog() {
+  function getLatestUndoableLog(): object | undefined { // 根据实际情况调整返回类型
     const logStore = useOperationLogStore()
     return logStore.getLatestUndoableLog()
   }
@@ -787,13 +817,13 @@ export const useEquipmentStore = defineStore('equipment', () => {
   /**
    * 根据名称获取分类ID，如果不存在则创建
    */
-  function getOrCreateCategory(categoryName, icon = '✨') {
+  function getOrCreateCategory(categoryName: string, icon: string = '✨'): string {
     let category = categories.value.find(cat => cat.name === categoryName);
     if (!category) {
       // 如果分类不存在，则创建新分类
-      const uniqueId = Date.now() + Math.floor(Math.random() * 10000);
-      const newCategory = {
-        id: uniqueId,
+      const uniqueId: number = Date.now() + Math.floor(Math.random() * 10000);
+      const newCategory: Category = {
+        id: uniqueId.toString(), // 确保ID是字符串
         name: categoryName,
         icon: icon,
         items: [],
