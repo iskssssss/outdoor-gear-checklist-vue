@@ -87,8 +87,6 @@ hiking-checklist-vue/
 │   │   │
 │   │   ├── modals/             # 弹窗组件
 │   │   │   ├── CategorySortModal.vue      # 分类排序
-│   │   │   ├── ChangelogModal.vue         # 更新日志
-│   │   │   ├── DocModal.vue               # 文档查看
 │   │   │   ├── ImportCartModal.vue        # 购物车导入
 │   │   │   ├── ModelConfigModal.vue       # 模型配置
 │   │   │   ├── OperationLogModal.vue      # 操作日志
@@ -98,6 +96,7 @@ hiking-checklist-vue/
 │   │       ├── CategoryItem.vue           # 分类卡片
 │   │       ├── CategoryList.vue           # 分类列表
 │   │       ├── CategoryTableView.vue      # 表格视图
+│   │       ├── ChangelogPage.vue          # 更新日志（支持页面/模态框双模式）
 │   │       ├── EquipmentItem.vue          # 装备项
 │   │       ├── StatsPanel.vue             # 统计面板
 │   │       └── ...                        # 其他视图

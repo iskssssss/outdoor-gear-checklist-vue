@@ -10,7 +10,7 @@
     <RecommendationModal ref="recommendationModalRef" />
     <ModelConfigModal ref="modelConfigModalRef" />
     <OperationLogModal ref="operationLogModalRef" />
-    <ChangelogModal ref="changelogModalRef" />
+    <ChangelogPage :as-modal="true" ref="changelogModalRef" />
     <ThemeSelectorModal ref="themeSelectorModalRef" />
 
     <!-- Toast 通知组件 -->
@@ -41,7 +41,7 @@ import AppFooter from './components/layout/AppFooter.vue';
 import RecommendationModal from './components/modals/RecommendationModal.vue';
 import ModelConfigModal from './components/modals/ModelConfigModal.vue';
 import OperationLogModal from './components/modals/OperationLogModal.vue';
-import ChangelogModal from './components/modals/ChangelogModal.vue';
+import ChangelogPage from './components/views/ChangelogPage.vue';
 import ThemeSelectorModal from './components/modals/ThemeSelectorModal.vue';
 import ToastNotification from './components/common/feedback/ToastNotification.vue';
 import BaseConfirm from './components/common/feedback/BaseConfirm.vue';
