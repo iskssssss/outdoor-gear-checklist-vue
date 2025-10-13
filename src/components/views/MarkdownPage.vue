@@ -13,7 +13,7 @@
 
 <script setup>
 import { ref, defineExpose, onMounted, onUnmounted } from 'vue'
-import MarkdownViewer from '../common/MarkdownViewer.vue'
+import MarkdownViewer from '../common/data/MarkdownViewer.vue'
 
 const props = defineProps({
   // 页面标题

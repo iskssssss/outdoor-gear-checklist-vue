@@ -16,8 +16,8 @@
 
 <script setup>
 import { ref, defineExpose, onMounted } from 'vue'
-import BaseModal from '../common/BaseModal.vue'
-import MarkdownViewer from '../common/MarkdownViewer.vue'
+import BaseModal from '../common/feedback/BaseModal.vue'
+import MarkdownViewer from '../common/data/MarkdownViewer.vue'
 
 const modalRef = ref(null)
 const loading = ref(false)
@@ -56,7 +56,7 @@ async function fetchChangelog(useCache = true) {
     console.log('🌐 正在加载更新日志...')
 
     const cacheBuster = useCache ? '' : `?t=${Date.now()}`
-    const response = await fetch('/CHANGELOG.md' + cacheBuster)
+    const response = await fetch('/docs/CHANGELOG.md' + cacheBuster)
 
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`)

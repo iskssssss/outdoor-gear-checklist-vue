@@ -228,8 +228,8 @@ defineExpose({
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 25px 30px;
-  border-bottom: var(--border-width-lg) solid var(--border-color);
+  padding: var(--spacing-lg) var(--spacing-xl);  /* 头部需要较大内边距 */
+  border-bottom: var(--border-width) solid var(--border-color);
   border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
   flex-shrink: 0;
   background: var(--bg-card);
@@ -251,8 +251,8 @@ defineExpose({
   color: var(--text-secondary);
   background: none;
   border: none;
-  padding: 4px 8px;
-  border-radius: var(--border-radius-sm);
+  padding: var(--spacing-xs) var(--spacing-sm);  /* 关闭按钮小内边距 */
+  border-radius: var(--radius-sm);
   transition: all 0.2s ease;
   line-height: 1;
 
@@ -264,16 +264,13 @@ defineExpose({
 
 /* 主体 */
 .base-modal-body {
-  padding: 30px;
+  padding: var(--spacing-xl);  /* 主体需要充足的内边距 */
   overflow-y: auto;
   flex: 1;
   min-height: 0;
   display: flex;
-  // 新增：使用Flexbox布局
   flex-direction: column;
-  // 新增：垂直堆叠子元素
-  gap: 20px;
-  // 新增：子元素之间的间距
+  gap: var(--spacing-lg);  /* 内容元素间标准间距 */
 }
 
 .base-modal-body.no-inner-scroll {
@@ -284,9 +281,9 @@ defineExpose({
 .base-modal-footer {
   display: flex;
   justify-content: flex-end;
-  gap: 12px;
-  padding: 20px 30px;
-  border-top: var(--border-width-lg) solid var(--border-color);
+  gap: var(--spacing-md);  /* 按钮间标准间距 */
+  padding: var(--spacing-lg) var(--spacing-xl);  /* 底部与头部对称 */
+  border-top: var(--border-width) solid var(--border-color);
   flex-shrink: 0;
 }
 
@@ -309,10 +306,10 @@ defineExpose({
 .modal-slide-enter-from,
 .modal-slide-leave-to {
   opacity: 0;
-  transform: translateY(-50px);
+  transform: translateY(-50px);  /* 保持动画距离固定，不使用token */
 }
 
-/* 响应式设计 */
+/* 响应式设计 - 移动端减小间距 */
 @media (max-width: 768px) {
   .base-modal-content {
     width: 95% !important;
@@ -320,7 +317,7 @@ defineExpose({
   }
 
   .base-modal-header {
-    padding: 20px;
+    padding: var(--spacing-lg);  /* 移动端减小头部内边距 */
   }
 
   .base-modal-title {
@@ -328,11 +325,11 @@ defineExpose({
   }
 
   .base-modal-body {
-    padding: 20px;
+    padding: var(--spacing-lg);  /* 移动端减小主体内边距 */
   }
 
   .base-modal-footer {
-    padding: 15px 20px;
+    padding: var(--spacing-md) var(--spacing-lg);  /* 移动端减小底部内边距 */
   }
 }
 </style>

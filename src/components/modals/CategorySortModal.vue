@@ -26,7 +26,7 @@
 <script setup>
 import { ref, defineExpose } from 'vue'
 import { useEquipmentStore } from '../../stores/equipment'
-import BaseModal from '../common/BaseModal.vue'
+import BaseModal from '../common/feedback/BaseModal.vue'
 import { useDebounceFn } from '@vueuse/core';
 
 const equipmentStore = useEquipmentStore()

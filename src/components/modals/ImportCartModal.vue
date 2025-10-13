@@ -126,7 +126,7 @@
 
 <script setup>
 import { ref, inject, watch, computed } from 'vue';
-import BaseModal from '../common/BaseModal.vue';
+import BaseModal from '../common/feedback/BaseModal.vue';
 import { useDebounceFn } from '@vueuse/core';
 import { useEquipmentStore } from '../../stores/equipment';
 import { useModelConfigStore } from '../../stores/modelConfig';

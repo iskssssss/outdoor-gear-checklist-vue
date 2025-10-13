@@ -107,8 +107,8 @@ defineExpose({
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 18px 20px;
-  border-bottom: 1px solid var(--border-color);
+  padding: var(--spacing-lg) var(--spacing-lg);
+  border-bottom: var(--border-width) solid var(--border-color);
 }
 
 .modal-title {
@@ -131,7 +131,7 @@ defineExpose({
 }
 
 .modal-body {
-  padding: 20px;
+  padding: var(--spacing-lg);
   flex-grow: 1;
   overflow-y: auto;
 }
@@ -140,7 +140,7 @@ defineExpose({
   font-size: 1rem;
   color: var(--text-primary);
   line-height: 1.5;
-  margin-bottom: 15px;
+  margin-bottom: var(--spacing-md);
   // Support newlines
   white-space: pre-wrap;
 }
@@ -148,13 +148,13 @@ defineExpose({
 .danger-warning {
   background: var(--danger-light);
   border-left: 4px solid var(--danger-color);
-  padding: 10px 15px;
-  border-radius: 6px;
-  margin-top: 15px;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-sm);
+  margin-top: var(--spacing-md);
 
   p {
     color: var(--danger-color);
-    font-weight: 500;
+    font-weight: var(--font-weight-medium);
     margin: 0;
   }
 }
@@ -162,17 +162,17 @@ defineExpose({
 .modal-footer {
   display: flex;
   justify-content: flex-end;
-  padding: 15px 20px;
-  border-top: 1px solid var(--border-color);
-  gap: 10px;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-top: var(--border-width) solid var(--border-color);
+  gap: var(--spacing-sm);
 }
 
 .btn {
-  padding: 10px 20px;
+  padding: var(--spacing-sm) var(--spacing-lg);
   border-radius: var(--border-radius);
   cursor: pointer;
   font-size: 0.95rem;
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
   transition: all 0.2s ease;
 }
 
@@ -225,12 +225,12 @@ defineExpose({
 @media (max-width: 768px) {
   .modal-container {
     width: 90% !important;
-    margin: 0 10px;
+    margin: 0 var(--spacing-sm);
   }
 
   .modal-footer {
     flex-direction: column;
-    gap: 8px;
+    gap: var(--spacing-sm);
   }
 
   .btn {

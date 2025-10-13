@@ -87,32 +87,32 @@ defineExpose({
 <style scoped lang="scss">
 .toast-container {
   position: fixed;
-  top: 80px;
-  right: 20px;
+  top: 80px;  /* 固定位置避开Header，不使用token */
+  right: var(--spacing-lg);  /* 右侧边距 */
   z-index: 9999;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--spacing-md);  /* Toast之间的间距 */
   pointer-events: none;
 }
 
 .toast {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--spacing-md);  /* 图标与内容间距 */
   min-width: 300px;
   max-width: 400px;
-  padding: 14px 16px;
+  padding: var(--spacing-md) var(--spacing-md);  /* Toast内边距 */
   background: var(--bg-card);
-  border-radius: var(--border-radius-lg);
+  border-radius: var(--radius-lg);  /* 使用大圆角 */
   box-shadow: var(--shadow-lg);
   pointer-events: auto;
   cursor: pointer;
   transition: all 0.3s ease;
-  border-left: 6px solid;
+  border-left: 6px solid;  /* 功能色强调边框，保持固定宽度 */
 
   &:hover {
-    transform: translateX(-4px);
+    transform: translateX(-4px);  /* 悬浮动画距离固定 */
     box-shadow: var(--shadow-xl);
   }
 }
@@ -157,11 +157,11 @@ defineExpose({
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
+  width: 32px;  /* 图标容器固定尺寸 */
   height: 32px;
-  border-radius: 50%;
+  border-radius: var(--radius-full);  /* 圆形图标 */
   font-size: 1.2rem;
-  font-weight: bold;
+  font-weight: var(--font-weight-bold);
   flex-shrink: 0;
 }
 
@@ -173,7 +173,7 @@ defineExpose({
 .toast-message {
   color: var(--text-primary);
   font-size: 0.95rem;
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
   line-height: 1.4;
   word-break: break-word;
 }
@@ -182,19 +182,19 @@ defineExpose({
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
+  width: 24px;  /* 关闭按钮固定尺寸 */
   height: 24px;
   border: none;
   background: transparent;
   color: var(--text-secondary);
-  border-radius: 50%;
+  border-radius: var(--radius-full);  /* 圆形按钮 */
   cursor: pointer;
   transition: all 0.2s ease;
   font-size: 1.1rem;
   flex-shrink: 0;
 
   &:hover {
-    background: var(--bg-hover, rgba(0, 0, 0, 0.05));
+    background: var(--bg-hover);
     color: var(--text-primary);
   }
 }
@@ -222,24 +222,24 @@ defineExpose({
 
 .toast-item-enter-from {
   opacity: 0;
-  transform: translateX(100px);
+  transform: translateX(100px);  /* 动画距离保持固定 */
 }
 
 .toast-item-leave-to {
   opacity: 0;
-  transform: translateX(100px) scale(0.8);
+  transform: translateX(100px) scale(0.8);  /* 动画效果保持固定 */
 }
 
 .toast-item-move {
   transition: transform 0.3s ease;
 }
 
-// 响应式
+// 响应式 - 移动端调整位置
 @media (max-width: 768px) {
   .toast-container {
-    top: 70px;
-    right: 10px;
-    left: 10px;
+    top: 70px;  /* 移动端Header高度，保持固定 */
+    right: var(--spacing-sm);  /* 移动端右边距 */
+    left: var(--spacing-sm);   /* 移动端左边距，使Toast居中 */
   }
 
   .toast {

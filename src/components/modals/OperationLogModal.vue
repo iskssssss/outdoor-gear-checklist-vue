@@ -49,7 +49,7 @@
 import { ref, inject } from 'vue'
 import { useOperationLogStore } from '../../stores/operationLog'
 import { useEquipmentStore } from '../../stores/equipment'
-import BaseModal from '../common/BaseModal.vue'
+import BaseModal from '../common/feedback/BaseModal.vue'
 import { useDebounceFn } from '@vueuse/core';
 
 const logStore = useOperationLogStore()

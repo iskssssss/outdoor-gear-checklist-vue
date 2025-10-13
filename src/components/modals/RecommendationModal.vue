@@ -81,8 +81,8 @@ import { ref, computed } from 'vue'
 import { useModelConfigStore } from '../../stores/modelConfig'
 import { useEquipmentStore } from '../../stores/equipment'
 import { activityTypeOptions, seasonOptions, weatherOptions, difficultyOptions, budgetOptions } from '../../config/appConfig'
-import InputSelect from '../common/InputSelect.vue'
-import BaseModal from '../common/BaseModal.vue'
+import InputSelect from '../common/form/InputSelect.vue'
+import BaseModal from '../common/feedback/BaseModal.vue'
 import { useDebounceFn } from '@vueuse/core';
 
 const modelConfigStore = useModelConfigStore()

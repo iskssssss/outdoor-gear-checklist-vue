@@ -500,7 +500,7 @@ git commit -m "docs: 发布 v1.4.2 版本并更新文档
 - 更新 CHANGELOG 和 README"
 ```
 
-> 📝 **提交规范**：详细的提交信息格式和规范请参考 [COMMIT_CONVENTION.md](COMMIT_CONVENTION.md)
+> 📝 **提交规范**：详细的提交信息格式和规范请参考 [COMMIT_CONVENTION.md](development/COMMIT_CONVENTION.md)
 
 ---
 

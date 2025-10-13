@@ -114,7 +114,7 @@
 import { ref, reactive, inject, computed } from 'vue'
 import { useModelConfigStore } from '../../stores/modelConfig'
 import { defaultTestPrompt } from '../../config/appConfig'
-import BaseModal from '../common/BaseModal.vue'
+import BaseModal from '../common/feedback/BaseModal.vue'
 
 const modelConfigStore = useModelConfigStore()
 const toast = inject('toast')

@@ -230,9 +230,9 @@ function handleAddNew(event) {
 
 .input-select-wrapper input {
   flex: 1;
-  padding: 10px 15px;
-  border: 2px solid var(--border-color);
-  border-radius: var(--border-radius-sm);
+  padding: var(--spacing-sm) var(--spacing-md);  /* 输入框中等内边距 */
+  border: var(--border-width) solid var(--border-color);
+  border-radius: var(--radius-sm);
   font-size: 1rem;
   background: var(--bg-input);
   color: var(--text-primary);
@@ -246,21 +246,20 @@ function handleAddNew(event) {
 
 .suggestions-list {
   /* 移除 position, top, left, width, transform-origin */
-  max-height: 200px;
+  max-height: 200px;  /* 下拉列表最大高度固定，保证可见性 */
   overflow-y: auto;
   background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-sm);
+  border: var(--border-width) solid var(--border-color);
+  border-radius: var(--radius-sm);
   box-shadow: var(--shadow-lg);
-  margin-top: 4px;
-  // 确保在最上层
+  margin-top: var(--spacing-xs);  /* 下拉列表与输入框的小间隙 */
   z-index: 1000;
   padding: 0;
   list-style: none;
 }
 
 .suggestions-list li {
-  padding: 10px 15px;
+  padding: var(--spacing-sm) var(--spacing-md);  /* 列表项内边距与输入框对齐 */
   cursor: pointer;
   transition: background-color 0.2s ease;
   color: var(--text-primary);
@@ -272,17 +271,17 @@ function handleAddNew(event) {
 
 .suggestions-list li.selected {
   background-color: var(--primary-color);
-  color: var(--btn-primary-text, white);
-  font-weight: 600;
+  color: var(--btn-primary-text);
+  font-weight: var(--font-weight-bold);
 }
 
 .suggestions-list li.add-new-option {
   color: var(--primary-color);
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
   cursor: pointer;
-  padding: 10px 15px;
+  padding: var(--spacing-sm) var(--spacing-md);  /* 添加新项的内边距 */
   text-align: center;
-  border-top: 1px solid var(--border-color);
+  border-top: var(--border-width) solid var(--border-color);
 }
 
 .suggestions-list li.add-new-option:hover {

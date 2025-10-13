@@ -52,7 +52,7 @@
 <script setup>
 import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
 // 1. 导入 eventBus
-import { eventBus } from '../../utils/eventBus';
+import { eventBus } from '../../../utils/eventBus';
 
 const props = defineProps({
   content: {
@@ -536,7 +536,7 @@ defineExpose({
 
 .markdown-layout {
   display: flex;
-  gap: 30px;
+  gap: var(--spacing-xl);  /* 内容与目录之间的较大间隙 */
   flex: 1;
   min-height: 0;
 }
@@ -547,24 +547,22 @@ defineExpose({
 }
 
 .markdown-content {
-  padding: 0 20px 40px 0;
+  padding: 0 var(--spacing-lg) var(--spacing-3xl) 0;  /* 右侧和底部充足留白 */
 }
 
 // 目录导航
 .markdown-toc {
-  width: 260px;
+  width: 260px;  /* 目录固定宽度，保证可读性 */
   flex-shrink: 0;
   position: sticky;
-  // 增加顶部偏移量，确保在导航栏下方并留出间距
-  top: 88px;
+  top: 88px;  /* 固定偏移量避开Header，不使用token */
   align-self: flex-start;
-  // 限制最大高度，防止目录过长
-  max-height: calc(100vh - 180px);
+  max-height: calc(100vh - 180px);  /* 动态计算高度 */
   overflow-y: auto;
   background: var(--bg-card);
-  border: 2px solid var(--border-color);
-  border-radius: var(--border-radius);
-  padding: 16px;
+  border: var(--border-width) solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);  /* 目录内边距 */
   box-shadow: var(--shadow-sm);
 }
 
@@ -572,24 +570,24 @@ defineExpose({
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
-  padding-bottom: 10px;
-  border-bottom: 2px solid var(--border-color);
+  margin-bottom: var(--spacing-md);  /* 标题与列表的间距 */
+  padding-bottom: var(--spacing-sm);  /* 标题底部内边距 */
+  border-bottom: var(--border-width) solid var(--border-color);
 
   h3 {
     margin: 0;
     font-size: 1rem;
-    font-weight: 600;
+    font-weight: var(--font-weight-bold);
     color: var(--text-primary);
   }
 }
 
 .refresh-btn {
-  padding: 6px 10px;
+  padding: var(--spacing-xs) var(--spacing-sm);  /* 小按钮紧凑内边距 */
   background: transparent;
   color: var(--text-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
+  border: var(--border-width) solid var(--border-color);
+  border-radius: var(--radius-sm);
   cursor: pointer;
   font-size: 0.9rem;
   transition: all 0.3s ease;
@@ -629,18 +627,18 @@ defineExpose({
   }
 
   .toc-item {
-    margin: 3px 0;
+    margin: var(--spacing-xs) 0;  /* 目录项间小间距 */
 
     a {
       display: block;
-      padding: 5px 8px;
+      padding: var(--spacing-xs) var(--spacing-sm);  /* 目录链接内边距 */
       color: var(--text-secondary);
       text-decoration: none;
-      border-radius: 4px;
+      border-radius: var(--radius-sm);
       font-size: 0.85rem;
       line-height: 1.4;
       transition: all 0.2s ease;
-      border-left: 2px solid transparent;
+      border-left: 2px solid transparent;  /* 强调边框固定宽度 */
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -649,44 +647,45 @@ defineExpose({
         background: var(--bg-input);
         color: var(--text-primary);
         border-left-color: var(--primary-color);
-        transform: translateX(2px);
+        transform: translateX(2px);  /* 悬浮动画距离固定 */
       }
     }
 
     &.active a {
       background: var(--primary-color);
-      color: var(--btn-primary-text, var(--text-white));
-      font-weight: 600;
+      color: var(--btn-primary-text);
+      font-weight: var(--font-weight-bold);
       border-left-color: var(--primary-color);
       transform: translateX(0);
     }
   }
 
+  /* 目录层级缩进 - 使用spacing创建层次感 */
   .toc-level-1 a {
     font-size: 0.9rem;
-    font-weight: 600;
-    padding-left: 8px;
+    font-weight: var(--font-weight-bold);
+    padding-left: var(--spacing-sm);  /* 一级标题：8px */
   }
 
   .toc-level-2 a {
-    padding-left: 16px;
+    padding-left: var(--spacing-md);  /* 二级标题：16px */
     font-size: 0.85rem;
   }
 
   .toc-level-3 a {
-    padding-left: 24px;
+    padding-left: var(--spacing-lg);  /* 三级标题：24px */
     font-size: 0.82rem;
   }
 
   .toc-level-4 a {
-    padding-left: 32px;
+    padding-left: var(--spacing-xl);  /* 四级标题：32px */
     font-size: 0.8rem;
     color: var(--text-muted);
   }
 
   .toc-level-5 a,
   .toc-level-6 a {
-    padding-left: 40px;
+    padding-left: calc(var(--spacing-xl) + var(--spacing-sm));  /* 五六级：40px */
     font-size: 0.78rem;
     color: var(--text-muted);
   }
@@ -698,23 +697,22 @@ defineExpose({
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 80px 20px;
+  padding: var(--spacing-3xl) var(--spacing-lg);  /* 加载状态大内边距 */
   color: var(--text-secondary);
-  // 保证加载状态有一定高度
-  min-height: 300px;
+  min-height: 300px;  /* 保证最小高度固定 */
 
   p {
-    margin-top: 20px;
+    margin-top: var(--spacing-lg);  /* 文本与图标间距 */
     font-size: 1rem;
   }
 }
 
 .loading-spinner {
-  width: 50px;
+  width: 50px;  /* 加载图标固定尺寸 */
   height: 50px;
   border: 4px solid var(--bg-hover);
   border-top-color: var(--primary-color);
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   animation: spin 1s linear infinite;
 }
 
@@ -727,11 +725,11 @@ defineExpose({
 // 错误状态
 .error-state {
   text-align: center;
-  padding: 60px 20px;
+  padding: var(--spacing-3xl) var(--spacing-lg);  /* 错误状态大内边距 */
   color: var(--text-secondary);
 
   p {
-    margin: 12px 0;
+    margin: var(--spacing-md) 0;  /* 段落间标准间距 */
   }
 
   .error-message {
@@ -739,15 +737,15 @@ defineExpose({
     font-size: 0.95rem;
     font-family: 'Courier New', monospace;
     background: var(--bg-hover);
-    padding: 10px 16px;
-    border-radius: 6px;
+    padding: var(--spacing-sm) var(--spacing-md);  /* 错误消息内边距 */
+    border-radius: var(--radius-sm);
     display: inline-block;
   }
 
   .fallback-hint {
     color: var(--primary-color);
     font-size: 0.9rem;
-    margin-top: 20px;
+    margin-top: var(--spacing-lg);  /* 提示文本顶部间距 */
   }
 }
 
@@ -777,13 +775,13 @@ defineExpose({
   :deep(h1) {
     font-size: 1.8em;
     padding-bottom: 0.3em;
-    border-bottom: 2px solid var(--border-color);
+    border-bottom: var(--border-width) solid var(--border-color);
   }
 
   :deep(h2) {
     font-size: 1.5em;
     padding-bottom: 0.3em;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: var(--border-width) solid var(--border-color);
   }
 
   :deep(h3) {
@@ -803,33 +801,33 @@ defineExpose({
   :deep(a) {
     color: var(--primary-color);
     text-decoration: none;
-    border-bottom: 1px dashed var(--primary-color);
+    border-bottom: var(--border-width) dashed var(--primary-color);
     transition: all 0.2s ease;
 
     &:hover {
       background: var(--primary-color);
-      color: var(--btn-primary-text, white);
+      color: var(--btn-primary-text);
       border-bottom-style: solid;
     }
   }
 
   :deep(code) {
     background: var(--bg-input);
-    padding: 2px 6px;
-    border-radius: 3px;
+    padding: 2px var(--spacing-xs);  /* 行内代码小内边距 */
+    border-radius: var(--radius-sm);
     font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
     font-size: 0.9em;
-    color: var(--danger-color, #dc3545);
-    border: 1px solid var(--border-color);
+    color: var(--danger-color);
+    border: var(--border-width) solid var(--border-color);
   }
 
   :deep(pre) {
     background: var(--bg-input);
-    padding: 12px;
-    border-radius: var(--border-radius-sm);
+    padding: var(--spacing-md);  /* 代码块标准内边距 */
+    border-radius: var(--radius-md);
     overflow-x: auto;
     margin: 1em 0;
-    border: 1px solid var(--border-color);
+    border: var(--border-width) solid var(--border-color);
 
     code {
       background: none;
@@ -837,7 +835,6 @@ defineExpose({
       color: var(--text-primary);
       font-size: 0.9em;
       border: none;
-      border-radius: var(--border-radius-sm);
     }
   }
 
@@ -854,7 +851,7 @@ defineExpose({
   }
 
   :deep(strong) {
-    font-weight: 700;
+    font-weight: var(--font-weight-bold);
     color: var(--text-primary);
   }
 
@@ -881,19 +878,19 @@ defineExpose({
 
   :deep(hr) {
     border: none;
-    height: 1px;
+    height: 1px;  /* 分隔线固定高度 */
     background: var(--border-color);
     margin: 1.5em 0;
   }
 
   :deep(blockquote) {
-    border-left: 4px solid var(--primary-color);
+    border-left: 4px solid var(--primary-color);  /* 引用块强调边框固定宽度 */
     background: var(--bg-input);
     padding: 0.8em 1em;
     margin: 1em 0;
     color: var(--text-secondary);
     font-style: italic;
-    border-radius: 0 4px 4px 0;
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
 
     p {
       margin: 0.4em 0;
@@ -905,21 +902,20 @@ defineExpose({
     border-collapse: collapse;
     margin: 1em 0;
     box-shadow: var(--shadow-sm);
-    border-radius: var(--border-radius-sm);
+    border-radius: var(--radius-md);
     overflow: hidden;
 
     th,
     td {
-      padding: 8px 12px;
-      border: 1px solid var(--border-color);
+      padding: var(--spacing-sm) var(--spacing-md);  /* 表格单元格内边距 */
+      border: var(--border-width) solid var(--border-color);
       text-align: left;
     }
 
     th {
       background: var(--primary-color);
-      color: var(--btn-primary-text, white);
-      font-weight: 600;
-      border-radius: var(--border-radius-sm) var(--border-radius-sm) 0 0;
+      color: var(--btn-primary-text);
+      font-weight: var(--font-weight-bold);
     }
 
     tr:nth-child(even) {
@@ -934,21 +930,21 @@ defineExpose({
   :deep(img) {
     max-width: 100%;
     height: auto;
-    border-radius: var(--border-radius-sm);
+    border-radius: var(--radius-md);
     transition: all 0.3s ease;
   }
 
   :deep(img:not([src*="shields.io"]):not([src*="badge"])) {
-    border-radius: var(--border-radius-sm);
+    border-radius: var(--radius-md);
     transition: all 0.3s ease;
   }
 
   :deep(p.badge-row) {
-    border-radius: var(--border-radius-sm);
+    border-radius: var(--radius-sm);
   }
 }
 
-// 响应式
+// 响应式 - 移动端目录移至顶部
 @media (max-width: 992px) {
   .markdown-layout {
     flex-direction: column;
@@ -957,9 +953,9 @@ defineExpose({
   .markdown-toc {
     position: static;
     width: 100%;
-    max-height: 300px;
+    max-height: 300px;  /* 移动端目录最大高度固定 */
     order: -1;
-    margin-bottom: 20px;
+    margin-bottom: var(--spacing-lg);  /* 目录与内容的间距 */
   }
 }
 </style>

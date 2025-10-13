@@ -40,26 +40,26 @@ body[class*="theme-"] {
     justify-content: center;
     align-items: center;
     flex-wrap: wrap;
-    gap: 4px;
-    padding: 8px 0;
+    gap: var(--spacing-xs);  /* 导航链接间紧凑间距 */
+    padding: var(--spacing-sm) 0;  /* 导航栏垂直内边距 */
   }
 
   .nav-link {
     position: relative;
-    padding: 6px 12px;
+    padding: var(--spacing-xs) var(--spacing-md);  /* 导航链接紧凑内边距 */
     font-size: 0.9rem;
-    font-weight: 500;
+    font-weight: var(--font-weight-medium);
     cursor: pointer;
     transition: all 0.3s ease;
-    border-bottom: 2px solid transparent;
+    border-bottom: 2px solid transparent;  /* 激活指示器固定宽度 */
     text-decoration: none;
     white-space: nowrap;
   }
 
   .nav-divider {
-    width: 1px;
-    height: 20px;
-    margin: 0 8px;
+    width: 1px;  /* 分隔线固定宽度 */
+    height: 20px;  /* 分隔线固定高度 */
+    margin: 0 var(--spacing-sm);  /* 分隔线水平间距 */
   }
 
   /* ===== 输入框和表单 ===== */
@@ -67,12 +67,11 @@ body[class*="theme-"] {
   select,
   textarea {
     background: var(--bg-input);
-    border: var(--border-width, 2px) solid var(--border-color);
+    border: var(--border-width) solid var(--border-color);
     color: var(--text-primary);
     transition: all 0.3s ease;
     max-width: 100%;
-    // 确保padding包含在width内
-    box-sizing: border-box;
+    box-sizing: border-box;  /* 确保padding包含在width内 */
 
     &:focus {
       outline: none;
@@ -80,7 +79,7 @@ body[class*="theme-"] {
   }
 
   .add-item-field label {
-    font-weight: 500;
+    font-weight: var(--font-weight-medium);
     color: var(--text-secondary);
   }
 
@@ -91,66 +90,66 @@ body[class*="theme-"] {
 
   /* ===== 标签页 ===== */
   .tab-btn {
-    padding: 12px 24px;
+    padding: var(--spacing-md) var(--spacing-lg);  /* Tab按钮标准内边距 */
     border: none;
     background: transparent;
     font-size: 1rem;
-    font-weight: 500;
+    font-weight: var(--font-weight-medium);
     cursor: pointer;
     transition: all 0.3s ease;
-    border-bottom: 3px solid transparent;
+    border-bottom: 3px solid transparent;  /* Tab激活指示器固定宽度 */
   }
 
   /* ===== 日志 ===== */
   .log-item {
-    padding: 15px;
-    margin-bottom: 12px;
-    border-radius: var(--border-radius);
+    padding: var(--spacing-md);  /* 日志项标准内边距 */
+    margin-bottom: var(--spacing-md);  /* 日志项间标准间距 */
+    border-radius: var(--radius-md);
     transition: all 0.3s ease;
 
     &:hover {
-      transform: translateX(5px);
+      transform: translateX(5px);  /* 悬浮动画距离固定 */
     }
   }
 
   .log-count {
     margin-left: auto;
-    font-weight: 500;
+    font-weight: var(--font-weight-medium);
     color: var(--text-secondary);
 
     span {
-      font-weight: 700;
+      font-weight: var(--font-weight-bold);
     }
   }
 
   .log-type {
     display: flex;
     align-items: center;
-    gap: 8px;
-    font-weight: 600;
+    gap: var(--spacing-sm);  /* 日志类型图标与文字间距 */
+    font-weight: var(--font-weight-bold);
     color: var(--text-primary);
   }
 
   .log-description {
     color: var(--text-secondary);
-    margin-bottom: 5px;
+    margin-bottom: var(--spacing-xs);  /* 日志描述底部小间距 */
     line-height: 1.5;
   }
 
   /* ===== 配置和设置 ===== */
   .setting-group {
-    margin-bottom: 20px;
+    margin-bottom: var(--spacing-lg);  /* 设置组间距 */
 
     label {
       display: block;
-      margin-bottom: 8px;
-      font-weight: 500;
+      margin-bottom: var(--spacing-sm);  /* 标签与输入框间距 */
+      font-weight: var(--font-weight-medium);
       color: var(--text-secondary);
     }
 
     small {
       display: block;
-      margin-top: 5px;
+      margin-top: var(--spacing-xs);  /* 提示文本顶部小间距 */
       color: var(--text-muted);
       font-size: 0.85rem;
     }
@@ -161,16 +160,16 @@ body[class*="theme-"] {
   }
 
   .config-info {
-    padding: 15px;
-    border-radius: var(--border-radius-sm);
-    margin-bottom: 20px;
+    padding: var(--spacing-md);  /* 配置信息内边距 */
+    border-radius: var(--radius-sm);
+    margin-bottom: var(--spacing-lg);  /* 配置信息底部间距 */
     line-height: 1.6;
   }
 
   .test-result,
   .recommendation-item {
-    padding: 20px;
-    border-radius: var(--border-radius);
+    padding: var(--spacing-lg);  /* 测试结果和推荐项较大内边距 */
+    border-radius: var(--radius-md);
   }
 
   /* ===== 推荐 ===== */
@@ -188,22 +187,15 @@ body[class*="theme-"] {
   }
 
   /* ===== 固定主题切换器 ===== */
-  .theme-switcher-fixed {
-    position: fixed;
-    bottom: 50px;
-    right: 120px;
-    z-index: 999;
-  }
-
   .theme-toggle-btn {
     background: var(--bg-card);
-    border: 2px solid var(--border-color);
+    border: var(--border-width) solid var(--border-color);
     color: var(--text-primary);
   }
 
   .theme-options {
     background: var(--bg-card);
-    border: 2px solid var(--border-color);
+    border: var(--border-width) solid var(--border-color);
   }
 
   .theme-option {

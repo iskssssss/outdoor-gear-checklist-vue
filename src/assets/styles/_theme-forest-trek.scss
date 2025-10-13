@@ -30,75 +30,150 @@ body.theme-forest-trek {
     }
   }
 
-  /* ===== CSS 变量定义 ===== */
-  // 森林探险主题（Forest Trek）
-  // 主色调：松绿 → 棕木色 → 淡黄叶色
-  --primary-color: #2E5339;        // 深松绿
-  --primary-dark: #1F3A28;         // 深森林绿
-  --secondary-color: #A3B18A;      // 浅森林绿
-  --success-color: #558B2F;        // 已准备装备绿色
-  --success-light: #E8F5E9;
-  --warning-color: #FFB300;        // 注意或待准备装备黄色
-  --warning-light: #FFF8E1;
-  --danger-color: #D32F2F;         // 缺失装备
-  --danger-light: #FFEBEE;
-  --info-color: #6D4C41;           // 木质提示色
-  --info-light: #EFEBE9;
+  /* ========== 色彩系统 - 森林探险 ========== */
+  /* 主色调 - 森林绿系 */
+  --color-primary-50: #e8f5e9;
+  --color-primary-100: #c8e6c9;
+  --color-primary-200: #a5d6a7;
+  --color-primary-300: #81c784;
+  --color-primary-400: #66bb6a;
+  --color-primary-500: #4caf50;
+  --color-primary-600: #43a047;
+  --color-primary-700: #388e3c;
+  --color-primary-800: #2e7d32;
+  --color-primary-900: #1b5e20;
 
-  --bg-gradient: linear-gradient(135deg, #2E5339 0%, #A3B18A 100%);
-  --bg-main: #F5F5F0;
-  --bg-card: #FFFFFF;
-  --bg-header: #F0F0E5;
-  --bg-input: #E8E8DF;
-  --bg-hover: #DDE0D9;
-  --bg-button-group: #DDE0D9;
-  --bg-overlay: rgba(0, 0, 0, 0.5);
+  /* 成功色 - 深绿系 */
+  --color-success-50: #f1f8e9;
+  --color-success-100: #dcedc8;
+  --color-success-200: #c5e1a5;
+  --color-success-300: #aed581;
+  --color-success-400: #9ccc65;
+  --color-success-500: #8bc34a;
+  --color-success-600: #7cb342;
+  --color-success-700: #689f38;
+  --color-success-800: #558b2f;
+  --color-success-900: #33691e;
 
-  --text-primary: #1B2A1B;
-  --text-secondary: #4C5E4C;
-  --text-muted: #647d61;
-  --text-white: #FFFFFF;
+  /* 警告色 - 黄色系 */
+  --color-warning-50: #fffde7;
+  --color-warning-100: #fff9c4;
+  --color-warning-200: #fff59d;
+  --color-warning-300: #fff176;
+  --color-warning-400: #ffee58;
+  --color-warning-500: #ffeb3b;
+  --color-warning-600: #fdd835;
+  --color-warning-700: #fbc02d;
+  --color-warning-800: #f9a825;
+  --color-warning-900: #f57f17;
 
-  --btn-primary-text: #FFFFFF;
-  --btn-success-text: #FFFFFF;
-  --btn-danger-text: #FFFFFF;
+  /* 危险色 - 红色系 */
+  --color-danger-50: #ffebee;
+  --color-danger-100: #ffcdd2;
+  --color-danger-200: #ef9a9a;
+  --color-danger-300: #e57373;
+  --color-danger-400: #ef5350;
+  --color-danger-500: #f44336;
+  --color-danger-600: #e53935;
+  --color-danger-700: #d32f2f;
+  --color-danger-800: #c62828;
+  --color-danger-900: #b71c1c;
 
-  --border-color: #DDE0D9;
-  --border-radius: 8px;
-  --border-radius-sm: 6px;
-  --border-radius-lg: 12px;
-  --border-radius-xl: 16px;
-  --border-width: 1px;
+  /* 信息色 - 棕色系 */
+  --color-info-50: #efebe9;
+  --color-info-100: #d7ccc8;
+  --color-info-200: #bcaaa4;
+  --color-info-300: #a1887f;
+  --color-info-400: #8d6e63;
+  --color-info-500: #795548;
+  --color-info-600: #6d4c41;
+  --color-info-700: #5d4037;
+  --color-info-800: #4e342e;
+  --color-info-900: #3e2723;
 
-  --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  /* 中性色 - 森林灰 */
+  --color-gray-50: #f5f5f0;
+  --color-gray-100: #e8e8df;
+  --color-gray-200: #dde0d9;
+  --color-gray-300: #c5c8c1;
+  --color-gray-400: #a3b18a;
+  --color-gray-500: #7a8a68;
+  --color-gray-600: #5e6e4c;
+  --color-gray-700: #4c5e4c;
+  --color-gray-800: #2f3e2f;
+  --color-gray-900: #1b2a1b;
+
+  /* ========== 间距系统 ========== */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
+  --spacing-3xl: 4rem;
+
+  /* ========== 圆角系统 ========== */
+  --radius-none: 0;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --radius-full: 9999px;
+
+  /* ========== 阴影系统 ========== */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
   --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+
+  /* ========== 语义化变量映射 ========== */
+  --primary-color: var(--color-primary-800);
+  --primary-dark: var(--color-primary-900);
+  --secondary-color: var(--color-gray-400);
+  --success-color: var(--color-success-800);
+  --success-light: var(--color-success-50);
+  --warning-color: var(--color-warning-600);
+  --warning-light: var(--color-warning-50);
+  --danger-color: var(--color-danger-700);
+  --danger-light: var(--color-danger-50);
+  --info-color: var(--color-info-600);
+  --info-light: var(--color-info-50);
+
+  --bg-main: var(--color-gray-50);
+  --bg-card: #ffffff;
+  --bg-header: #f0f0e5;
+  --bg-input: var(--color-gray-100);
+  --bg-hover: var(--color-gray-200);
+  --bg-button-group: var(--color-gray-200);
+  --bg-overlay: rgba(0, 0, 0, 0.5);
+  --bg-gradient: linear-gradient(135deg, #2e5339 0%, #a3b18a 100%);
+
+  --text-primary: var(--color-gray-900);
+  --text-secondary: var(--color-gray-700);
+  --text-muted: var(--color-gray-600);
+  --text-white: #ffffff;
+
+  --btn-primary-text: #ffffff;
+  --btn-success-text: #ffffff;
+  --btn-danger-text: #ffffff;
+
+  --border-color: var(--color-gray-200);
+  --border-radius: var(--radius-md);
+  --border-radius-sm: var(--radius-sm);
+  --border-radius-lg: var(--radius-lg);
+  --border-radius-xl: var(--radius-xl);
+  --border-width: 1px;
+
+  --shadow-card: var(--shadow-md);
+  --shadow-hover: var(--shadow-lg);
   --danger-shadow: 0 2px 8px rgba(211, 47, 47, 0.3);
-  --primary-color-shadow: rgba(46, 83, 57, 0.2);
-  --primary-color-bg-light: rgba(46, 83, 57, 0.1);
-  --primary-color-border: rgba(46, 83, 57, 0.3);
 
-  --bg-mask: rgba(255, 255, 255, 0.3);
-  --shadow-inset: inset 0 2px 4px rgba(0, 0, 0, 0.1);
-  --shimmer-gradient: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-  --shimmer-gradient-light: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-  --text-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
-  --pulse-glow-start: 0 0 15px rgba(46, 83, 57, 0.5);
-  --pulse-glow-end: 0 0 25px rgba(46, 83, 57, 0.8);
-
-  --scrollbar-track-bg: #E8E8DF;
-  --scrollbar-thumb-bg: #A3B18A;
-  --scrollbar-thumb-hover-bg: #71896E;
-
-  --btn-success: #558B2F;
-  --btn-primary: #2E5339;
-  --btn-warning: #FFB300;
-  --btn-danger: #D32F2F;
-  --btn-info: #6D4C41;
-  --btn-secondary: #A3B18A;
+  --scrollbar-track-bg: var(--color-gray-100);
+  --scrollbar-thumb-bg: var(--color-gray-400);
+  --scrollbar-thumb-hover-bg: var(--color-gray-600);
 
   --font-weight-normal: 400;
   --font-weight-medium: 500;

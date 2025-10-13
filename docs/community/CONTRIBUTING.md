@@ -184,7 +184,7 @@ git add .
 git commit -m "feat: 添加新功能"
 ```
 
-详细的提交规范请参考 [COMMIT_CONVENTION.md](COMMIT_CONVENTION.md)。
+详细的提交规范请参考 [COMMIT_CONVENTION.md](../development/COMMIT_CONVENTION.md)。
 
 ### 6. 推送到远程
 
@@ -312,7 +312,7 @@ const emit = defineEmits<{
 - `test`: 测试相关
 - `chore`: 构建/工具相关
 
-详细说明请查看 [COMMIT_CONVENTION.md](COMMIT_CONVENTION.md)。
+详细说明请查看 [COMMIT_CONVENTION.md](../development/COMMIT_CONVENTION.md)。
 
 ### 提交示例
 

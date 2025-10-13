@@ -6,75 +6,150 @@
 @use 'mixins' as *;
 
 body.theme-rainforest-expedition {
-  /* ===== CSS 变量定义 ===== */
-  // 雨林探秘主题（Rainforest Expedition）
-  // 主色调：深森林绿 → 翠绿
-  --primary-color: #0B3D2E;        // 深森林绿
-  --primary-dark: #064228;         // 更深的森林绿
-  --secondary-color: #388373;      // 翠绿色
-  --success-color: #388E3C;        // 已准备装备绿色
-  --success-light: #E8F5E9;
-  --warning-color: #FFC107;        // 注意或待准备装备
-  --warning-light: #FFF8E1;
-  --danger-color: #D32F2F;         // 缺失装备
-  --danger-light: #FFEBEE;
-  --info-color: #2E7D32;           // 森林提示色
-  --info-light: #E3F2FD;
+  /* ========== 色彩系统 - 雨林探秘 ========== */
+  /* 主色调 - 深绿色系 */
+  --color-primary-50: #e8f5e9;
+  --color-primary-100: #c8e6c9;
+  --color-primary-200: #a5d6a7;
+  --color-primary-300: #81c784;
+  --color-primary-400: #66bb6a;
+  --color-primary-500: #4caf50;
+  --color-primary-600: #43a047;
+  --color-primary-700: #388e3c;
+  --color-primary-800: #2e7d32;
+  --color-primary-900: #1b5e20;
 
-  --bg-gradient: linear-gradient(135deg, #0B3D2E 0%, #3E8E7E 100%);
-  --bg-main: #F0F6F5;
-  --bg-card: #FFFFFF;
-  --bg-header: #E8F1F0;
-  --bg-input: #DDEFEA;
-  --bg-hover: #CFE4DE;
-  --bg-button-group: #CFE4DE;
-  --bg-overlay: rgba(0, 0, 0, 0.5);
+  /* 成功色 - 翠绿系 */
+  --color-success-50: #e0f2f1;
+  --color-success-100: #b2dfdb;
+  --color-success-200: #80cbc4;
+  --color-success-300: #4db6ac;
+  --color-success-400: #26a69a;
+  --color-success-500: #009688;
+  --color-success-600: #00897b;
+  --color-success-700: #00796b;
+  --color-success-800: #00695c;
+  --color-success-900: #004d40;
 
-  --text-primary: #1A2B25;
-  --text-secondary: #3E5C51;
-  --text-muted: #5C746B;
-  --text-white: #FFFFFF;
+  /* 警告色 - 琥珀色系 */
+  --color-warning-50: #fff8e1;
+  --color-warning-100: #ffecb3;
+  --color-warning-200: #ffe082;
+  --color-warning-300: #ffd54f;
+  --color-warning-400: #ffca28;
+  --color-warning-500: #ffc107;
+  --color-warning-600: #ffb300;
+  --color-warning-700: #ffa000;
+  --color-warning-800: #ff8f00;
+  --color-warning-900: #ff6f00;
 
-  --btn-primary-text: #FFFFFF;
-  --btn-success-text: #FFFFFF;
-  --btn-danger-text: #FFFFFF;
+  /* 危险色 - 红色系 */
+  --color-danger-50: #ffebee;
+  --color-danger-100: #ffcdd2;
+  --color-danger-200: #ef9a9a;
+  --color-danger-300: #e57373;
+  --color-danger-400: #ef5350;
+  --color-danger-500: #f44336;
+  --color-danger-600: #e53935;
+  --color-danger-700: #d32f2f;
+  --color-danger-800: #c62828;
+  --color-danger-900: #b71c1c;
 
-  --border-color: #CFE4DE;
-  --border-radius: 8px;
-  --border-radius-sm: 6px;
-  --border-radius-lg: 12px;
-  --border-radius-xl: 16px;
-  --border-width: 1px;
+  /* 信息色 - 深绿系 */
+  --color-info-50: #e8f5e9;
+  --color-info-100: #c8e6c9;
+  --color-info-200: #a5d6a7;
+  --color-info-300: #81c784;
+  --color-info-400: #66bb6a;
+  --color-info-500: #4caf50;
+  --color-info-600: #43a047;
+  --color-info-700: #388e3c;
+  --color-info-800: #2e7d32;
+  --color-info-900: #1b5e20;
 
-  --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  /* 中性色 - 雨林灰 */
+  --color-gray-50: #f0f6f5;
+  --color-gray-100: #ddefea;
+  --color-gray-200: #cfe4de;
+  --color-gray-300: #b8d5cc;
+  --color-gray-400: #8db5a8;
+  --color-gray-500: #5c746b;
+  --color-gray-600: #3e5c51;
+  --color-gray-700: #2d4539;
+  --color-gray-800: #1a2b25;
+  --color-gray-900: #0f1813;
+
+  /* ========== 间距系统 ========== */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
+  --spacing-3xl: 4rem;
+
+  /* ========== 圆角系统 ========== */
+  --radius-none: 0;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --radius-full: 9999px;
+
+  /* ========== 阴影系统 ========== */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
   --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+
+  /* ========== 语义化变量映射 ========== */
+  --primary-color: var(--color-primary-900);
+  --primary-dark: #064228;
+  --secondary-color: var(--color-success-600);
+  --success-color: var(--color-success-700);
+  --success-light: var(--color-success-50);
+  --warning-color: var(--color-warning-500);
+  --warning-light: var(--color-warning-50);
+  --danger-color: var(--color-danger-700);
+  --danger-light: var(--color-danger-50);
+  --info-color: var(--color-info-800);
+  --info-light: var(--color-info-50);
+
+  --bg-main: var(--color-gray-50);
+  --bg-card: #ffffff;
+  --bg-header: var(--color-gray-100);
+  --bg-input: var(--color-gray-100);
+  --bg-hover: var(--color-gray-200);
+  --bg-button-group: var(--color-gray-200);
+  --bg-overlay: rgba(0, 0, 0, 0.5);
+  --bg-gradient: linear-gradient(135deg, #0b3d2e 0%, #3e8e7e 100%);
+
+  --text-primary: var(--color-gray-800);
+  --text-secondary: var(--color-gray-600);
+  --text-muted: var(--color-gray-500);
+  --text-white: #ffffff;
+
+  --btn-primary-text: #ffffff;
+  --btn-success-text: #ffffff;
+  --btn-danger-text: #ffffff;
+
+  --border-color: var(--color-gray-200);
+  --border-radius: var(--radius-md);
+  --border-radius-sm: var(--radius-sm);
+  --border-radius-lg: var(--radius-lg);
+  --border-radius-xl: var(--radius-xl);
+  --border-width: 1px;
+
+  --shadow-card: var(--shadow-md);
+  --shadow-hover: var(--shadow-lg);
   --danger-shadow: 0 2px 8px rgba(211, 47, 47, 0.3);
-  --primary-color-shadow: rgba(11, 61, 46, 0.2);
-  --primary-color-bg-light: rgba(11, 61, 46, 0.1);
-  --primary-color-border: rgba(11, 61, 46, 0.3);
 
-  --bg-mask: rgba(255, 255, 255, 0.3);
-  --shadow-inset: inset 0 2px 4px rgba(0, 0, 0, 0.1);
-  --shimmer-gradient: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-  --shimmer-gradient-light: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-  --text-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
-  --pulse-glow-start: 0 0 15px rgba(62, 142, 126, 0.5);
-  --pulse-glow-end: 0 0 25px rgba(62, 142, 126, 0.8);
-
-  --scrollbar-track-bg: #DDEFEA;
-  --scrollbar-thumb-bg: #3E8E7E;
-  --scrollbar-thumb-hover-bg: #2E7D6E;
-
-  --btn-success: #388E3C;
-  --btn-primary: #0B3D2E;
-  --btn-warning: #FFC107;
-  --btn-danger: #D32F2F;
-  --btn-info: #2E7D32;
-  --btn-secondary: #3E8E7E;
+  --scrollbar-track-bg: var(--color-gray-100);
+  --scrollbar-thumb-bg: var(--color-success-600);
+  --scrollbar-thumb-hover-bg: var(--color-success-800);
 
   --font-weight-normal: 400;
   --font-weight-medium: 500;

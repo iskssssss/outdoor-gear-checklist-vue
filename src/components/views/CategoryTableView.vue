@@ -113,7 +113,8 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted, computed, nextTick, onUnmounted, onUpdated, inject } from 'vue'
+import { ref, watch, onMounted, computed, nextTick, onUpdated, inject } from 'vue'
+import { useEventListener } from '@vueuse/core'
 import { useEquipmentStore } from '../../stores/equipment'
 import { useOperationLogStore } from '../../stores/operationLog'
 
@@ -378,21 +379,13 @@ watch(() => props.categories, () => {
   })
 }, { deep: true, immediate: true })
 
-onMounted(() => {
-  if (tabsRef.value) {
-    tabsRef.value.addEventListener('scroll', checkScroll)
-    tabsRef.value.addEventListener('wheel', handleWheelScroll)
-  }
-  window.addEventListener('resize', checkScroll)
-  checkScroll()
-})
+// 使用 useEventListener 自动管理事件监听器
+useEventListener(tabsRef, 'scroll', checkScroll)
+useEventListener(tabsRef, 'wheel', handleWheelScroll)
+useEventListener(window, 'resize', checkScroll)
 
-onUnmounted(() => {
-  if (tabsRef.value) {
-    tabsRef.value.removeEventListener('scroll', checkScroll)
-    tabsRef.value.removeEventListener('wheel', handleWheelScroll)
-  }
-  window.removeEventListener('resize', checkScroll)
+onMounted(() => {
+  checkScroll()
 })
 
 onUpdated(() => {

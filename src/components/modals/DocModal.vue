@@ -44,7 +44,7 @@
 
 <script setup>
 import { ref, computed, defineExpose, onMounted, onUnmounted, nextTick } from 'vue'
-import BaseModal from '../common/BaseModal.vue'
+import BaseModal from '../common/feedback/BaseModal.vue'
 
 const modalRef = ref(null)
 const loading = ref(false)

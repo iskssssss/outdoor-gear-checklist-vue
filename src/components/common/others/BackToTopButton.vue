@@ -50,15 +50,15 @@ function scrollToTop() {
   // 使用主题变量
   color: var(--text-primary);
   // 添加边框以匹配 FAB 风格
-  border: 2px solid var(--border-color);
-  border-radius: 50%;
+  border: var(--border-width) solid var(--border-color);
+  border-radius: var(--radius-full);
   cursor: pointer;
   box-shadow: var(--shadow-md);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.6rem;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   transition: all 0.3s ease;
 
   &:hover {
@@ -84,7 +84,7 @@ function scrollToTop() {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
-  transform: scale(0.8) translateY(20px);
+  transform: scale(0.8) translateY(var(--spacing-lg));
 }
 
 @media (max-width: 768px) {

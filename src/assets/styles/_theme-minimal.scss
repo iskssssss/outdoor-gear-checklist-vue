@@ -1,86 +1,171 @@
 /**
  * 极简主题 - 简约现代风格
- * 特点：纯净、留白、线条感
+ * 遵循CSS主题优化规范 - 纯净、留白、线条感
  */
 
 body.theme-minimal {
-  /* ===== CSS 变量定义 ===== */
-  // 原 #4a5568
-  --primary-color: #000000;
-  // 原 #2c3340
-  --primary-dark: #333333;
-  // 原 #a0aec0
-  --secondary-color: #757575;
-  // 原 #48bb78
-  --success-color: #2c7a4b;
-  --success-light: #f0fff4;
-  // 原 #ecc94b
-  --warning-color: #b48b29;
-  --warning-light: #fffff0;
-  // 原 #f56565
-  --danger-color: #c53030;
-  --danger-light: #fff5f5;
-  // 原 #4299e1
-  --info-color: #3182ce;
-  --info-light: #ebf8ff;
+  /* ========== 色彩系统 ========== */
+  /* 主色调 - 纯黑色系 */
+  --color-primary-50: #f5f5f5;
+  --color-primary-100: #e5e5e5;
+  --color-primary-200: #d4d4d4;
+  --color-primary-300: #a3a3a3;
+  --color-primary-400: #737373;
+  --color-primary-500: #525252;  /* 基准色 */
+  --color-primary-600: #404040;
+  --color-primary-700: #262626;
+  --color-primary-800: #171717;
+  --color-primary-900: #000000;  /* 纯黑 */
 
+  /* 成功色 - 深绿色系 */
+  --color-success-50: #f0fff4;
+  --color-success-100: #dcfce7;
+  --color-success-200: #bbf7d0;
+  --color-success-300: #86efac;
+  --color-success-400: #4ade80;
+  --color-success-500: #22c55e;  /* 基准色 */
+  --color-success-600: #16a34a;
+  --color-success-700: #15803d;
+  --color-success-800: #166534;
+  --color-success-900: #14532d;
+
+  /* 警告色 - 琥珀色系 */
+  --color-warning-50: #fffbeb;
+  --color-warning-100: #fef3c7;
+  --color-warning-200: #fde68a;
+  --color-warning-300: #fcd34d;
+  --color-warning-400: #fbbf24;
+  --color-warning-500: #f59e0b;  /* 基准色 */
+  --color-warning-600: #d97706;
+  --color-warning-700: #b45309;
+  --color-warning-800: #92400e;
+  --color-warning-900: #78350f;
+
+  /* 危险色 - 红色系 */
+  --color-danger-50: #fef2f2;
+  --color-danger-100: #fee2e2;
+  --color-danger-200: #fecaca;
+  --color-danger-300: #fca5a5;
+  --color-danger-400: #f87171;
+  --color-danger-500: #ef4444;  /* 基准色 */
+  --color-danger-600: #dc2626;
+  --color-danger-700: #b91c1c;
+  --color-danger-800: #991b1b;
+  --color-danger-900: #7f1d1d;
+
+  /* 信息色 - 蓝色系 */
+  --color-info-50: #eff6ff;
+  --color-info-100: #dbeafe;
+  --color-info-200: #bfdbfe;
+  --color-info-300: #93c5fd;
+  --color-info-400: #60a5fa;
+  --color-info-500: #3b82f6;  /* 基准色 */
+  --color-info-600: #2563eb;
+  --color-info-700: #1d4ed8;
+  --color-info-800: #1e40af;
+  --color-info-900: #1e3a8a;
+
+  /* 中性色 - 纯净灰阶 */
+  --color-gray-50: #fafafa;
+  --color-gray-100: #f5f5f5;
+  --color-gray-200: #e5e5e5;
+  --color-gray-300: #d4d4d4;
+  --color-gray-400: #a3a3a3;
+  --color-gray-500: #737373;
+  --color-gray-600: #525252;
+  --color-gray-700: #404040;
+  --color-gray-800: #262626;
+  --color-gray-900: #171717;
+
+  /* ========== 间距系统 ========== */
+  --spacing-xs: 0.25rem;   /* 4px */
+  --spacing-sm: 0.5rem;    /* 8px */
+  --spacing-md: 1rem;      /* 16px */
+  --spacing-lg: 1.5rem;    /* 24px */
+  --spacing-xl: 2rem;      /* 32px */
+  --spacing-2xl: 3rem;     /* 48px */
+  --spacing-3xl: 4rem;     /* 64px */
+
+  /* ========== 圆角系统 - 极简线条 ========== */
+  --radius-none: 0;
+  --radius-sm: 0.125rem;   /* 2px */
+  --radius-md: 0.25rem;    /* 4px */
+  --radius-lg: 0.5rem;     /* 8px */
+  --radius-xl: 0.75rem;    /* 12px */
+  --radius-2xl: 1rem;      /* 16px */
+  --radius-full: 9999px;
+
+  /* ========== 阴影系统 - 极简化 ========== */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+  --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.08);
+  --shadow-xl: 0 8px 16px rgba(0, 0, 0, 0.1);
+  --shadow-2xl: 0 12px 24px rgba(0, 0, 0, 0.12);
+  --shadow-inner: inset 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+
+  /* ========== 语义化变量映射 ========== */
+  /* 主色调 - 纯黑 */
+  --primary-color: var(--color-primary-900);
+  --primary-dark: #000000;
+  --primary-light: var(--color-primary-700);
+
+  /* 功能色 */
+  --success-color: var(--color-success-700);
+  --success-light: var(--color-success-50);
+  --warning-color: var(--color-warning-600);
+  --warning-light: var(--color-warning-50);
+  --danger-color: var(--color-danger-600);
+  --danger-light: var(--color-danger-50);
+  --info-color: var(--color-info-600);
+  --info-light: var(--color-info-50);
+
+  /* 中性色 */
+  --secondary-color: var(--color-gray-500);
+
+  /* 背景色 */
   --bg-main: #ffffff;
   --bg-card: #ffffff;
   --bg-header: #ffffff;
-  // 稍深的输入框背景
-  --bg-input: #f5f5f5;
-  // 更明显的悬浮效果
-  --bg-hover: #e0e0e0;
-  --bg-button-group: #f5f5f5;
-  --bg-gradient: none;
+  --bg-input: var(--color-gray-100);
+  --bg-hover: var(--color-gray-200);
+  --bg-button-group: var(--color-gray-100);
   --bg-overlay: rgba(255, 255, 255, 0.8);
+  --bg-gradient: none;
 
-  // 原 #1a202c
-  --text-primary: #000000;
-  // 原 #718096
-  --text-secondary: #555555;
-  // 原 #999
-  --text-muted: #767676;
+  /* 文本色 - 符合WCAG AA对比度标准 */
+  --text-primary: var(--color-primary-900);  /* 纯黑，对比度 21:1 */
+  --text-secondary: var(--color-gray-700);   /* 对比度 > 7:1 */
+  --text-muted: var(--color-gray-600);       /* 对比度 > 4.5:1 */
   --text-white: #ffffff;
 
+  /* 按钮文本色 */
   --btn-primary-text: #ffffff;
   --btn-success-text: #ffffff;
   --btn-danger-text: #ffffff;
 
-  // 更深的边框
-  --border-color: #cccccc;
-  --border-radius: 4px;
-  --border-radius-sm: 2px;
-  --border-radius-lg: 8px;
-  --border-radius-xl: 12px;
+  /* 边框 */
+  --border-color: var(--color-gray-300);
+  --border-radius: var(--radius-md);
+  --border-radius-sm: var(--radius-sm);
+  --border-radius-lg: var(--radius-lg);
+  --border-radius-xl: var(--radius-xl);
   --border-width: 1px;
 
-  --shadow-card: 0 2px 4px rgba(0, 0, 0, 0.05);
+  /* 阴影别名 */
+  --shadow-card: var(--shadow-md);
   --shadow-hover: none;
-  --shadow-sm: none;
-  --shadow-md: none;
-  --shadow-lg: none;
-  --shadow-xl: none;
   --danger-shadow: none;
-  --primary-color-shadow: transparent;
 
+  /* 其他 */
   --scrollbar-track-bg: #ffffff;
-  --scrollbar-thumb-bg: #cbd5e1;
-  --scrollbar-thumb-hover-bg: #a0aec0;
-
-  --btn-success: #28a745;
-  --btn-primary: #000000;
-  --btn-warning: #ffc107;
-  --btn-danger: #dc3545;
-  --btn-info: #17a2b8;
-  --btn-secondary: #666666;
+  --scrollbar-thumb-bg: var(--color-gray-400);
+  --scrollbar-thumb-hover-bg: var(--color-gray-600);
 
   --font-weight-normal: 400;
   --font-weight-medium: 500;
   --font-weight-bold: 600;
 
   /* ===== 差异化样式 - 仅极简主题特有 ===== */
-
   color: var(--text-primary);
 
   &, * {

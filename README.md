@@ -311,17 +311,20 @@ outdoor-gear-checklist/
 
 | 文档 | 说明 |
 |------|------|
-| [使用指南](docs/USAGE.md) | 详细的功能说明和操作指南 |
-| [贡献指南](docs/CONTRIBUTING.md) | 如何参与项目贡献 |
-| [开发指南](docs/DEVELOPMENT.md) | 开发环境配置和开发流程 |
-| [架构文档](docs/ARCHITECTURE.md) | 项目架构和技术选型 |
-| [部署指南](docs/DEPLOYMENT.md) | 部署到各种平台的方法 |
+| [使用指南](docs/guides/USAGE.md) | 详细的功能说明和操作指南 |
+| [基础组件指南](docs/guides/BASE_COMPONENTS_GUIDE.md) | 基础UI组件使用文档 |
+| [主题使用指南](docs/guides/THEME_USAGE_GUIDE.md) | 主题系统使用文档 |
+| [常见问题](docs/guides/FAQ.md) | 常见问题解答 |
+| [贡献指南](docs/community/CONTRIBUTING.md) | 如何参与项目贡献 |
+| [行为准则](docs/community/CODE_OF_CONDUCT.md) | 社区行为规范 |
+| [安全政策](docs/community/SECURITY.md) | 安全问题报告流程 |
+| [开发指南](docs/development/DEVELOPMENT.md) | 开发环境配置和开发流程 |
+| [部署指南](docs/development/DEPLOYMENT.md) | 部署到各种平台的方法 |
+| [提交规范](docs/development/COMMIT_CONVENTION.md) | Git 提交信息规范 |
+| [架构文档](docs/architecture/ARCHITECTURE.md) | 项目架构和技术选型 |
+| [组件重构总结](docs/architecture/COMPONENT_REFACTORING_SUMMARY.md) | 基础组件化重构文档 |
 | [版本发布](docs/RELEASE.md) | 版本发布流程和规范 |
-| [提交规范](docs/COMMIT_CONVENTION.md) | Git 提交信息规范 |
 | [项目路线图](docs/ROADMAP.md) | 功能规划和发展方向 |
-| [常见问题](docs/FAQ.md) | 常见问题解答 |
-| [安全政策](docs/SECURITY.md) | 安全问题报告流程 |
-| [行为准则](docs/CODE_OF_CONDUCT.md) | 社区行为规范 |
 
 ## 📝 更新日志
 
