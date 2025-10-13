@@ -1,24 +1,30 @@
 <template>
   <div class="table-view-container">
-    <div v-if="!categories || categories.length === 0" class="no-data">
-      没有可显示的分类数据。
-    </div>
-    <div v-else>
-      <div class="tabs-container"
-        :class="{ 'can-scroll-left': canScrollLeft, 'can-scroll-right': canScrollRight }">
-        <div class="tabs" ref="tabsRef">
-          <button
-            v-for="category in categories"
-            :key="category.id"
-            class="tab-button"
-            :class="{ 'active': selectedCategoryId === category.id }"
-            @click="selectCategory(category.id)"
-          >
-            <span class="category-icon">{{ category.icon || '✨' }}</span>
-            <span class="category-name">{{ category.name }}</span>
+    <div class="tabs-container"
+      :class="{ 'can-scroll-left': canScrollLeft, 'can-scroll-right': canScrollRight }">
+      <div class="tabs" ref="tabsRef">
+        <button v-for="category in categories" :key="category.id" class="tab-button"
+          :class="{ 'active': selectedCategoryId === category.id }" @click="selectCategory(category.id)">
+          <span class="category-icon">{{ category.icon || '✨' }}</span>
+          <span class="category-name">{{ category.name }}</span>
+        </button>
+        <!-- 添加新分类 -->
+        <div class="add-category-wrapper">
+          <button v-if="!isAdding" @click="showAddInput" class="tab-button btn-add-tab">
+            <span class="category-icon">+</span>
+            <span class="category-name">添加分类</span>
           </button>
+          <div v-else class="add-category-form">
+            <input ref="categoryInput" v-model="newCategoryName" placeholder="新分类名称" class="category-input-inline"
+              @keyup.enter="addCategory" @blur="cancelAdd" />
+            <button @click="addCategory" class="btn-confirm">✓</button>
+            <button @click="cancelAdd" class="btn-cancel-add">✕</button>
+          </div>
         </div>
       </div>
+    </div>
+
+    <div v-if="categories && categories.length > 0">
       <div class="table-actions">
         <button v-if="!isEditing" @click="enterEditMode" class="btn-edit">✏️ 编辑</button>
         <template v-else>
@@ -75,8 +81,10 @@
                 </div>
                 <span v-else>{{ item.quantity }}{{ item.quantityUnit }}</span>
               </td>
-              <td data-label="小计重量" class="subtotal">{{ (item.weight || 0) * (item.quantity || 0) }} {{ item.weightUnit }}</td>
-              <td data-label="小计价格" class="subtotal">{{ ((item.price || 0) * (item.quantity || 0)).toFixed(2) }} {{ item.priceUnit }}</td>
+              <td data-label="小计重量" class="subtotal">{{ (item.weight || 0) * (item.quantity || 0) }} {{ item.weightUnit
+                }}</td>
+              <td data-label="小计价格" class="subtotal">{{ ((item.price || 0) * (item.quantity || 0)).toFixed(2) }} {{
+                item.priceUnit }}</td>
               <td data-label="准备状态">
                 <div class="status-switch" :class="{ 'completed': item.completed }" @click="toggleItemStatus(item)">
                   <div class="switch-handle"></div>
@@ -96,6 +104,10 @@
           </tfoot>
         </table>
       </div>
+    </div>
+    <div v-else class="no-data">
+      <h3>没有装备分类</h3>
+      <p>点击上方 "+" 按钮开始创建您的装备清单</p>
     </div>
   </div>
 </template>
@@ -123,6 +135,11 @@ const tabsContainerRef = ref(null)
 const tabsRef = ref(null)
 const canScrollLeft = ref(false)
 const canScrollRight = ref(false)
+
+// 添加分类相关
+const newCategoryName = ref('')
+const isAdding = ref(false)
+const categoryInput = ref(null)
 
 // 选中的分类（响应式）
 const selectedCategory = computed(() => {
@@ -319,6 +336,29 @@ const checkScroll = () => {
   }
 }
 
+function showAddInput() {
+  isAdding.value = true
+  nextTick(() => {
+    categoryInput.value?.focus()
+  })
+}
+
+function addCategory() {
+  if (equipmentStore.addCategory(newCategoryName.value)) {
+    toast?.success(`分类"${newCategoryName.value}"添加成功！`)
+    newCategoryName.value = ''
+    isAdding.value = false
+  }
+}
+
+function cancelAdd() {
+  // 延迟取消，避免与点击确认按钮冲突
+  setTimeout(() => {
+    newCategoryName.value = ''
+    isAdding.value = false
+  }, 200)
+}
+
 const handleWheelScroll = (event) => {
   const el = tabsRef.value
   if (el && event.deltaY !== 0) {
@@ -354,11 +394,21 @@ onUpdated(() => {
   checkScroll()
 })
 
-watch(() => props.categories, (newCategories) => {
-  if (newCategories && newCategories.length > 0 && !selectedCategoryId.value) {
-    selectCategory(newCategories[0].id)
+watch(() => props.categories, (newCategories, oldCategories) => {
+  // 如果新分类列表不为空
+  if (newCategories && newCategories.length > 0) {
+    // 检查当前选中的 categoryId 是否还存在于新列表中
+    const currentCategoryExists = newCategories.some(c => c.id === selectedCategoryId.value)
+
+    // 如果当前选中的分类不存在了，或者之前就没有选中的分类，则默认选中第一个
+    if (!currentCategoryExists || !selectedCategoryId.value) {
+      selectCategory(newCategories[0].id)
+    }
+  } else {
+    // 如果新列表为空，则清空选中状态
+    selectedCategoryId.value = null
   }
-}, { immediate: true })
+}, { immediate: true, deep: true })
 
 onMounted(() => {
   if (props.categories && props.categories.length > 0) {
@@ -464,6 +514,54 @@ onMounted(() => {
     font-weight: bold;
     box-shadow: var(--shadow-sm);
   }
+}
+
+.add-category-wrapper {
+  display: flex;
+  align-items: center;
+  margin-left: 8px;
+}
+
+.btn-add-tab {
+  background-color: transparent;
+  border: 1px dashed var(--primary-color);
+  color: var(--primary-color);
+}
+
+.add-category-form {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.category-input-inline {
+  width: 120px;
+  padding: 8px;
+  border-radius: var(--border-radius-sm);
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-input);
+  color: var(--text-primary);
+  &:focus {
+    outline: none;
+    border-color: var(--primary-color);
+  }
+}
+
+.btn-confirm,
+.btn-cancel-add {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  padding: 4px;
+}
+
+.btn-confirm {
+  color: var(--success-color);
+}
+
+.btn-cancel-add {
+  color: var(--danger-color);
 }
 
 .equipment-table {
@@ -784,7 +882,16 @@ onMounted(() => {
 
 .no-data {
   text-align: center;
-  padding: 20px;
+  padding: 40px 20px;
   color: var(--text-muted);
+
+  h3 {
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+  }
+
+  p {
+    color: var(--text-muted);
+  }
 }
 </style>

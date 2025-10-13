@@ -116,7 +116,7 @@
     <ImportCartModal ref="importCartModalRef" />
 
     <!-- 装备分类列表 -->
-    <div v-if="equipmentStore.categories.length === 0 && !isAdding" class="empty-state">
+    <div v-if="equipmentStore.categories.length === 0 && !isAdding && layoutMode !== 'table'" class="empty-state">
       <h3>还没有装备分类</h3>
       <p>点击下方 "+" 按钮开始创建您的装备清单</p>
     </div>
@@ -1030,6 +1030,161 @@ const debouncedToggleGroupByStatus = useDebounceFn(toggleGroupByStatus, 300)
   pointer-events: none;
   z-index: -9999;
   opacity: 0;
+}
+
+/* 响应式布局 */
+@media (max-width: 1200px) {
+  .categories-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .categories-container {
+    grid-template-columns: 1fr;
+  }
+
+  .global-actions {
+    flex-direction: column;
+    gap: 10px;
+
+    .actions-left,
+    .actions-right {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .btn-recommendation {
+      padding: 6px 12px;
+      font-size: 0.85rem;
+
+      .btn-icon {
+        font-size: 1rem;
+      }
+
+      .btn-text {
+        font-size: 0.85rem;
+      }
+    }
+
+    .btn-undo {
+      padding: 6px 12px;
+      font-size: 0.85rem;
+
+      .undo-icon {
+        font-size: 1rem;
+      }
+
+      .undo-text {
+        font-size: 0.85rem;
+      }
+
+      .undo-count {
+        min-width: 16px;
+        height: 16px;
+        padding: 0 4px;
+        font-size: 0.65rem;
+      }
+    }
+  }
+
+  .action-menu,
+  .more-actions-menu {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .more-actions-dropdown .more-actions-menu {
+    right: auto;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .preview-image {
+    width: 100%;
+  }
+}
+
+.table-add-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 0;
+
+  .add-category-card,
+  .add-category-input-card {
+    width: 100%;
+    max-width: 400px;
+  }
+}
+
+.category-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: var(--border-width) solid var(--border-color);
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  background: var(--bg-input);
+  color: var(--text-primary);
+  transition: all 0.3s ease;
+}
+
+.category-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px var(--primary-color-shadow);
+}
+
+.input-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.btn {
+  padding: 10px 24px;
+  border: none;
+  border-radius: var(--border-radius);
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-sm {
+  padding: 8px 16px;
+  font-size: 0.9rem;
+}
+
+.btn-primary {
+  background: var(--primary-color);
+  color: var(--btn-primary-text);
+
+  &:hover {
+    background: var(--primary-dark);
+  }
+
+  &:active {
+    transform: translateY(-2px) scale(0.95);
+  }
+}
+
+.btn-secondary {
+  background: var(--text-muted);
+  color: var(--text-white);
+
+  &:hover {
+    background: var(--text-secondary);
+  }
+}
+
+.btn {
+  transition: all 0.2s ease;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
 /* 响应式布局 */
