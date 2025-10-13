@@ -306,9 +306,25 @@ outdoor-gear-checklist/
 2. 如果没有，创建新的 Issue
 3. 详细描述问题或建议
 
+## 📚 文档
+
+| 文档 | 说明 |
+|------|------|
+| [使用指南](docs/USAGE.md) | 详细的功能说明和操作指南 |
+| [贡献指南](docs/CONTRIBUTING.md) | 如何参与项目贡献 |
+| [开发指南](docs/DEVELOPMENT.md) | 开发环境配置和开发流程 |
+| [架构文档](docs/ARCHITECTURE.md) | 项目架构和技术选型 |
+| [部署指南](docs/DEPLOYMENT.md) | 部署到各种平台的方法 |
+| [版本发布](docs/RELEASE.md) | 版本发布流程和规范 |
+| [提交规范](docs/COMMIT_CONVENTION.md) | Git 提交信息规范 |
+| [项目路线图](docs/ROADMAP.md) | 功能规划和发展方向 |
+| [常见问题](docs/FAQ.md) | 常见问题解答 |
+| [安全政策](docs/SECURITY.md) | 安全问题报告流程 |
+| [行为准则](docs/CODE_OF_CONDUCT.md) | 社区行为规范 |
+
 ## 📝 更新日志
 
-详细的更新历史请参见 [CHANGELOG.md](CHANGELOG.md)。
+详细的更新历史请参见 [CHANGELOG.md](docs/CHANGELOG.md)。
 
 ## 📄 许可证
 
