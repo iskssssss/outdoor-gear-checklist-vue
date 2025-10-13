@@ -87,7 +87,7 @@
 import { ref, computed, nextTick, watch, inject } from 'vue'
 import { useEquipmentStore } from '../../stores/equipment'
 import EquipmentItem from './EquipmentItem.vue'
-import { debounce } from '../../utils/debounce'
+import { useDebounceFn } from '@vueuse/core'
 
 const props = defineProps({
   category: {
@@ -312,16 +312,16 @@ function cancelAddItem() {
   // }
 }
 
-const debouncedToggleCollapse = debounce(toggleCollapse, 300)
-const debouncedStartEditName = debounce(startEditName, 300)
-const debouncedSaveEditName = debounce(saveEditName, 300)
-const debouncedCancelEditName = debounce(cancelEditName, 300)
-const debouncedDeleteCategory = debounce(deleteCategory, 300)
-const debouncedReindexItems = debounce(reindexItems, 300)
-const debouncedStartEditIcon = debounce(startEditIcon, 300)
-const debouncedSaveEditIcon = debounce(saveEditIcon, 300)
-const debouncedCancelEditIcon = debounce(cancelEditIcon, 300)
-const debouncedShowAddItemInput = debounce(showAddItemInput, 300)
+const debouncedToggleCollapse = useDebounceFn(toggleCollapse, 300)
+const debouncedStartEditName = useDebounceFn(startEditName, 300)
+const debouncedSaveEditName = useDebounceFn(saveEditName, 300)
+const debouncedCancelEditName = useDebounceFn(cancelEditName, 300)
+const debouncedDeleteCategory = useDebounceFn(deleteCategory, 300)
+const debouncedReindexItems = useDebounceFn(reindexItems, 300)
+const debouncedStartEditIcon = useDebounceFn(startEditIcon, 300)
+const debouncedSaveEditIcon = useDebounceFn(saveEditIcon, 300)
+const debouncedCancelEditIcon = useDebounceFn(cancelEditIcon, 300)
+const debouncedShowAddItemInput = useDebounceFn(showAddItemInput, 300)
 </script>
 
 <style scoped lang="scss">

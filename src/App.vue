@@ -44,19 +44,20 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, provide } from 'vue'
-import AppHeader from './components/layout/AppHeader.vue'
-import AppFooter from './components/layout/AppFooter.vue'
-import RecommendationModal from './components/modals/RecommendationModal.vue'
-import ModelConfigModal from './components/modals/ModelConfigModal.vue'
-import OperationLogModal from './components/modals/OperationLogModal.vue'
-import ToastNotification from './components/common/ToastNotification.vue'
-import BaseConfirm from './components/common/BaseConfirm.vue'
-import BackToTopButton from './components/common/BackToTopButton.vue'
-import { useEquipmentStore } from './stores/equipment'
-import { useModelConfigStore } from './stores/modelConfig'
-import { useThemeStore } from './stores/themeStore'
-import { toast as toastService } from './utils/toast'
+import { ref, computed, onMounted, onUnmounted, provide } from 'vue';
+import { onClickOutside, useEventListener, useMagicKeys } from '@vueuse/core';
+import AppHeader from './components/layout/AppHeader.vue';
+import AppFooter from './components/layout/AppFooter.vue';
+import RecommendationModal from './components/modals/RecommendationModal.vue';
+import ModelConfigModal from './components/modals/ModelConfigModal.vue';
+import OperationLogModal from './components/modals/OperationLogModal.vue';
+import ToastNotification from './components/common/ToastNotification.vue';
+import BaseConfirm from './components/common/BaseConfirm.vue';
+import BackToTopButton from './components/common/BackToTopButton.vue';
+import { useEquipmentStore } from './stores/equipment';
+import { useModelConfigStore } from './stores/modelConfig';
+import { useThemeStore } from './stores/themeStore';
+import { toast as toastService } from './utils/toast';
 // 1. 导入 eventBus
 import { eventBus } from './utils/eventBus';
 // 引入 Composable
@@ -98,6 +99,13 @@ const { menuStyle: themeSwitcherStyle } = useResponsiveMenu(
   { isOpen: themeSwitcherExpanded, offset: 12 }
 )
 
+onClickOutside(themeSwitcherMenuRef, (event) => {
+  if (!themeSwitcherTriggerRef.value?.contains(event.target)) {
+    themeSwitcherExpanded.value = false;
+  }
+}, { ignore: [themeSwitcherTriggerRef] });
+
+
 // 获取当前主题信息
 const getCurrentTheme = computed(() => {
   return themeStore.themes.find(t => t.id === themeStore.currentTheme) || themeStore.themes[0]
@@ -124,45 +132,32 @@ function handleClickOutside(event) {
 }
 
 // 键盘快捷键处理
-function handleKeyboardShortcut(event) {
-  // Ctrl+Z 或 Cmd+Z (Mac) - 撤销操作
-  if ((event.ctrlKey || event.metaKey) && event.key === 'z' && !event.shiftKey) {
-    // 防止默认行为（浏览器的撤销）
-    event.preventDefault()
+const keys = useMagicKeys();
+const CtrlZ = keys['Ctrl+Z'];
+const CmdZ = keys['Cmd+Z'];
 
-    // 检查是否在输入框中
-    const activeElement = document.activeElement
-    const isInputting = activeElement.tagName === 'INPUT' ||
-      activeElement.tagName === 'TEXTAREA' ||
-      activeElement.isContentEditable
-
-    // 如果不在输入状态，执行撤销操作
-    if (!isInputting) {
-      equipmentStore.quickUndo()
+useEventListener(window, 'keydown', (event) => {
+    if ((CtrlZ.value || CmdZ.value) && !event.shiftKey) {
+        event.preventDefault();
+        const activeElement = document.activeElement;
+        const isInputting =
+            activeElement.tagName === 'INPUT' ||
+            activeElement.tagName === 'TEXTAREA' ||
+            activeElement.isContentEditable;
+        if (!isInputting) {
+            equipmentStore.quickUndo();
+        }
     }
-  }
-}
+});
 
 // 页面加载时加载数据并绑定快捷键
 onMounted(() => {
-  equipmentStore.loadData()
-  modelConfigStore.loadSettings()
-  // 加载主题设置
-  themeStore.loadTheme()
-
-  // 设置全局 toast 实例
   if (toastRef.value) {
-    toastService.setInstance(toastRef.value)
+    toastService.setInstance(toastRef.value);
   }
-
-  // 添加键盘快捷键监听
-  window.addEventListener('keydown', handleKeyboardShortcut)
-
-  // 2. 添加全局滚动监听
-  window.addEventListener('scroll', handleGlobalScroll, { passive: true });
-
-  console.log('🚀 户外装备清单系统已初始化 (Vue 3版本)')
-  console.log('💡 提示: 按 Ctrl+Z (或 Cmd+Z) 可以撤销最近的操作')
+  
+  console.log('🚀 户外装备清单系统已初始化 (Vue 3版本)');
+  console.log('💡 提示: 按 Ctrl+Z (或 Cmd+Z) 可以撤销最近的操作');
 })
 
 // 组件卸载时移除事件监听

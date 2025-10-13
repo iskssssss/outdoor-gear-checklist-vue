@@ -38,12 +38,12 @@
 </template>
 
 <script setup>
-import { debounce } from '../../utils/debounce';
+import { useDebounceFn } from '@vueuse/core';
 
 // 事件定义
 const emit = defineEmits(['show-model-config'])
 
-const debouncedShowModelConfig = debounce(() => emit('show-model-config'), 300);
+const debouncedShowModelConfig = useDebounceFn(() => emit('show-model-config'), 300);
 
 /**
  * 显示模型配置模态框

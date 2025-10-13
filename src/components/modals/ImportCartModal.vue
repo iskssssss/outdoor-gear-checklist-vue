@@ -127,7 +127,7 @@
 <script setup>
 import { ref, inject, watch, computed } from 'vue';
 import BaseModal from '../common/BaseModal.vue';
-import { debounce } from '../../utils/debounce';
+import { useDebounceFn } from '@vueuse/core';
 import { useEquipmentStore } from '../../stores/equipment';
 import { useModelConfigStore } from '../../stores/modelConfig';
 import { useOperationLogStore } from '../../stores/operationLog';
@@ -242,7 +242,7 @@ async function parseLink() {
   }
 }
 
-const debouncedAnalyze = debounce(async () => {
+const debouncedAnalyze = useDebounceFn(async () => {
   if (selectedItems.value.length === 0) return;
   isLoading.value = true;
   message.value = '正在分析商品，请稍候...';
@@ -265,7 +265,7 @@ const debouncedAnalyze = debounce(async () => {
   }
 }, 300);
 
-const debouncedImport = debounce(async () => {
+const debouncedImport = useDebounceFn(async () => {
   if (analyzedItems.value.length === 0) return;
   try {
     await importAnalyzedItems(analyzedItems.value, isCancelled, isImporting);

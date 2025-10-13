@@ -179,7 +179,7 @@ import CategoryTableView from './CategoryTableView.vue'
 import BaseConfirm from '../common/BaseConfirm.vue'
 import html2canvas from 'html2canvas'
 import { imageExportConfig } from '../../config/appConfig'
-import { debounce } from '../../utils/debounce'
+import { useDebounceFn } from '@vueuse/core'
 
 // 定义事件
 const emit = defineEmits(['show-recommendation', 'show-operation-log'])
@@ -549,20 +549,20 @@ async function clearAllData() {
   }
 }
 
-const debouncedAddCategory = debounce(addCategory, 300)
-const debouncedImportData = debounce(importData, 300)
-const debouncedImportFromCart = debounce(() => importCartModalRef.value.show(), 300)
-const debouncedExportData = debounce(exportData, 300)
-const debouncedExportToImage = debounce(exportToImage, 300)
-const debouncedInitializeCategories = debounce(initializeCategories, 300)
-const debouncedClearAllData = debounce(clearAllData, 300)
-const debouncedQuickUndo = debounce(quickUndo, 300)
-const debouncedShowRecommendation = debounce(() => emit('show-recommendation'), 300)
-const debouncedShowModelConfig = debounce(() => emit('show-model-config'), 300)
-const debouncedShowOperationLog = debounce(() => emit('show-operation-log'), 300)
-const debouncedShowCategorySort = debounce(() => categorySortModalRef.value.show(), 300)
-const debouncedToggleAllCategories = debounce(toggleAllCategories, 300)
-const debouncedToggleGroupByStatus = debounce(toggleGroupByStatus, 300)
+const debouncedAddCategory = useDebounceFn(addCategory, 300)
+const debouncedImportData = useDebounceFn(importData, 300)
+const debouncedImportFromCart = useDebounceFn(() => importCartModalRef.value.show(), 300)
+const debouncedExportData = useDebounceFn(exportData, 300)
+const debouncedExportToImage = useDebounceFn(exportToImage, 300)
+const debouncedInitializeCategories = useDebounceFn(initializeCategories, 300)
+const debouncedClearAllData = useDebounceFn(clearAllData, 300)
+const debouncedQuickUndo = useDebounceFn(quickUndo, 300)
+const debouncedShowRecommendation = useDebounceFn(() => emit('show-recommendation'), 300)
+const debouncedShowModelConfig = useDebounceFn(() => emit('show-model-config'), 300)
+const debouncedShowOperationLog = useDebounceFn(() => emit('show-operation-log'), 300)
+const debouncedShowCategorySort = useDebounceFn(() => categorySortModalRef.value.show(), 300)
+const debouncedToggleAllCategories = useDebounceFn(toggleAllCategories, 300)
+const debouncedToggleGroupByStatus = useDebounceFn(toggleGroupByStatus, 300)
 
 </script>
 

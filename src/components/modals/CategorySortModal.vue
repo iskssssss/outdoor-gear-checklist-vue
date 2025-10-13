@@ -27,7 +27,7 @@
 import { ref, defineExpose } from 'vue'
 import { useEquipmentStore } from '../../stores/equipment'
 import BaseModal from '../common/BaseModal.vue'
-import { debounce } from '../../utils/debounce';
+import { useDebounceFn } from '@vueuse/core';
 
 const equipmentStore = useEquipmentStore()
 
@@ -104,8 +104,8 @@ function saveOrder() {
   close()
 }
 
-const debouncedSaveSort = debounce(saveOrder, 300);
-const debouncedClose = debounce(close, 300);
+const debouncedSaveSort = useDebounceFn(saveOrder, 300);
+const debouncedClose = useDebounceFn(close, 300);
 
 // 暴露方法给父组件
 defineExpose({

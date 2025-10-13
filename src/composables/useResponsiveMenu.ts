@@ -1,4 +1,12 @@
-import { ref, onMounted, onBeforeUnmount, nextTick, watch, Ref } from 'vue';
+import { ref, watch, Ref, computed } from 'vue';
+import {
+  useElementBounding,
+  useWindowSize,
+  useEventListener,
+  useMutationObserver,
+  MaybeElementRef,
+  unrefElement,
+} from '@vueuse/core';
 
 interface MenuOptions {
   isOpen: Ref<boolean>;
@@ -28,148 +36,107 @@ interface MenuStyle {
  * @param {boolean} [options.setWidth=false] - 是否将菜单宽度设置为与触发器相同.
  * @returns {object} 包含菜单样式的 ref.
  */
-export function useResponsiveMenu(triggerRef: Ref<HTMLElement | null>, menuRef: Ref<HTMLElement | null>, { isOpen, offset = 8, setWidth = false }: MenuOptions) {
-  const menuStyle = ref<MenuStyle>({
-    position: 'fixed',
-    top: '0px',
-    left: '0px',
-    opacity: 0,
-    visibility: 'hidden',
-    transform: 'translateY(-10px)',
-    transition: 'opacity 0.2s, transform 0.2s',
-  });
+export function useResponsiveMenu(
+  triggerRef: MaybeElementRef,
+  menuRef: MaybeElementRef,
+  { isOpen, offset = 8, setWidth = false }: MenuOptions
+) {
+  const triggerBounding = useElementBounding(triggerRef);
+  const menuBounding = useElementBounding(menuRef);
+  const { width: windowWidth, height: windowHeight } = useWindowSize();
 
-  const updatePosition = async (): Promise<void> => {
-    if (!isOpen.value || !triggerRef.value || !menuRef.value) {
-      menuStyle.value.opacity = 0;
-      menuStyle.value.visibility = 'hidden';
-      menuStyle.value.transform = 'translateY(-10px)';
-      return;
+  const menuStyle = computed<MenuStyle>(() => {
+    const menuEl = unrefElement(menuRef);
+    if (!isOpen.value || !unrefElement(triggerRef) || !menuEl) {
+      return {
+        position: 'fixed',
+        top: '0px',
+        left: '0px',
+        opacity: 0,
+        visibility: 'hidden',
+        transform: 'translateY(-10px)',
+        transition: 'opacity 0.2s, transform 0.2s',
+      };
     }
 
-    // 关键修复：先将菜单在屏幕外设为可见，以便正确测量其尺寸
-    const menu = menuRef.value as HTMLElement;
-    menu.style.visibility = 'visible';
-    menu.style.opacity = '0';
-    menu.style.top = '-9999px';
-    menu.style.left = '-9999px';
+    const viewportWidth = windowWidth.value;
+    const viewportHeight = windowHeight.value;
 
-    // 等待 DOM 更新以应用上述样式
-    await nextTick();
-
-    const triggerRect: DOMRect = triggerRef.value.getBoundingClientRect();
-    // 现在可以获取到真实的尺寸
-    const menuRect: DOMRect = menu.getBoundingClientRect();
-    const computedStyle: CSSStyleDeclaration = window.getComputedStyle(menu);
-    const cssMaxHeight: string = computedStyle.maxHeight;
-    let preferredMaxHeight: number = Infinity;
+    const computedStyle = window.getComputedStyle(menuEl);
+    const cssMaxHeight = computedStyle.maxHeight;
+    let preferredMaxHeight = Infinity;
     if (cssMaxHeight && cssMaxHeight !== 'none') {
       preferredMaxHeight = parseFloat(cssMaxHeight);
     }
-    const targetHeight: number = Math.min(menuRect.height, preferredMaxHeight);
-
-    const viewportWidth: number = window.innerWidth;
-    const viewportHeight: number = window.innerHeight;
+    const targetHeight = Math.min(menuBounding.height.value, preferredMaxHeight);
 
     let top: number;
-    let left: number = triggerRect.left;
+    let left: number = triggerBounding.left.value;
     let finalMaxHeight: number;
 
-    // --- 最终的垂直定位与高度限制逻辑 ---
-    const spaceBelow: number = viewportHeight - triggerRect.bottom;
-    const spaceAbove: number = triggerRect.top;
+    const spaceBelow = viewportHeight - triggerBounding.bottom.value;
+    const spaceAbove = triggerBounding.top.value;
 
-    const goesAbove: boolean = (spaceBelow < targetHeight + offset) && (spaceAbove > spaceBelow);
+    const goesAbove = spaceBelow < targetHeight + offset && spaceAbove > spaceBelow;
 
     if (goesAbove) {
-      const availableHeight: number = spaceAbove - offset;
+      const availableHeight = spaceAbove - offset;
       finalMaxHeight = Math.min(preferredMaxHeight, availableHeight);
-      const finalMenuHeight: number = Math.min(menuRect.height, finalMaxHeight);
-      top = triggerRect.top - finalMenuHeight - offset;
+      const finalMenuHeight = Math.min(menuBounding.height.value, finalMaxHeight);
+      top = triggerBounding.top.value - finalMenuHeight - offset;
     } else {
-      const availableHeight: number = spaceBelow - offset;
+      const availableHeight = spaceBelow - offset;
       finalMaxHeight = Math.min(preferredMaxHeight, availableHeight);
-      top = triggerRect.bottom + offset;
+      top = triggerBounding.bottom.value + offset;
     }
 
-    // 确保菜单不会被推到屏幕顶部之外
     if (top < offset) {
       top = offset;
     }
 
-    // 水平位置调整
-    if (left + menuRect.width > viewportWidth) {
-      // 尝试右对齐，并留出边距
-      left = viewportWidth - menuRect.width - offset;
+    if (left + menuBounding.width.value > viewportWidth) {
+      left = viewportWidth - menuBounding.width.value - offset;
     }
 
     if (left < offset) {
-      // 确保左侧也有边距
       left = offset;
     }
 
-    let width: number = setWidth ? triggerRect.width : menuRect.width;
-    // 如果菜单宽度大于视口宽度，则强制适应
-    if (width > viewportWidth - (offset * 2)) {
-      width = viewportWidth - (offset * 2);
+    let width = setWidth ? triggerBounding.width.value : menuBounding.width.value;
+    if (width > viewportWidth - offset * 2) {
+      width = viewportWidth - offset * 2;
       left = offset;
     }
 
-
-    const finalStyle: MenuStyle = {
-      ...menuStyle.value,
+    return {
+      position: 'fixed',
       top: `${top}px`,
       left: `${left}px`,
       width: `${width}px`,
-      // 应用最终计算出的智能高度
       maxHeight: `${finalMaxHeight}px`,
       opacity: 1,
       visibility: 'visible',
       transform: 'translateY(0)',
+      transition: 'opacity 0.2s, transform 0.2s',
     };
+  });
 
-    // 清理临时内联样式
-    menu.style.visibility = '';
-    menu.style.opacity = '';
-    menu.style.top = '';
-    menu.style.left = '';
-
-    // 应用最终计算出的样式
-    menuStyle.value = finalStyle;
+  const updatePosition = () => {
+    triggerBounding.update();
+    menuBounding.update();
   };
-
-  let observer: MutationObserver | null = null;
-
-  onMounted(() => {
-    // 使用 MutationObserver 监视菜单内容变化，以便在内容变化时更新位置
-    if (menuRef.value) {
-      observer = new MutationObserver(updatePosition);
-      observer.observe(menuRef.value, { childList: true, subtree: true });
-    }
-    window.addEventListener('resize', updatePosition);
-    // 在捕获阶段处理滚动
-    window.addEventListener('scroll', updatePosition, true);
-  });
-
-  onBeforeUnmount(() => {
-    if (observer) {
-      observer.disconnect();
-    }
-    window.removeEventListener('resize', updatePosition);
-    window.removeEventListener('scroll', updatePosition, true);
-  });
-
-  // 监视 isOpen 状态的变化
-  watch(isOpen, (newValue: boolean) => {
+  
+  watch(isOpen, (newValue) => {
     if (newValue) {
-      updatePosition().then(r => {
-
-      });
-    } else {
-      menuStyle.value.opacity = 0;
-      menuStyle.value.visibility = 'hidden';
-      menuStyle.value.transform = 'translateY(-10px)';
+      updatePosition()
     }
+  });
+  
+  useEventListener(window, 'scroll', updatePosition, true);
+  
+  useMutationObserver(menuRef, updatePosition, {
+    childList: true,
+    subtree: true,
   });
 
   return {

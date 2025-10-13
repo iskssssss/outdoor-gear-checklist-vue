@@ -9,6 +9,7 @@
     "type-check": "vue-tsc --noEmit"
   },
   "dependencies": {
+    "@vueuse/core": "^13.9.0",
     "html2canvas": "^1.4.1",
     "pinia": "^2.1.7",
     "uuid": "^13.0.0",

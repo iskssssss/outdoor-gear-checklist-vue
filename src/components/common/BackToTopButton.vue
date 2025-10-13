@@ -7,60 +7,37 @@
 </template>
 
 <script setup>
-import { ref, watch, onUnmounted } from 'vue'
-import { debounce } from '../../utils/debounce'
+import { computed } from 'vue';
+import { useScroll } from '@vueuse/core';
 
 const props = defineProps({
   scrollContainer: {
-    type: Object,
-    default: null
+    type: [Object, Window],
+    default: () => window,
   },
   debug: {
     type: Boolean,
-    default: false
-  }
-})
+    default: false,
+  },
+});
 
-const showBackToTop = ref(false)
-const scrollTarget = ref(null)
+const { y: scrollTop } = useScroll(props.scrollContainer);
 
-const handleScroll = debounce(() => {
-  let scrollTop;
-  if (scrollTarget.value === window) {
-    scrollTop = window.scrollY;
-  } else {
-    scrollTop = scrollTarget.value?.scrollTop;
-  }
-
+const showBackToTop = computed(() => {
   if (props.debug) {
-    console.log('[BackToTopButton Debug] Scroll Top:', scrollTop, 'Target:', scrollTarget.value)
+    console.log('[BackToTopButton Debug] Scroll Top:', scrollTop.value);
   }
-  showBackToTop.value = scrollTop > 300
-}, 100)
+  return scrollTop.value > 300;
+});
 
 function scrollToTop() {
-  const target = scrollTarget.value || window
-  target.scrollTo({ top: 0, behavior: 'smooth' })
-}
-
-function setupScrollListener(newTarget) {
-  if (scrollTarget.value) {
-    scrollTarget.value.removeEventListener('scroll', handleScroll)
+  const target = props.scrollContainer || window;
+  if (target instanceof Window) {
+    target.scrollTo({ top: 0, behavior: 'smooth' });
+  } else if (target instanceof HTMLElement) {
+    target.scrollTo({ top: 0, behavior: 'smooth' });
   }
-
-  scrollTarget.value = newTarget || window
-  scrollTarget.value.addEventListener('scroll', handleScroll, { passive: true })
 }
-
-watch(() => props.scrollContainer, (newContainer) => {
-  setupScrollListener(newContainer)
-}, { immediate: true })
-
-onUnmounted(() => {
-  if (scrollTarget.value) {
-    scrollTarget.value.removeEventListener('scroll', handleScroll)
-  }
-})
 </script>
 
 <style scoped lang="scss">

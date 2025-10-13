@@ -50,7 +50,7 @@ import { ref, inject } from 'vue'
 import { useOperationLogStore } from '../../stores/operationLog'
 import { useEquipmentStore } from '../../stores/equipment'
 import BaseModal from '../common/BaseModal.vue'
-import { debounce } from '../../utils/debounce';
+import { useDebounceFn } from '@vueuse/core';
 
 const logStore = useOperationLogStore()
 const equipmentStore = useEquipmentStore()
@@ -142,11 +142,11 @@ function getLogClass(type) {
   return typeConfig[type]?.class || ''
 }
 
-const debouncedQuickUndo = debounce(quickUndo, 300);
-const debouncedExportLogs = debounce(exportLogs, 300);
-const debouncedHandleUndo = debounce(handleUndo, 300);
-const debouncedClose = debounce(close, 300);
-const debouncedClearLogs = debounce(clearLogs, 300);
+const debouncedQuickUndo = useDebounceFn(quickUndo, 300);
+const debouncedExportLogs = useDebounceFn(exportLogs, 300);
+const debouncedHandleUndo = useDebounceFn(handleUndo, 300);
+const debouncedClose = useDebounceFn(close, 300);
+const debouncedClearLogs = useDebounceFn(clearLogs, 300);
 
 defineExpose({ show, close })
 </script>

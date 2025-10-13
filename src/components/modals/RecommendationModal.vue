@@ -83,7 +83,7 @@ import { useEquipmentStore } from '../../stores/equipment'
 import { activityTypeOptions, seasonOptions, weatherOptions, difficultyOptions, budgetOptions } from '../../config/appConfig'
 import InputSelect from '../common/InputSelect.vue'
 import BaseModal from '../common/BaseModal.vue'
-import { debounce } from '../../utils/debounce';
+import { useDebounceFn } from '@vueuse/core';
 
 const modelConfigStore = useModelConfigStore()
 const equipmentStore = useEquipmentStore()
@@ -396,8 +396,8 @@ function getPriorityLabel(priority) {
   return priorityConfig.value[priority]?.label || '建议'
 }
 
-const debouncedGetRecommendations = debounce(getRecommendations, 500); // Longer debounce for API calls
-const debouncedClose = debounce(close, 300);
+const debouncedGetRecommendations = useDebounceFn(getRecommendations, 500); // Longer debounce for API calls
+const debouncedClose = useDebounceFn(close, 300);
 
 async function addRecommendationsToEquipment() {
   if (recommendations.value.length === 0) {

@@ -96,7 +96,7 @@
 <script setup>
 import { ref, nextTick, computed, inject } from 'vue'
 import { useEquipmentStore } from '../../stores/equipment'
-import { debounce } from '../../utils/debounce'
+import { useDebounceFn } from '@vueuse/core'
 
 const props = defineProps({
   item: {
@@ -262,11 +262,11 @@ async function deleteItem() {
   }
 }
 
-const debouncedStartEditing = debounce(startEdit, 300)
-const debouncedConfirmChanges = debounce(handleSave, 300)
-const debouncedCancelChanges = debounce(handleCancel, 300)
-const debouncedDeleteItem = debounce(deleteItem, 300)
-const debouncedToggleCompleted = debounce(toggleItem, 300)
+const debouncedStartEditing = useDebounceFn(startEdit, 300)
+const debouncedConfirmChanges = useDebounceFn(handleSave, 300)
+const debouncedCancelChanges = useDebounceFn(handleCancel, 300)
+const debouncedDeleteItem = useDebounceFn(deleteItem, 300)
+const debouncedToggleCompleted = useDebounceFn(toggleItem, 300)
 </script>
 
 <style scoped lang="scss">

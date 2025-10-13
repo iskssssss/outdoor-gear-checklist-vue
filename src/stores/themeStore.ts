@@ -2,8 +2,9 @@
  * 主题管理Store
  * 使用 CSS class 切换管理应用的视觉风格
  */
-import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { defineStore } from 'pinia';
+import { ref, watch, computed } from 'vue';
+import { useStorage, usePreferredDark } from '@vueuse/core';
 
 interface Theme {
   id: string;
@@ -13,7 +14,6 @@ interface Theme {
 }
 
 export const useThemeStore = defineStore('theme', () => {
-  // 可用的主题列表
   const themes = ref<Theme[]>([
     {
       id: 'default',
@@ -99,127 +99,92 @@ export const useThemeStore = defineStore('theme', () => {
       icon: '❄️',
       description: '冰雪纯净'
     }
-  ])
+  ]);
 
-  // 当前激活的主题 (默认为默认风格)
-  const currentTheme = ref<string>('default')
+  const currentTheme = useStorage('appTheme', 'default');
+  const isDark = usePreferredDark();
 
-  /**
-   * 从 localStorage 加载主题设置
-   */
-  function loadTheme(): void {
-    const saved = localStorage.getItem('appTheme')
-    if (saved && themes.value.some(t => t.id === saved)) {
-      currentTheme.value = saved
-    }
-    console.log('🎨 已加载主题设置:', currentTheme.value)
-
-    // 应用主题
-    applyTheme(currentTheme.value)
-  }
-
-  /**
-   * 切换到指定主题
-   * @param {string} themeId - 主题ID
-   */
+  watch(
+    isDark,
+    (isDark) => {
+      currentTheme.value = isDark ? 'dark' : 'default';
+    },
+    { immediate: true }
+  );
+  
+  watch(
+    currentTheme,
+    (newTheme, oldTheme) => {
+      if (newTheme) {
+        applyTheme(newTheme, oldTheme);
+      }
+    },
+    { immediate: true }
+  );
+  
   function switchTheme(themeId: string, event?: MouseEvent): void {
-    const theme = themes.value.find(t => t.id === themeId)
+    const theme = themes.value.find((t) => t.id === themeId);
     if (!theme) {
-      console.error('❌ 未找到主题:', themeId)
-      return
+      console.error('❌ 未找到主题:', themeId);
+      return;
     }
-
-    // 判断浏览器是否支持 View Transitions API
-    if (!document.startViewTransition) {
-      // 不支持 View Transitions API，直接切换主题
-      currentTheme.value = themeId
-      applyTheme(themeId)
-      // 保存到 localStorage
-      localStorage.setItem('appTheme', themeId)
-      console.log('✅ 已切换主题:', theme.name)
-      return
+    
+    if (document.startViewTransition && event) {
+      const x = event.clientX;
+      const y = event.clientY;
+      const endRadius = Math.hypot(
+        Math.max(x, window.innerWidth - x),
+        Math.max(y, window.innerHeight - y)
+      );
+      
+      const transition = document.startViewTransition(() => {
+        currentTheme.value = themeId;
+      });
+      
+      transition.ready.then(() => {
+        document.documentElement.animate(
+          {
+            clipPath: [
+              `circle(0 at ${x}px ${y}px)`,
+              `circle(${endRadius}px at ${x}px ${y}px)`,
+            ],
+          },
+          {
+            duration: 500,
+            easing: 'ease-in-out',
+            pseudoElement: '::view-transition-new(root)',
+          }
+        );
+      });
+    } else {
+      currentTheme.value = themeId;
     }
-
-    // 获取点击位置
-    const x = event?.clientX ?? window.innerWidth
-    const y = event?.clientY ?? window.innerHeight
-
-    // 计算到最远角的距离
-    const endRadius = Math.hypot(
-      Math.max(x, window.innerWidth - x),
-      Math.max(y, window.innerHeight - y)
-    )
-
-    // 使用 View Transitions API 实现平滑过渡
-    const transition = document.startViewTransition(() => {
-      currentTheme.value = themeId
-      applyTheme(themeId)
-    })
-
-    // 监听伪元素创建
-    transition.ready.then(() => {
-      // 新视图的动画
-      document.documentElement.animate(
-        {
-          clipPath: [
-            `circle(0 at ${x}px ${y}px)`,
-            `circle(${endRadius}px at ${x}px ${y}px)`
-          ]
-        },
-        {
-          duration: 500,
-          easing: 'ease-in-out',
-          pseudoElement: '::view-transition-new(root)'
-        }
-      )
-    })
-
-    // 保存到 localStorage
-    localStorage.setItem('appTheme', themeId)
-    console.log('✅ 已切换主题:', theme.name)
   }
 
-  /**
-   * 应用主题样式 - 通过切换 body 的 class
-   * @param {string} themeId - 主题ID
-   */
-  function applyTheme(themeId: string): void {
-    // 获取 <html> 元素
+  function applyTheme(newTheme: string, oldTheme?: string): void {
     const html = document.documentElement;
     const body = document.body;
-
-    // 移除所有主题 class
-    themes.value.forEach(theme => {
-      html.classList.remove(`theme-${theme.id}`);
-      body.classList.remove(`theme-${theme.id}`);
-    })
-
-    // 添加新主题 class
-    html.classList.add(`theme-${themeId}`);
-    body.classList.add(`theme-${themeId}`);
-
-    console.log(`🎨 已应用主题 class: theme-${themeId} 到 <html> 和 <body>`);
+    
+    if (oldTheme) {
+      html.classList.remove(`theme-${oldTheme}`);
+      body.classList.remove(`theme-${oldTheme}`);
+    }
+    
+    html.classList.add(`theme-${newTheme}`);
+    body.classList.add(`theme-${newTheme}`);
+    console.log(`🎨 已应用主题 class: theme-${newTheme} 到 <html> 和 <body>`);
   }
-
-  /**
-   * 获取当前主题信息
-   */
-  const getCurrentThemeInfo = (): Theme => {
-    return themes.value.find(t => t.id === currentTheme.value) || themes.value[0]
-  }
-
+  
+  const getCurrentThemeInfo = computed(() => {
+    return themes.value.find((t) => t.id === currentTheme.value) || themes.value[0];
+  });
+  
   return {
-    // State
     themes,
     currentTheme,
-
-    // Getters
     getCurrentThemeInfo,
-
-    // Actions
-    loadTheme,
     switchTheme,
-    applyTheme
-  }
-})
+    isDark,
+  };
+});
 

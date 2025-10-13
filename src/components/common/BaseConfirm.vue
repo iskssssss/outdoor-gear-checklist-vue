@@ -24,15 +24,15 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { debounce } from '../../utils/debounce';
+import { ref } from 'vue';
+import { useDebounceFn } from '@vueuse/core';
 
 const props = defineProps({
   width: { type: String, default: '400px' },
-  maxHeight: { type: String, default: '80vh' }
-})
+  maxHeight: { type: String, default: '80vh' },
+});
 
-const isVisible = ref(false)
+const isVisible = ref(false);
 const title = ref('确认')
 const message = ref('')
 const confirmButtonText = ref('确定')
@@ -64,15 +64,15 @@ function cancel() {
 
 function handleClickOutside() {
   // 点击蒙层外部默认取消
-  cancel()
+  cancel();
 }
 
-const debouncedConfirm = debounce(confirm, 300);
-const debouncedCancel = debounce(cancel, 300);
+const debouncedConfirm = useDebounceFn(confirm, 300);
+const debouncedCancel = useDebounceFn(cancel, 300);
 
 defineExpose({
-  show
-})
+  show,
+});
 </script>
 
 <style scoped lang="scss">

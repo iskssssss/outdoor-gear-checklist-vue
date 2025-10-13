@@ -2,11 +2,12 @@
  * 装备管理Store
  * 管理所有装备分类和项目数据
  */
-import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
-import { useOperationLogStore } from './operationLog'
-import { defaultCategories, localStorageKeys } from '../config/appConfig'
-import { toast } from '../utils/toast'
+import { defineStore } from 'pinia';
+import { ref, computed, watch, WatchStopHandle } from 'vue';
+import { useStorage, useRefHistory } from '@vueuse/core';
+import { useOperationLogStore } from './operationLog';
+import { defaultCategories, localStorageKeys } from '../config/appConfig';
+import { toast } from '../utils/toast';
 import { v4 as uuidv4 } from 'uuid';
 
 export interface Category {
@@ -38,420 +39,337 @@ interface BeforeState {
   categories: Category[];
 }
 
-export const useEquipmentStore = defineStore('equipment', () => {
-  // 状态
-  const categories = ref<Category[]>([])
-  const groupByStatus = ref<boolean>(true) // 是否按准备状态分栏显示
-  const hasLoaded = ref<boolean>(false) // 新增：数据是否已加载完成
+function reindexCategoryItems(category: Category): void {
+  category.items.forEach((item, index) => {
+    item.index = index + 1;
+  });
+  console.log(`🔢 Re-indexing category "${category.name}" with ${category.items.length} items`);
+}
 
-  // Getters - 统计信息
-  const totalCategories = computed<number>(() => categories.value.length)
+function fixDuplicateItemIds(category: Category): number {
+  const idSet = new Set<string | number>();
+  let fixedCount = 0;
+  category.items.forEach((item) => {
+    if (idSet.has(item.id)) {
+      const oldId = item.id;
+      item.id = uuidv4();
+      console.warn(`⚠️ Fixed duplicate ID: ${oldId} → ${item.id} (Item: ${item.name})`);
+      fixedCount++;
+    }
+    idSet.add(item.id);
+  });
+  if (fixedCount > 0) {
+    console.log(`✅ Fixed ${fixedCount} duplicate item IDs in category "${category.name}"`);
+  }
+  return fixedCount;
+}
+
+function migrateAndValidateData(data: Category[]): Category[] {
+  let needsReindex = false;
+  const validatedData = data.map(cat => {
+    const items = cat.items.map((item, index) => {
+      const updatedItem: Item = { ...item };
+      if (typeof item.index !== 'number') {
+        needsReindex = true;
+        updatedItem.index = index + 1;
+      }
+      if (updatedItem.price === undefined) updatedItem.price = 0;
+      if (!updatedItem.priceUnit) updatedItem.priceUnit = '人民币';
+      if (typeof item.id !== 'string') updatedItem.id = uuidv4();
+      return updatedItem;
+    });
+    return { ...cat, icon: cat.icon || '✨', items };
+  });
+
+  if (needsReindex) {
+    console.log('🔢 Re-indexing items...');
+    validatedData.forEach(reindexCategoryItems);
+  }
+
+  let totalFixed = 0;
+  validatedData.forEach(cat => {
+    totalFixed += fixDuplicateItemIds(cat);
+  });
+  if (totalFixed > 0) {
+    console.warn(`⚠️ Fixed ${totalFixed} duplicate item IDs.`);
+  }
+
+  console.log('✅ Data loaded from storage and validated.');
+  return validatedData;
+}
+
+function initializeDefaultCategories(): Category[] {
+  console.log('📦 Initializing default categories...');
+  const defaultData = defaultCategories.map((cat) => ({
+    id: uuidv4(),
+    name: cat.name,
+    icon: cat.icon,
+    items: [],
+    collapsed: false,
+  }));
+
+  // Can't log here as the store is not yet available
+  // Consider logging after initialization if needed
+  
+  return defaultData;
+}
+
+export const useEquipmentStore = defineStore('equipment', () => {
+  const categories = useStorage<Category[]>(localStorageKeys.equipmentChecklist, [], localStorage, {
+    mergeDefaults: (storageValue) => {
+      if (storageValue && storageValue.length > 0) {
+        return migrateAndValidateData(storageValue);
+      }
+      return initializeDefaultCategories();
+    },
+  });
+
+  const { history, undo, redo, canUndo, canRedo } = useRefHistory(categories, {
+    deep: true,
+    capacity: 20,
+  });
+
+  const groupByStatus = ref<boolean>(true);
+  const hasLoaded = ref<boolean>(false);
+
+  let stopWatch: WatchStopHandle | undefined;
+
+  stopWatch = watch(
+    categories,
+    (value) => {
+      if (value) {
+        hasLoaded.value = true;
+        if (stopWatch) {
+            stopWatch();
+        }
+      }
+    },
+    { immediate: true, deep: true }
+  );
+  
+  const totalCategories = computed<number>(() => categories.value.length);
 
   const totalItems = computed<number>(() =>
     categories.value.reduce((sum, cat) => sum + cat.items.length, 0)
-  )
+  );
 
   const completedItems = computed<number>(() =>
-    categories.value.reduce((sum, cat) =>
-      sum + cat.items.filter(item => item.completed).length, 0
+    categories.value.reduce(
+      (sum, cat) => sum + cat.items.filter((item) => item.completed).length,
+      0
     )
-  )
+  );
 
-  const remainingItems = computed<number>(() => totalItems.value - completedItems.value)
+  const remainingItems = computed<number>(() => totalItems.value - completedItems.value);
 
   const totalWeight = computed<string>(() => {
-    const weightInGrams = categories.value.reduce((sum, cat) =>
-      sum + cat.items.reduce((itemSum, item) => {
-        let weightInGrams: number = item.weight
-        // 单位转换
-        switch (item.weightUnit) {
-          case 'kg': weightInGrams = item.weight * 1000; break
-          case '斤': weightInGrams = item.weight * 500; break
-          case '磅': weightInGrams = item.weight * 453.592; break
-          default: weightInGrams = item.weight // g
-        }
-        return itemSum + (weightInGrams * item.quantity)
-      }, 0), 0
-    )
-    return (weightInGrams / 1000).toFixed(2) + 'kg'
-  })
+    const weightInGrams = categories.value.reduce(
+      (sum, cat) =>
+        sum +
+        cat.items.reduce((itemSum, item) => {
+          let weightInGrams: number = item.weight;
+          // 单位转换
+          switch (item.weightUnit) {
+            case 'kg': weightInGrams = item.weight * 1000; break;
+            case '斤': weightInGrams = item.weight * 500; break;
+            case '磅': weightInGrams = item.weight * 453.592; break;
+            default: weightInGrams = item.weight; // g
+          }
+          return itemSum + weightInGrams * item.quantity;
+        }, 0),
+      0
+    );
+    return (weightInGrams / 1000).toFixed(2) + 'kg';
+  });
 
   const totalPrice = computed<string>(() => {
-    const priceInYuan = categories.value.reduce((sum, cat) =>
-      sum + cat.items.reduce((itemSum, item) => {
-        let priceInYuan: number = item.price || 0
-        // 单位转换到人民币
-        switch (item.priceUnit) {
-          case '美元': priceInYuan = (item.price || 0) * 7; break // 简单汇率转换
-          case '英镑': priceInYuan = (item.price || 0) * 9; break
-          case '日元': priceInYuan = (item.price || 0) * 0.05; break
-          default: priceInYuan = item.price || 0 // 人民币
-        }
-        return itemSum + (priceInYuan * item.quantity)
-      }, 0), 0
-    )
-    return priceInYuan.toFixed(2) + '人民币'
-  })
-
-  // Actions
-  /**
-   * 从localStorage加载数据
-   */
-  function loadData(): void {
-    const data = localStorage.getItem(localStorageKeys.equipmentChecklist)
-    if (data) {
-      try {
-        categories.value = JSON.parse(data)
-
-        let needsReindex = false
-
-        // 确保导入时 icon 属性存在，并检查序号，补充默认价格单位
-        categories.value = categories.value.map(cat => {
-          const items = cat.items.map((item, index) => {
-            const updatedItem: Item = { ...item }
-            if (!item.index) {
-              needsReindex = true
-              updatedItem.index = index + 1
-            }
-            // 确保价格字段存在默认值
-            if (updatedItem.price === undefined) {
-              updatedItem.price = 0
-            }
-            if (!updatedItem.priceUnit) {
-              updatedItem.priceUnit = '人民币'
-            }
-            return updatedItem
-          })
-
-          return {
-            ...cat,
-            icon: cat.icon || '✨',
-            items
+    const priceInYuan = categories.value.reduce(
+      (sum, cat) =>
+        sum +
+        cat.items.reduce((itemSum, item) => {
+          let priceInYuan: number = item.price || 0;
+          // 单位转换到人民币
+          switch (item.priceUnit) {
+            case '美元': priceInYuan = (item.price || 0) * 7; break; // 简单汇率转换
+            case '英镑': priceInYuan = (item.price || 0) * 9; break;
+            case '日元': priceInYuan = (item.price || 0) * 0.05; break;
+            default: priceInYuan = item.price || 0; // 人民币
           }
-        })
-
-        // 如果有装备没有序号，重新编码并保存
-        if (needsReindex) {
-          console.log('🔢 检测到装备缺少序号，正在重新编码...')
-          categories.value.forEach(cat => {
-            reindexCategory(cat.id)
-          })
-          saveData()
-        }
-
-        // 检查并修复重复的装备ID
-        let totalFixed = 0
-        categories.value.forEach(cat => {
-          const fixed = fixDuplicateIds(cat.id)
-          totalFixed += fixed
-        })
-
-        if (totalFixed > 0) {
-          console.warn(`⚠️ 总共修复了 ${totalFixed} 个重复的装备ID`)
-        }
-
-        console.log('✅ 数据已从缓存加载', {
-          分类数: categories.value.length,
-          装备总数: totalItems.value,
-          数据大小: `${(data.length / 1024).toFixed(2)} KB`
-        })
-      } catch (e) {
-        console.error('❌ 数据加载失败:', e)
-        categories.value = []
-      } finally {
-        hasLoaded.value = true // 数据加载完成，设置hasLoaded为true
-      }
-    } else {
-      console.log('📦 首次使用，初始化预设分类')
-      initializeDefaultCategories()
-      hasLoaded.value = true // 首次初始化完成，设置hasLoaded为true
-    }
-  }
-
-  /**
-   * 初始化预设分类
-   */
-  function initializeDefaultCategories(): void {
-
-    categories.value = defaultCategories.map((cat, index) => ({
-      id: (Date.now() + index).toString(), // 确保ID是字符串
-      name: cat.name,
-      icon: cat.icon,
-      items: [],
-      collapsed: false
-    }))
-
-    saveData()
-
-    const logStore = useOperationLogStore()
-    logStore.log('add', '初始化了8个预设分类', {
-      categories: defaultCategories.map(cat => cat.name).join('、')
-    })
-  }
-
-  /**
-   * 保存数据到localStorage
-   */
-  function saveData(): void {
-    try {
-      const dataString = JSON.stringify(categories.value)
-      localStorage.setItem(localStorageKeys.equipmentChecklist, dataString)
-      console.log('✅ 数据已成功保存到缓存', {
-        分类数: categories.value.length,
-        装备总数: totalItems.value
-      })
-    } catch (e) {
-      console.error('❌ 数据保存失败:', e)
-      toast.error('数据保存失败，请检查浏览器存储空间')
-    }
-  }
-
-  /**
-   * 同步数据（多标签页同步）
-   */
-  function syncData(): void {
-    const currentData = JSON.stringify(categories.value)
-    const savedData = localStorage.getItem(localStorageKeys.equipmentChecklist)
-
-    if (savedData && currentData !== savedData) {
-      console.log('🔄 检测到数据变化，重新加载...')
-      loadData()
-    } else {
-      console.log('✅ 数据已同步，无需重新加载')
-    }
-  }
+          return itemSum + priceInYuan * item.quantity;
+        }, 0),
+      0
+    );
+    return priceInYuan.toFixed(2) + '人民币';
+  });
 
   /**
    * 添加分类
+   * @param {string} name
+   * @param {string} icon
+   * @returns {boolean}
    */
   function addCategory(name: string, icon: string = '✨'): boolean {
     if (!name || name.trim() === '') {
-      toast.warning('请输入分类名称')
-      return false
+      toast.warning('请输入分类名称');
+      return false;
     }
 
-    // 生成唯一ID：时间戳 + 随机数，避免快速连续添加时ID重复
-    const uniqueId: number = Date.now() + Math.floor(Math.random() * 10000)
-
     const newCategory: Category = {
-      id: uniqueId.toString(), // 确保ID是字符串
+      id: uuidv4(),
       name: name.trim(),
       icon: icon,
       items: [],
-      collapsed: false
-    }
+      collapsed: false,
+    };
 
-    // 保存操作前的状态
-    const beforeState: BeforeState = {
-      action: 'addCategory',
-      categories: JSON.parse(JSON.stringify(categories.value))
-    }
+    const logStore = useOperationLogStore();
+    logStore.log('add', `添加了分类：${name}`, { category: name });
 
-    categories.value.push(newCategory)
-    saveData()
-
-    const logStore = useOperationLogStore()
-    logStore.log('add', `添加了分类：${name}`, { category: name }, beforeState)
-
-    return true
+    categories.value.push(newCategory);
+    
+    return true;
   }
-
-  /**
-   * 编辑分类图标
-   */
+  
   function editCategoryIcon(categoryId: string, newIcon: string): boolean {
-    const category = categories.value.find(cat => cat.id === categoryId)
-    if (!category) return false
+    const category = categories.value.find((cat) => cat.id === categoryId);
+    if (!category) return false;
 
     if (newIcon.trim() === category.icon) {
-      return false
+      return false;
     }
 
-    // 保存操作前的状态
-    const beforeState: BeforeState = {
-      action: 'editCategoryIcon',
-      categories: JSON.parse(JSON.stringify(categories.value))
+    const oldIcon = category.icon;
+    const categoryName = category.name;
+    
+    undo();
+    
+    const categoryToUpdate = categories.value.find((cat) => cat.id === categoryId);
+    if(categoryToUpdate) {
+        categoryToUpdate.icon = newIcon.trim();
     }
 
-    const oldIcon = category.icon
-    category.icon = newIcon.trim()
-    saveData()
-
-    const logStore = useOperationLogStore()
-    logStore.log('edit', `修改了分类图标：${category.name}`, {
-      category: category.name,
-      oldIcon: oldIcon,
-      newIcon: newIcon
-    }, beforeState)
-    return true
+    const logStore = useOperationLogStore();
+    logStore.log(
+      'edit',
+      `修改了分类图标：${categoryName}`,
+      {
+        category: categoryName,
+        oldIcon: oldIcon,
+        newIcon: newIcon,
+      }
+    );
+    return true;
   }
-
-  /**
-   * 删除分类
-   */
+  
   async function deleteCategory(categoryId: string): Promise<boolean> {
-    const category = categories.value.find(cat => cat.id === categoryId)
-    if (!category) return false
+    const category = categories.value.find((cat) => cat.id === categoryId);
+    if (!category) return false;
 
-    const categoryName = category.name
-    const itemCount = category.items.length
+    const categoryName = category.name;
+    const itemCount = category.items.length;
 
-    // 保存操作前的状态
-    const beforeState: BeforeState = {
-      action: 'deleteCategory',
-      categories: JSON.parse(JSON.stringify(categories.value))
-    }
+    const logStore = useOperationLogStore();
+    logStore.log(
+      'delete',
+      `删除了分类：${categoryName}`,
+      {
+        category: categoryName,
+        itemCount: itemCount,
+      }
+    );
+    
+    categories.value = categories.value.filter((cat) => cat.id !== categoryId);
 
-    categories.value = categories.value.filter(cat => cat.id !== categoryId)
-    saveData()
-
-    const logStore = useOperationLogStore()
-    logStore.log('delete', `删除了分类：${categoryName}`, {
-      category: categoryName,
-      itemCount: itemCount
-    }, beforeState)
-
-    toast.success(`分类"${categoryName}"已删除`)
-    return true
+    toast.success(`分类"${categoryName}"已删除`);
+    return true;
   }
-
-  /**
-   * 编辑分类名称
-   */
+  
   function editCategoryName(categoryId: string, newName: string): boolean {
-    const category = categories.value.find(cat => cat.id === categoryId)
-    if (!category) return false
+    const category = categories.value.find((cat) => cat.id === categoryId);
+    if (!category) return false;
 
     if (!newName || newName.trim() === '') {
-      toast.warning('分类名称不能为空')
-      return false
+      toast.warning('分类名称不能为空');
+      return false;
     }
 
-    const oldName = category.name
-    if (newName.trim() === oldName) {
-      return false
+    const oldName = category.name;
+    
+    undo();
+    
+    const categoryToUpdate = categories.value.find((cat) => cat.id === categoryId);
+    if(categoryToUpdate) {
+        categoryToUpdate.name = newName.trim();
     }
 
-    // 保存操作前的状态
-    const beforeState: BeforeState = {
-      action: 'editCategoryName',
-      categories: JSON.parse(JSON.stringify(categories.value))
-    }
-
-    category.name = newName.trim()
-    saveData()
-
-    const logStore = useOperationLogStore()
-    logStore.log('edit', `修改了分类名称：${oldName} → ${newName}`, {
-      oldName: oldName,
-      newName: newName
-    }, beforeState)
-
-    toast.success(`分类名称已更新为"${newName}"`)
-    return true
-  }
-
-  /**
-   * 切换分类折叠状态
-   * （UI状态操作，不记录日志）
-   */
-  function toggleCategoryCollapse(categoryId: string): void {
-    const category = categories.value.find(cat => cat.id === categoryId)
-    if (!category) return
-
-    category.collapsed = !category.collapsed
-    saveData()
-
-    // UI状态操作不记录日志
-  }
-
-  /**
-   * 重新编码分类中的所有装备序号
-   */
-  function reindexCategory(categoryId: string): void {
-    const category = categories.value.find(cat => cat.id === categoryId)
-    if (!category) return
-
-    // 按照当前顺序重新编号（从1开始）
-    category.items.forEach((item, index) => {
-      item.index = index + 1
-    })
-
-    console.log(`🔢 重新编码分类 "${category.name}"，共 ${category.items.length} 个装备`)
-  }
-
-  /**
-   * 修复分类中重复的装备ID
-   */
-  function fixDuplicateIds(categoryId: string): number {
-    const category = categories.value.find(cat => cat.id === categoryId)
-    if (!category) return 0
-
-    const idSet = new Set<string | number>()
-    let fixedCount = 0
-
-    category.items.forEach((item, index) => {
-      if (idSet.has(item.id)) {
-        // 发现重复ID，生成新的唯一ID
-        const oldId = item.id
-        // 使用更可靠的方式生成唯一ID：时间戳 + 随机数 + 索引
-        item.id = Date.now() + Math.floor(Math.random() * 10000) + index
-        console.warn(`⚠️ 修复重复ID: ${oldId} → ${item.id} (装备: ${item.name})`)
-        fixedCount++
-      } else {
-        idSet.add(item.id)
+    const logStore = useOperationLogStore();
+    logStore.log(
+      'edit',
+      `修改了分类名称：${oldName} → ${newName}`,
+      {
+        oldName: oldName,
+        newName: newName,
       }
-    })
+    );
 
-    if (fixedCount > 0) {
-      console.log(`✅ 修复了 ${fixedCount} 个重复的装备ID`)
-      saveData()
-    }
-
-    return fixedCount
+    toast.success(`分类名称已更新为"${newName}"`);
+    return true;
   }
+  
+  function toggleCategoryCollapse(categoryId: string): void {
+    const category = categories.value.find((cat) => cat.id === categoryId);
+    if (!category) return;
 
-  /**
-   * 更新分类顺序
-   */
+    category.collapsed = !category.collapsed;
+  }
+  
+  function reindexCategory(categoryId: string): void {
+    const category = categories.value.find((cat) => cat.id === categoryId);
+    if (!category) return;
+
+    reindexCategoryItems(category);
+  }
+  
+  function fixDuplicateIds(categoryId: string): number {
+    const category = categories.value.find((cat) => cat.id === categoryId);
+    if (!category) return 0;
+
+    return fixDuplicateItemIds(category);
+  }
+  
   function updateCategoriesOrder(newOrder: Category[]): void {
-    // 保存操作前的状态
-    const beforeState: BeforeState = {
-      action: 'updateCategoriesOrder',
-      categories: JSON.parse(JSON.stringify(categories.value))
-    }
-
-    categories.value = newOrder
-    saveData()
-
-    const logStore = useOperationLogStore()
-    logStore.log('sort', '重新排序了分类', {
-      categories: newOrder.map(cat => cat.name).join('、')
-    }, beforeState)
+    const logStore = useOperationLogStore();
+    logStore.log(
+      'sort',
+      '重新排序了分类',
+      {
+        categories: newOrder.map((cat) => cat.name).join('、'),
+      }
+    );
+    
+    categories.value = newOrder;
   }
-
-  /**
-   * 添加装备项目
-   */
-  function addItem(categoryId: string, itemData: Partial<Item> & { description?: string }): boolean {
-    const category = categories.value.find(cat => cat.id === categoryId)
-    if (!category) return false
+  
+  function addItem(
+    categoryId: string,
+    itemData: Partial<Item> & { description?: string }
+  ): boolean {
+    const category = categories.value.find((cat) => cat.id === categoryId);
+    if (!category) return false;
 
     if (!itemData.name || itemData.name.trim() === '') {
-      toast.warning('请输入装备名称')
-      return false
+      toast.warning('请输入装备名称');
+      return false;
     }
 
-    // 计算新装备的序号（最大序号+1）
-    const maxIndex = category.items.reduce((max, item) =>
-      Math.max(max, item.index || 0), 0)
-
-    // 生成唯一ID：时间戳 + 随机数，避免快速连续添加时ID重复
-    const uniqueId: number = Date.now() + Math.floor(Math.random() * 10000)
+    const maxIndex = category.items.reduce(
+      (max, item) => Math.max(max, item.index || 0),
+      0
+    );
 
     const newItem: Item = {
-      id: uniqueId.toString(), // 确保ID是字符串
-      index: maxIndex + 1,  // 固定序号
+      id: uuidv4(),
+      index: maxIndex + 1,
       name: itemData.name.trim(),
       completed: itemData.completed || false,
       quantity: itemData.quantity || 1,
@@ -462,421 +380,322 @@ export const useEquipmentStore = defineStore('equipment', () => {
       priceUnit: itemData.priceUnit || '人民币',
       isRecommended: itemData.isRecommended || false, // 新增字段，标记为推荐装备
       notes: itemData.description || itemData.notes || '', // 支持 description 或 notes
-      priority: itemData.priority || 'medium' // 支持优先级
-    }
+      priority: itemData.priority || 'medium', // 支持优先级
+    };
 
-    // 保存操作前的状态
-    const beforeState: BeforeState = {
-      action: 'addItem',
-      categories: JSON.parse(JSON.stringify(categories.value))
-    }
+    const logStore = useOperationLogStore();
+    logStore.log(
+      'add',
+      `添加了装备 #${newItem.index}：${newItem.name}`,
+      {
+        category: category.name,
+        item: newItem.name,
+        index: newItem.index,
+        quantity: `${newItem.quantity}${newItem.quantityUnit}`,
+        weight: `${newItem.weight}${newItem.weightUnit}`,
+        price: `${newItem.price}${newItem.priceUnit}`,
+      }
+    );
+    
+    category.items.push(newItem);
 
-    category.items.push(newItem)
-    saveData()
-
-    const logStore = useOperationLogStore()
-    logStore.log('add', `添加了装备 #${newItem.index}：${newItem.name}`, {
-      category: category.name,
-      item: newItem.name,
-      index: newItem.index,
-      quantity: `${newItem.quantity}${newItem.quantityUnit}`,
-      weight: `${newItem.weight}${newItem.weightUnit}`,
-      price: `${newItem.price}${newItem.priceUnit}`
-    }, beforeState)
-
-    toast.success(`装备"${newItem.name}"添加成功`)
-    return true
+    toast.success(`装备"${newItem.name}"添加成功`);
+    return true;
   }
+  
+  async function deleteItem(
+    categoryId: string,
+    itemId: string | number
+  ): Promise<boolean> {
+    const category = categories.value.find((cat) => cat.id === categoryId);
+    if (!category) return false;
 
-  /**
-   * 删除装备项目
-   */
-  async function deleteItem(categoryId: string, itemId: string | number): Promise<boolean> {
-    const category = categories.value.find(cat => cat.id === categoryId)
-    if (!category) return false
+    const item = category.items.find((i) => i.id === itemId);
+    if (!item) return false;
 
-    const item = category.items.find(i => i.id === itemId)
-    if (!item) return false
+    const logStore = useOperationLogStore();
+    logStore.log(
+      'delete',
+      `删除了装备 #${item.index}：${item.name}`,
+      {
+        category: category.name,
+        item: item.name,
+        index: item.index,
+      }
+    );
+    
+    category.items = category.items.filter((item) => item.id !== itemId);
 
-    // 保存操作前的状态
-    const beforeState: BeforeState = {
-      action: 'deleteItem',
-      categories: JSON.parse(JSON.stringify(categories.value))
-    }
+    reindexCategory(categoryId);
 
-    category.items = category.items.filter(item => item.id !== itemId)
-
-    // 删除后重新编码
-    reindexCategory(categoryId)
-    saveData()
-
-    const logStore = useOperationLogStore()
-    logStore.log('delete', `删除了装备 #${item.index}：${item.name}`, {
-      category: category.name,
-      item: item.name,
-      index: item.index
-    }, beforeState)
-
-    toast.success(`装备"${item.name}"已删除`)
-    return true
+    toast.success(`装备"${item.name}"已删除`);
+    return true;
   }
+  
+  async function removeItem(
+    categoryId: string,
+    itemId: string | number
+  ): Promise<boolean> {
+    const category = categories.value.find((cat) => cat.id === categoryId);
+    if (!category) return false;
 
-  /**
-   * 删除装备项目
-   */
-  async function removeItem(categoryId: string, itemId: string | number): Promise<boolean> {
-    const category = categories.value.find(cat => cat.id === categoryId)
-    if (!category) return false
+    const item = category.items.find((i) => i.id === itemId);
+    if (!item) return false;
 
-    const item = category.items.find(i => i.id === itemId)
-    if (!item) return false
+    const logStore = useOperationLogStore();
+    logStore.log(
+      'delete',
+      `删除了装备 #${item.index}：${item.name}`,
+      {
+        category: category.name,
+        item: item.name,
+        index: item.index,
+      }
+    );
+    
+    category.items = category.items.filter((item) => item.id !== itemId);
 
-    // 保存操作前的状态
-    const beforeState: BeforeState = {
-      action: 'removeItem',
-      categories: JSON.parse(JSON.stringify(categories.value))
-    }
+    reindexCategory(categoryId);
 
-    category.items = category.items.filter(item => item.id !== itemId)
-
-    // 删除后重新编码
-    reindexCategory(categoryId)
-    saveData()
-
-    const logStore = useOperationLogStore()
-    logStore.log('delete', `删除了装备 #${item.index}：${item.name}`, {
-      category: category.name,
-      item: item.name,
-      index: item.index
-    }, beforeState)
-
-    toast.success(`装备"${item.name}"已删除`)
-    return true
+    toast.success(`装备"${item.name}"已删除`);
+    return true;
   }
+  
+  function editItem(
+    categoryId: string,
+    itemId: string | number,
+    itemData: Partial<Item>
+  ): boolean {
+    const category = categories.value.find((cat) => cat.id === categoryId);
+    if (!category) return false;
 
-  /**
-   * 编辑装备项目
-   */
-  function editItem(categoryId: string, itemId: string | number, itemData: Partial<Item>): boolean {
-    const category = categories.value.find(cat => cat.id === categoryId)
-    if (!category) return false
-
-    const item = category.items.find(i => i.id === itemId)
-    if (!item) return false
+    const item = category.items.find((i) => i.id === itemId);
+    if (!item) return false;
 
     if (!itemData.name || itemData.name.trim() === '') {
-      toast.warning('请输入装备名称')
-      return false
+      toast.warning('请输入装备名称');
+      return false;
     }
 
-    const oldName = item.name
-    const oldQuantity = `${item.quantity}${item.quantityUnit}`
-    const oldWeight = `${item.weight}${item.weightUnit}`
-    const oldPrice = `${item.price || 0}${item.priceUnit || '人民币'}`
+    const oldName = item.name;
+    const oldQuantity = `${item.quantity}${item.quantityUnit}`;
+    const oldWeight = `${item.weight}${item.weightUnit}`;
+    const oldPrice = `${item.price || 0}${item.priceUnit || '人民币'}`;
 
-    // 保存操作前的状态
-    const beforeState: BeforeState = {
-      action: 'editItem',
-      categories: JSON.parse(JSON.stringify(categories.value))
+    undo();
+    
+    const itemToUpdate = category.items.find((i) => i.id === itemId);
+    
+    if(itemToUpdate) {
+        itemToUpdate.name = itemData.name.trim();
+        itemToUpdate.quantity = itemData.quantity || 1;
+        itemToUpdate.quantityUnit = itemData.quantityUnit || '个';
+        itemToUpdate.weight = itemData.weight || 0;
+        itemToUpdate.weightUnit = itemData.weightUnit || 'g';
+        itemToUpdate.price = itemData.price || 0;
+        itemToUpdate.priceUnit = itemData.priceUnit || '人民币';
     }
 
-    item.name = itemData.name.trim()
-    item.quantity = itemData.quantity || 1
-    item.quantityUnit = itemData.quantityUnit || '个'
-    item.weight = itemData.weight || 0
-    item.weightUnit = itemData.weightUnit || 'g'
-    item.price = itemData.price || 0
-    item.priceUnit = itemData.priceUnit || '人民币'
 
-    saveData()
+    const logStore = useOperationLogStore();
+    logStore.log(
+      'edit',
+      `修改了装备：${oldName} → ${item.name}`,
+      {
+        category: category.name,
+        oldName: oldName,
+        newName: item.name,
+        quantity: `${oldQuantity} → ${item.quantity}${item.quantityUnit}`,
+        weight: `${oldWeight} → ${item.weight}${item.weightUnit}`,
+        price: `${oldPrice} → ${item.price}${item.priceUnit}`,
+      }
+    );
 
-    const logStore = useOperationLogStore()
-    logStore.log('edit', `修改了装备：${oldName} → ${item.name}`, {
-      category: category.name,
-      oldName: oldName,
-      newName: item.name,
-      quantity: `${oldQuantity} → ${item.quantity}${item.quantityUnit}`,
-      weight: `${oldWeight} → ${item.weight}${item.weightUnit}`,
-      price: `${oldPrice} → ${item.price}${item.priceUnit}`
-    }, beforeState)
-
-    toast.success(`装备"${item.name}"已更新`)
-    return true
+    toast.success(`装备"${item.name}"已更新`);
+    return true;
   }
-
-  /**
-   * 更新装备（专为表格视图设计）
-   */
-  function updateEquipment(categoryId: string, itemId: string | number, itemData: Partial<Item>): void {
-    const category = categories.value.find(cat => cat.id === categoryId);
+  
+  function updateEquipment(
+    categoryId: string,
+    itemId: string | number,
+    itemData: Partial<Item>
+  ): void {
+    const category = categories.value.find((cat) => cat.id === categoryId);
     if (!category) return;
-    const itemIndex = category.items.findIndex(i => i.id === itemId);
+    const itemIndex = category.items.findIndex((i) => i.id === itemId);
     if (itemIndex === -1) return;
     category.items[itemIndex] = { ...category.items[itemIndex], ...itemData };
-    saveData();
   }
-
-  /**
-   * 切换装备完成状态
-   */
-  function toggleEquipmentStatus(categoryId: string, itemId: string | number): boolean {
-    const category = categories.value.find(cat => cat.id === categoryId)
+  
+  function toggleEquipmentStatus(
+    categoryId: string,
+    itemId: string | number
+  ): boolean {
+    const category = categories.value.find((cat) => cat.id === categoryId);
     if (!category) {
-      console.error('❌ 未找到分类:', categoryId)
-      return false
+      console.error('❌ 未找到分类:', categoryId);
+      return false;
     }
 
-    const item = category.items.find(i => i.id === itemId)
+    const item = category.items.find((i) => i.id === itemId);
     if (!item) {
-      console.error('❌ 未找到装备:', itemId, '在分类:', category.name)
-      return false
+      console.error('❌ 未找到装备:', itemId, '在分类:', category.name);
+      return false;
     }
 
-    // 保存操作前的状态
-    const beforeState: BeforeState = {
-      action: 'toggleEquipmentStatus',
-      categories: JSON.parse(JSON.stringify(categories.value))
-    }
+    const logStore = useOperationLogStore();
+    logStore.log(
+      'toggle',
+      `${item.completed ? '标记为已准备' : '标记为待准备'}：${item.name}`,
+      {
+        category: category.name,
+        item: item.name,
+        status: item.completed ? '已准备' : '待准备',
+      }
+    );
+    
+    item.completed = !item.completed;
 
-    item.completed = !item.completed
-    saveData()
-
-    const logStore = useOperationLogStore()
-    logStore.log('toggle', `${item.completed ? '标记为已准备' : '标记为待准备'}：${item.name}`, {
-      category: category.name,
-      item: item.name,
-      status: item.completed ? '已准备' : '待准备'
-    }, beforeState)
-
-    return true
+    return true;
   }
-
-  /**
-   * 导入数据
-   */
+  
   async function importData(data: Category[]): Promise<boolean> {
     if (!Array.isArray(data)) {
-      toast.error('导入的数据格式不正确')
-      return false
+      toast.error('导入的数据格式不正确');
+      return false;
     }
 
-    const oldCount = categories.value.length
+    const oldCount = categories.value.length;
 
-    // 导入数据并为每个装备分配序号和唯一ID，补充默认值
-    categories.value = data.map(cat => {
+    categories.value = data.map((cat) => {
       const categoryData: Category = {
         ...cat,
-        icon: cat.icon || '✨', // 确保导入时 icon 属性存在
+        icon: cat.icon || '✨',
         items: cat.items.map((item, index) => ({
           ...item,
-          // 如果没有ID或ID不是数字，生成新的唯一ID
-          id: (item.id && typeof item.id === 'number') ? item.id.toString() : uuidv4(), // 确保ID是字符串
-          index: item.index || (index + 1), // 如果没有序号就分配一个
-          price: item.price !== undefined ? item.price : 0, // 确保价格字段存在
-          priceUnit: item.priceUnit || '人民币' // 确保价格单位存在
-        }))
-      }
-      return categoryData
-    })
+          id: item.id && typeof item.id === 'string' ? item.id : uuidv4(),
+          index: item.index || index + 1,
+          price: item.price !== undefined ? item.price : 0,
+          priceUnit: item.priceUnit || '人民币',
+        })),
+      };
+      return categoryData;
+    });
 
-    // 重新编码所有分类（确保序号连续）
-    categories.value.forEach(cat => {
-      reindexCategory(cat.id)
-    })
+    categories.value.forEach((cat) => {
+      reindexCategory(cat.id);
+    });
 
-    // 修复所有重复的ID
-    let totalFixed = 0
-    categories.value.forEach(cat => {
-      const fixed = fixDuplicateIds(cat.id)
-      totalFixed += fixed
-    })
+    let totalFixed = 0;
+    categories.value.forEach((cat) => {
+      totalFixed += fixDuplicateIds(cat.id);
+    });
 
     if (totalFixed > 0) {
-      console.warn(`⚠️ 导入数据时修复了 ${totalFixed} 个重复的装备ID`)
+      console.warn(`⚠️ 导入数据时修复了 ${totalFixed} 个重复的装备ID`);
     }
 
-    saveData()
-
-    const logStore = useOperationLogStore()
+    const logStore = useOperationLogStore();
     logStore.log('import', '导入了装备清单数据', {
       oldCategories: oldCount,
       newCategories: categories.value.length,
-      totalItems: totalItems.value
-    })
+      totalItems: totalItems.value,
+    });
 
-    console.log('✅ 数据导入完成，已为所有装备分配序号')
-    // toast 通知已在 CategoryList 中处理
-    return true
+    console.log('✅ 数据导入完成，已为所有装备分配序号');
+    return true;
   }
-
-  /**
-   * 清空所有数据
-   * 注意：确认对话框应该由调用方处理
-   */
+  
   function clearAllData(): boolean {
-    const oldCategories = categories.value.length
-    const oldItems = totalItems.value
+    const oldCategories = categories.value.length;
+    const oldItems = totalItems.value;
 
-    categories.value = []
-    saveData()
+    categories.value = [];
 
-    const logStore = useOperationLogStore()
+    const logStore = useOperationLogStore();
     logStore.log('clear', '清空了所有装备数据', {
       deletedCategories: oldCategories,
-      deletedItems: oldItems
-    })
+      deletedItems: oldItems,
+    });
 
-    // toast 通知已在 CategoryList 中处理
-    return true
+    return true;
   }
-
-  /**
-   * 切换装备分栏显示模式
-   * （UI状态操作，不记录日志）
-   */
+  
   function toggleGroupByStatus(): void {
-    groupByStatus.value = !groupByStatus.value
-
-    // UI状态操作不记录日志
+    groupByStatus.value = !groupByStatus.value;
   }
-
-  /**
-   * 撤销操作
-   */
-  function undoOperation(logId: number): boolean {
-    const logStore = useOperationLogStore()
-    const targetLog = logStore.logs.find(log => log.id === logId)
-
-    if (!targetLog) {
-      toast.warning('未找到要撤销的操作')
-      return false
-    }
-
-    if (!targetLog.undoable) {
-      toast.warning('此操作不支持撤销')
-      return false
-    }
-
-    if (targetLog.undone) {
-      toast.warning('此操作已经被撤销过了')
-      return false
-    }
-
-    if (!targetLog.beforeState || !targetLog.beforeState.categories) {
-      toast.error('无法撤销：此操作记录于旧版本，缺少状态数据')
-      console.warn('⚠️ 尝试撤销旧版本操作', {
-        操作: targetLog.action,
-        时间: targetLog.timestamp,
-        有beforeState: !!targetLog.beforeState
-      })
-      return false
-    }
-
-    // 恢复到操作前的状态
-    categories.value = JSON.parse(JSON.stringify(targetLog.beforeState.categories))
-    saveData()
-
-    // 标记为已撤销
-    logStore.markAsUndone(logId)
-
-    // 记录撤销操作
-    logStore.log('undo', `撤销了操作：${targetLog.action}`, {
-      originalAction: targetLog.action,
-      originalType: targetLog.type
-    }, null, false) // 撤销操作本身不可再撤销
-
-    console.log('✅ 操作已撤销', {
-      操作: targetLog.action,
-      类型: targetLog.type
-    })
-
-    toast.success('操作已成功撤销')
-    return true
-  }
-
-  /**
-   * 快速撤销最近的操作
-   */
+  
   function quickUndo(): boolean {
-    const logStore = useOperationLogStore()
-    const latestLog = logStore.getLatestUndoableLog()
-
-    if (!latestLog) {
-      toast.info('没有可以撤销的操作')
-      return false
+    if (canUndo.value) {
+      undo();
+      toast.success('操作已撤销');
+      return true;
     }
-
-    return undoOperation(latestLog.id)
+    toast.info('没有可以撤销的操作');
+    return false;
   }
-
-  function getLatestUndoableLog(): object | undefined { // 根据实际情况调整返回类型
-    const logStore = useOperationLogStore()
-    return logStore.getLatestUndoableLog()
+  
+  function getLatestUndoableLog(): object | undefined {
+    const logStore = useOperationLogStore();
+    return logStore.getLatestUndoableLog();
   }
-
-  /**
-   * 根据名称获取分类ID，如果不存在则创建
-   */
+  
   function getOrCreateCategory(categoryName: string, icon: string = '✨'): string {
-    let category = categories.value.find(cat => cat.name === categoryName);
+    let category = categories.value.find((cat) => cat.name === categoryName);
     if (!category) {
-      // 如果分类不存在，则创建新分类
-      const uniqueId: number = Date.now() + Math.floor(Math.random() * 10000);
       const newCategory: Category = {
-        id: uniqueId.toString(), // 确保ID是字符串
+        id: uuidv4(),
         name: categoryName,
         icon: icon,
         items: [],
-        collapsed: false
+        collapsed: false,
       };
       categories.value.push(newCategory);
-      saveData();
       const logStore = useOperationLogStore();
-      logStore.log('add', `自动创建了分类：${categoryName}`, { category: categoryName });
+      logStore.log('add', `自动创建了分类：${categoryName}`, {
+        category: categoryName,
+      });
       return newCategory.id;
     }
     return category.id;
   }
 
   return {
-    // 状态
     categories,
     groupByStatus,
-    hasLoaded, // 暴露 hasLoaded 状态
-    // Getters
+    hasLoaded,
     totalCategories,
     totalItems,
     completedItems,
     remainingItems,
     totalWeight,
     totalPrice,
-    // Actions
-    loadData,
-    initializeCategories: initializeDefaultCategories, // 暴露初始化分类方法
-    saveData,
-    syncData,
+    initializeCategories: initializeDefaultCategories,
     addCategory,
     deleteCategory,
     editCategoryName,
-    editCategoryIcon, // 暴露 editCategoryIcon 方法
+    editCategoryIcon,
     toggleCategoryCollapse,
-    reindexCategory, // 暴露重编码方法
-    fixDuplicateIds, // 暴露修复重复ID方法
-    updateCategoriesOrder, // 暴露更新分类顺序方法
+    reindexCategory,
+    fixDuplicateIds,
+    updateCategoriesOrder,
     addItem,
     deleteItem,
     editItem,
-    updateEquipment, // 暴露更新装备方法
+    updateEquipment,
     toggleEquipmentStatus,
-    toggleItem: toggleEquipmentStatus, // 向后兼容的别名
-    toggleGroupByStatus, // 暴露切换分栏显示方法
+    toggleItem: toggleEquipmentStatus,
+    toggleGroupByStatus,
     importData,
     clearAllData,
-    undoOperation, // 撤销指定操作
+    undo,
+    redo,
+    canUndo,
+    canRedo,
     quickUndo, // 快速撤销最近操作
     getLatestUndoableLog, // 暴露获取最新可撤销日志方法
     getOrCreateCategory, // 暴露获取或创建分类方法
-    removeItem // 暴露删除装备方法
-  }
-})
+    removeItem,
+  };
+});
 
