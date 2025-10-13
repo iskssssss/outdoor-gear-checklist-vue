@@ -221,7 +221,7 @@ const saveChanges = () => {
   draftItems.value.forEach(draftItem => {
     if (!originalIds.has(draftItem.id)) {
       addedCount++
-      equipmentStore.addItem(selectedCategoryId.value, draftItem)
+      equipmentStore.addItem(selectedCategoryId.value, { ...draftItem})
     } else {
       // 检测是否有修改
       const originalItem = originalItems.find(item => item.id === draftItem.id)
@@ -242,7 +242,6 @@ const saveChanges = () => {
   
   // 重新编码以确保序号连续
   equipmentStore.reindexCategory(selectedCategoryId.value)
-  equipmentStore.saveData()
   
   // 记录操作日志
   const changes = []
@@ -263,7 +262,13 @@ const saveChanges = () => {
   
   isEditing.value = false
   draftItems.value = []
-  toast.success('修改已保存')
+  
+  // 根据操作类型显示不同的成功消息
+  if (changes.length > 0) {
+    toast.success(`批量编辑完成：${changes.join('、')}`)
+  } else {
+    toast.info('没有检测到变化')
+  }
 }
 
 // 取消编辑

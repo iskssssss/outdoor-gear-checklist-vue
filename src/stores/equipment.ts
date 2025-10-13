@@ -352,7 +352,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
   
   function addItem(
     categoryId: string,
-    itemData: Partial<Item> & { description?: string }
+    itemData: Partial<Item> & { description?: string;}
   ): boolean {
     const category = categories.value.find((cat) => cat.id === categoryId);
     if (!category) return false;
@@ -368,7 +368,7 @@ export const useEquipmentStore = defineStore('equipment', () => {
     );
 
     const newItem: Item = {
-      id: uuidv4(),
+      id: itemData.id || uuidv4(), // 支持传入ID（用于批量操作）
       index: maxIndex + 1,
       name: itemData.name.trim(),
       completed: itemData.completed || false,
