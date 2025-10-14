@@ -75,9 +75,9 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { useModelConfigStore } from '../../stores/modelConfig'
-import { useEquipmentStore } from '../../stores/equipment'
-import { activityTypeOptions, seasonOptions, weatherOptions, difficultyOptions, budgetOptions } from '../../config/appConfig'
+import { useModelConfigStore } from '@/stores/modelConfig.js'
+import { useEquipmentStore } from '@/stores/equipment.js'
+import { activityTypeOptions, seasonOptions, weatherOptions, difficultyOptions, budgetOptions } from '@/config/appConfig.js'
 import { InputSelect, BaseModal, BaseButton, BaseAlert, BaseButtonGroup } from '@/components/common'
 import { useDebounceFn } from '@vueuse/core';
 

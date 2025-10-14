@@ -45,8 +45,8 @@
 
 <script setup>
 import { ref, inject } from 'vue'
-import { useOperationLogStore } from '../../stores/operationLog'
-import { useEquipmentStore } from '../../stores/equipment'
+import { useOperationLogStore } from '@/stores/operationLog.js'
+import { useEquipmentStore } from '@/stores/equipment.js'
 import { BaseModal, BaseButton, BaseEmpty, BaseButtonGroup } from '@/components/common'
 import { useDebounceFn } from '@vueuse/core';
 

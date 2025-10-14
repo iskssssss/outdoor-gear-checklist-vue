@@ -112,8 +112,8 @@
 <script setup>
 import { ref, watch, onMounted, computed, nextTick, onUpdated, inject } from 'vue'
 import { useEventListener } from '@vueuse/core'
-import { useEquipmentStore } from '../../stores/equipment'
-import { useOperationLogStore } from '../../stores/operationLog'
+import { useEquipmentStore } from '@/stores/equipment.js'
+import { useOperationLogStore } from '@/stores/operationLog.js'
 import { BaseButton, BaseSwitch, BaseButtonGroup } from '@/components/common'
 
 const props = defineProps({

@@ -92,7 +92,7 @@
 
 <script setup>
 import { ref, nextTick, computed, inject } from 'vue'
-import { useEquipmentStore } from '../../stores/equipment'
+import { useEquipmentStore } from '@/stores/equipment.js'
 import { useDebounceFn } from '@vueuse/core'
 import { BaseButton, BaseInput, BaseSelect, BaseButtonDropdown, BaseDropdownItem, BaseBadge } from '@/components/common'
 

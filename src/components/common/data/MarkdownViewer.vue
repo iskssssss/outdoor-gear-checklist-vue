@@ -52,7 +52,7 @@
 <script setup>
 import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
 // 1. 导入 eventBus
-import { eventBus } from '../../../utils/eventBus';
+import { eventBus } from '@/utils/eventBus.js';
 
 const props = defineProps({
   content: {

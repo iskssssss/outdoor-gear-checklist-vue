@@ -119,9 +119,8 @@
 </template>
 
 <script setup>
-import { ref, reactive, inject, computed } from 'vue'
-import { useModelConfigStore } from '../../stores/modelConfig'
-import { defaultTestPrompt } from '../../config/appConfig'
+import { ref, inject, computed } from 'vue'
+import { useModelConfigStore } from '@/stores/modelConfig.js'
 import { BaseModal, BaseTabs, BaseButton, BaseInput, BaseTextarea, BaseSelect, BaseAlert, BaseButtonGroup } from '@/components/common'
 
 const modelConfigStore = useModelConfigStore()

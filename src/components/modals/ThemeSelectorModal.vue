@@ -67,7 +67,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { BaseModal, BaseButton } from '@/components/common'
-import { useThemeStore } from '../../stores/themeStore';
+import { useThemeStore } from '@/stores/themeStore';
 
 const themeStore = useThemeStore();
 const isVisible = ref(false);
