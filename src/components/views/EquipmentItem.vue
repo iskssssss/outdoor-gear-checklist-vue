@@ -552,30 +552,7 @@ const debouncedToggleCompleted = useDebounceFn(toggleItem, 300)
   }
 }
 
-.btn {
-  padding: 6px 12px;
-  border: none;
-  border-radius: var(--border-radius-sm);
-  font-size: 0.85rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.btn-warning {
-  background: var(--warning-color);
-  color: var(--text-primary);
-}
-
-.btn-danger {
-  background: var(--danger-color);
-  color: var(--text-white);
-}
-
-.btn:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-}
+// BaseButton 已接管所有按钮样式
 
 .add-item-input-container {
   display: flex;
@@ -585,23 +562,7 @@ const debouncedToggleCompleted = useDebounceFn(toggleItem, 300)
   width: 100%;
 }
 
-.add-item-input {
-  width: 100%;
-  padding: 10px 14px;
-  border: var(--border-width-lg) solid var(--border-color);
-  border-radius: var(--border-radius-sm);
-  font-size: 0.95rem;
-  transition: all 0.3s ease;
-  background: var(--bg-input);
-  color: var(--text-primary);
-  box-sizing: border-box;
-}
-
-.add-item-input:focus {
-  outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px var(--primary-color-shadow);
-}
+// BaseInput 已接管所有输入框样式
 
 .add-item-details {
   display: flex;

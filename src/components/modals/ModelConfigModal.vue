@@ -385,35 +385,7 @@ defineExpose({ show, close })
   border-top: 2px solid var(--border-color);
 }
 
-.btn {
-  padding: 12px 30px;
-  border: none;
-  border-radius: var(--border-radius-sm);
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.btn-primary {
-  background: var(--primary-color);
-  color: var(--text-white);
-}
-
-.btn-secondary {
-  background: var(--text-muted);
-  color: var(--text-white);
-}
-
-.btn:not(:disabled):hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-}
+// BaseButton 已接管所有按钮样式
 
 @media (max-width: 768px) {
   .config-tabs {

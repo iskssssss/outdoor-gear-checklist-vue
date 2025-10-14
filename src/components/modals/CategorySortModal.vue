@@ -209,34 +209,7 @@ defineExpose({
   justify-content: center;
 }
 
-.btn {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.btn-primary {
-  background: var(--primary-color);
-  color: var(--btn-primary-text, white);
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
-  }
-}
-
-.btn-secondary {
-  background: var(--bg-input);
-  color: var(--text-primary);
-
-  &:hover {
-    background: var(--bg-hover);
-  }
-}
+// BaseButton 已接管所有按钮样式
 
 /* 响应式设计 */
 @media (max-width: 768px) {

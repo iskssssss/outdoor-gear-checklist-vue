@@ -8,9 +8,12 @@
     <span v-if="loading" class="btn-loading">
       <span class="spinner"></span>
     </span>
-    <span v-if="icon && iconPosition === 'left'" class="btn-icon">{{ icon }}</span>
+    <span v-if="icon && iconPosition === 'left'" class="btn-icon" :class="`icon-${iconSize}`">{{ icon }}</span>
     <span class="btn-content"><slot></slot></span>
-    <span v-if="icon && iconPosition === 'right'" class="btn-icon">{{ icon }}</span>
+    <span v-if="icon && iconPosition === 'right'" class="btn-icon" :class="`icon-${iconSize}`">{{ icon }}</span>
+    <span v-if="$slots.badge" class="btn-badge">
+      <slot name="badge"></slot>
+    </span>
   </button>
 </template>
 
@@ -19,7 +22,7 @@ import { computed } from 'vue'
 
 interface Props {
   // 按钮类型
-  variant?: 'primary' | 'success' | 'warning' | 'danger' | 'info' | 'secondary' | 'outline' | 'text'
+  variant?: 'primary' | 'success' | 'warning' | 'danger' | 'info' | 'secondary' | 'outline' | 'text' | 'dashed'
   // 按钮尺寸
   size?: 'sm' | 'md' | 'lg'
   // 原生type属性
@@ -32,6 +35,8 @@ interface Props {
   icon?: string
   // 图标位置
   iconPosition?: 'left' | 'right'
+  // 图标大小
+  iconSize?: 'sm' | 'md' | 'lg'
   // 块级按钮（占满宽度）
   block?: boolean
   // 圆角按钮
@@ -46,6 +51,7 @@ const props = withDefaults(defineProps<Props>(), {
   loading: false,
   icon: '',
   iconPosition: 'left',
+  iconSize: 'md',
   block: false,
   rounded: false
 })
@@ -227,6 +233,17 @@ function handleClick(event: MouseEvent) {
   }
 }
 
+.btn-dashed {
+  background: transparent;
+  color: var(--primary-color);
+  border: var(--border-width) dashed var(--primary-color);
+
+  &:hover:not(:disabled) {
+    background: var(--bg-hover);
+    border-color: var(--primary-dark);
+  }
+}
+
 /* ========== 按钮修饰符 ========== */
 .btn-block {
   display: flex;
@@ -260,11 +277,40 @@ function handleClick(event: MouseEvent) {
 .btn-icon {
   display: inline-flex;
   font-size: 1.2em;
+  line-height: 1;
+
+  &.icon-sm {
+    font-size: 1rem;
+  }
+
+  &.icon-md {
+    font-size: 1.2em;
+  }
+
+  &.icon-lg {
+    font-size: 1.5em;
+  }
 }
 
 .btn-content {
   display: inline-flex;
   align-items: center;
+}
+
+/* ========== Badge 样式 ========== */
+.btn-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  background: var(--bg-mask);
+  border-radius: 9px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  margin-left: 4px;
+  line-height: 1;
 }
 </style>
 

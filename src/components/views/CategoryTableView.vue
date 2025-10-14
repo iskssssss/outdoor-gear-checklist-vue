@@ -15,7 +15,7 @@
             <span class="category-name">添加分类</span>
           </button>
           <div v-else class="add-category-form">
-            <input ref="categoryInput" v-model="newCategoryName" placeholder="新分类名称" class="category-input-inline"
+            <BaseInput ref="categoryInput" v-model="newCategoryName" placeholder="新分类名称" class="category-input-inline"
               @keyup.enter="addCategory" @blur="cancelAdd" />
             <BaseButton @click="addCategory" variant="success" size="sm" icon="✓" />
             <BaseButton @click="cancelAdd" variant="danger" size="sm" icon="✕" />
@@ -47,23 +47,23 @@
               <td data-label="序号">{{ index + 1 }}</td>
               <td data-label="装备信息" class="item-details">
                 <div class="item-name">
-                  <input v-if="isEditing" type="text" v-model="item.name" />
+                  <BaseInput v-if="isEditing" type="text" v-model="item.name" />
                   <span v-else>{{ item.name }}</span>
                 </div>
                 <div class="item-meta">
                   <div class="meta-item">
                     <strong class="meta-label">重量:</strong>
                     <div v-if="isEditing" class="meta-inputs">
-                      <input type="number" v-model.number="item.weight" class="meta-input" />
-                      <input type="text" v-model="item.weightUnit" class="unit-input meta-unit-input" />
+                      <BaseInput type="number" v-model.number="item.weight" class="meta-input" />
+                      <BaseInput type="text" v-model="item.weightUnit" class="unit-input meta-unit-input" />
                     </div>
                     <span v-else class="meta-value">{{ item.weight }}{{ item.weightUnit }}</span>
                   </div>
                   <div class="meta-item">
                     <strong class="meta-label">价格:</strong>
                     <div v-if="isEditing" class="meta-inputs">
-                      <input type="number" v-model.number="item.price" class="meta-input" />
-                      <input type="text" v-model="item.priceUnit" class="unit-input meta-unit-input" />
+                      <BaseInput type="number" v-model.number="item.price" class="meta-input" />
+                      <BaseInput type="text" v-model="item.priceUnit" class="unit-input meta-unit-input" />
                     </div>
                     <span v-else class="meta-value">{{ item.price }}{{ item.priceUnit }}</span>
                   </div>
@@ -71,8 +71,8 @@
               </td>
               <td data-label="数量" class="quantity-cell">
                 <div class="meta-inputs" v-if="isEditing">
-                  <input type="number" v-model.number="item.quantity" class="quantity-input" />
-                  <input type="text" v-model="item.quantityUnit" class="unit-input" />
+                  <BaseInput type="number" v-model.number="item.quantity" class="quantity-input" />
+                  <BaseInput type="text" v-model="item.quantityUnit" class="unit-input" />
                 </div>
                 <span v-else>{{ item.quantity }}{{ item.quantityUnit }}</span>
               </td>
@@ -114,7 +114,7 @@ import { ref, watch, onMounted, computed, nextTick, onUpdated, inject } from 'vu
 import { useEventListener } from '@vueuse/core'
 import { useEquipmentStore } from '@/stores/equipment.js'
 import { useOperationLogStore } from '@/stores/operationLog.js'
-import { BaseButton, BaseSwitch, BaseButtonGroup } from '@/components/common'
+import { BaseButton, BaseSwitch, BaseButtonGroup, BaseInput } from '@/components/common'
 
 const props = defineProps({
   categories: {
@@ -591,18 +591,9 @@ onMounted(() => {
 
 .category-input-inline {
   width: 120px;
-  padding: 8px;
-  border-radius: var(--border-radius-sm);
-  border: 1px solid var(--border-color);
-  background-color: var(--bg-input);
-  color: var(--text-primary);
-  &:focus {
-    outline: none;
-    border-color: var(--primary-color);
-  }
 }
 
-// BaseButton 已接管按钮样式
+// BaseInput 和 BaseButton 已接管所有样式
 
 .equipment-table {
   width: 100%;
@@ -643,25 +634,7 @@ onMounted(() => {
     }
   }
 
-  input[type="text"],
-  input[type="number"] {
-    width: 100%;
-    background-color: var(--bg-main);
-    color: var(--text-primary);
-    border: var(--border-width) solid var(--border-color);
-    padding: 8px;
-    border-radius: var(--border-radius-sm);
-    transition: all 0.3s ease;
-    text-align: center;
-    position: relative; /* Add position for z-index to work */
-
-    &:focus {
-      outline: none;
-      border-color: var(--primary-color);
-      box-shadow: 0 0 0 3px var(--primary-color-shadow);
-      z-index: 1; /* Ensure the focused input is on top */
-    }
-  }
+  // BaseInput 已接管所有输入框样式
 
   .subtotal {
     background-color: var(--bg-card);
@@ -744,13 +717,16 @@ onMounted(() => {
     align-items: center;
   }
 
+  // BaseInput 已接管所有输入框样式
   .meta-input {
     width: 80px;
-    padding: 2px 4px;
-    font-size: 0.85rem;
   }
 
   .meta-unit-input {
+    width: 50px;
+  }
+
+  .quantity-input {
     width: 50px;
   }
 }

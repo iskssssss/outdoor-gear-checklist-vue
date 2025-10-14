@@ -167,39 +167,7 @@ defineExpose({
   gap: var(--spacing-sm);
 }
 
-.btn {
-  padding: var(--spacing-sm) var(--spacing-lg);
-  border-radius: var(--border-radius);
-  cursor: pointer;
-  font-size: 0.95rem;
-  font-weight: var(--font-weight-medium);
-  transition: all 0.2s ease;
-}
-
-.btn-danger {
-  background: var(--danger-color);
-  color: var(--btn-danger-text);
-  border: none;
-
-  &:hover {
-    background: var(--danger-dark);
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px var(--danger-shadow);
-  }
-}
-
-.btn-secondary {
-  background: var(--bg-input);
-  color: var(--text-primary);
-  border: 1px solid var(--border-color);
-
-  &:hover {
-    background: var(--bg-hover);
-    border-color: var(--primary-color);
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-sm);
-  }
-}
+// BaseButton 已接管所有按钮样式
 
 // Modal Transition
 .modal-fade-enter-active,

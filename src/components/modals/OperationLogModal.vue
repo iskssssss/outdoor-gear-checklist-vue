@@ -202,45 +202,7 @@ defineExpose({ show, close })
   color: var(--success-color, #28a745);
 }
 
-.btn {
-  padding: 8px 16px;
-  border: none;
-  border-radius: 6px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.btn-sm {
-  padding: 6px 12px;
-  font-size: 0.85rem;
-}
-
-.btn-primary {
-  background: var(--primary-color);
-  color: var(--text-white, white);
-}
-
-.btn-danger {
-  background: var(--danger-color, #dc3545);
-  color: var(--text-white, white);
-}
-
-.btn-success {
-  background: var(--success-color, #28a745);
-  color: var(--text-white, white);
-}
-
-.btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-sm);
-}
-
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
+// BaseButton 已接管所有按钮样式
 
 .empty-log {
   text-align: center;

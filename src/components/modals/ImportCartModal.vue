@@ -601,40 +601,7 @@ defineExpose({ show, close });
   justify-content: flex-end;
 }
 
-.btn {
-  padding: 10px 24px;
-  border: none;
-  border-radius: var(--border-radius-sm);
-  font-size: 0.95rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-}
-
-.btn-primary {
-  background: var(--primary-color);
-  color: var(--text-white);
-
-  &:not(:disabled):hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px var(--primary-color-shadow);
-  }
-}
-
-.btn-secondary {
-  background: var(--text-muted, #6c757d);
-  color: var(--text-white, white);
-
-  &:not(:disabled):hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
-  }
-}
+// BaseButton 已接管所有按钮样式
 
 .parsed-items-section {
   background: var(--bg-input);
@@ -679,13 +646,7 @@ defineExpose({ show, close });
   margin-bottom: 15px;
   padding-left: 5px;
 
-  input[type="checkbox"] {
-    cursor: pointer;
-    width: 18px;
-    height: 18px;
-    accent-color: var(--primary-color);
-    // 选中颜色使用主题色
-  }
+  // BaseCheckbox 已接管所有checkbox样式
 
   label {
     font-size: 0.95rem;
