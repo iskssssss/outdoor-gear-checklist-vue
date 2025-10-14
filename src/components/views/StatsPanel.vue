@@ -7,25 +7,28 @@
       </div>
     </div>
 
-    <!-- 进度条 -->
-    <div class="progress-section">
-      <div class="progress-bar-container">
-        <div class="progress-bar" :style="{ width: completionRate + '%' }">
-          <span class="progress-text" v-if="completionRate > 10">{{ equipmentStore.completedItems }} / {{
-            equipmentStore.totalItems }}</span>
-        </div>
+    <!-- 图表区域 -->
+    <div class="charts-section">
+      <!-- 完成率环形图 -->
+      <div class="chart-container completion-chart">
+        <h4>完成进度</h4>
+        <BaseChart
+          type="pie"
+          :data="completionData"
+          height="200px"
+          @click="handleChartClick"
+        />
       </div>
-      <div class="progress-info">
-        <span class="info-item info-completed">
-          <span class="info-icon">✅</span>
-          <span class="info-label">已准备</span>
-          <span class="info-count">{{ equipmentStore.completedItems }}</span>
-        </span>
-        <span class="info-item info-pending">
-          <span class="info-icon">⏳</span>
-          <span class="info-label">待准备</span>
-          <span class="info-count">{{ equipmentStore.remainingItems }}</span>
-        </span>
+
+      <!-- 分类分布饼图 -->
+      <div class="chart-container distribution-chart" v-if="categoryDistributionData.length > 0">
+        <h4>分类分布</h4>
+        <BaseChart
+          type="pie"
+          :data="categoryDistributionData"
+          height="200px"
+          @click="handleChartClick"
+        />
       </div>
     </div>
 
@@ -61,15 +64,64 @@
         clickable
       />
     </div>
+
+    <!-- 详细分析图表 -->
+    <div class="analysis-charts" v-if="showAnalysisCharts">
+      <!-- 重量分布柱状图 -->
+      <div class="chart-container analysis-chart" v-if="weightDistributionData.categories.length > 0">
+        <h4>重量分布</h4>
+        <BaseChart
+          type="bar"
+          :data="weightDistributionData"
+          height="250px"
+          @click="handleChartClick"
+        />
+      </div>
+
+      <!-- 价格分布柱状图 -->
+      <div class="chart-container analysis-chart" v-if="priceDistributionData.categories.length > 0">
+        <h4>价格分布</h4>
+        <BaseChart
+          type="bar"
+          :data="priceDistributionData"
+          height="250px"
+          @click="handleChartClick"
+        />
+      </div>
+    </div>
+
+    <!-- 切换按钮 -->
+    <div class="chart-controls">
+      <BaseButton 
+        @click="toggleAnalysisCharts"
+        variant="outline"
+        size="sm"
+        :icon="showAnalysisCharts ? '📊' : '📈'"
+      >
+        {{ showAnalysisCharts ? '隐藏详细分析' : '显示详细分析' }}
+      </BaseButton>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useEquipmentStore } from '../../stores/equipment'
-import { BaseStatCard } from '@/components/common'
+import { BaseStatCard, BaseButton } from '@/components/common'
+import { BaseChart } from '@/components/charts'
+import { useEquipmentChartData } from '@/composables/useChartData'
+import { toast } from '@/utils/toast'
 
 const equipmentStore = useEquipmentStore()
+const showAnalysisCharts = ref(false)
+
+// 使用图表数据
+const {
+  completionData,
+  categoryDistributionData,
+  weightDistributionData,
+  priceDistributionData
+} = useEquipmentChartData()
 
 /**
  * 完成率百分比
@@ -113,6 +165,35 @@ function formatPrice(priceString) {
   // 添加千位分隔符
   const formatted = num.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')
   return '¥' + formatted
+}
+
+/**
+ * 切换详细分析图表显示
+ */
+function toggleAnalysisCharts() {
+  showAnalysisCharts.value = !showAnalysisCharts.value
+}
+
+/**
+ * 处理图表点击事件
+ */
+function handleChartClick(params) {
+  if (params.componentType === 'series') {
+    const chartType = params.seriesType
+    const dataName = params.name
+    const dataValue = params.value
+    
+    let message = ''
+    if (chartType === 'pie') {
+      message = `点击了 ${dataName}：${dataValue}`
+    } else if (chartType === 'bar') {
+      message = `点击了 ${dataName}：${dataValue}`
+    }
+    
+    if (message) {
+      toast.info(message)
+    }
+  }
 }
 </script>
 
@@ -303,6 +384,80 @@ function formatPrice(priceString) {
   }
 }
 
+// 图表区域样式
+.charts-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.chart-container {
+  background: var(--bg-main);
+  border: var(--border-width-sm) solid var(--border-color-light);
+  border-radius: var(--border-radius-lg);
+  padding: 16px;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--border-color);
+  }
+  
+  h4 {
+    margin: 0 0 12px 0;
+    color: var(--text-primary);
+    font-size: 1rem;
+    font-weight: 600;
+    text-align: center;
+  }
+}
+
+.completion-chart {
+  // 完成率图表特殊样式
+  border-color: var(--accent-primary);
+  
+  &:hover {
+    border-color: var(--accent-primary);
+    box-shadow: 0 4px 12px rgba(var(--accent-primary-rgb, 59, 130, 246), 0.15);
+  }
+}
+
+.distribution-chart {
+  // 分布图表特殊样式
+  border-color: var(--accent-success);
+  
+  &:hover {
+    border-color: var(--accent-success);
+    box-shadow: 0 4px 12px rgba(var(--accent-success-rgb, 16, 185, 129), 0.15);
+  }
+}
+
+// 详细分析图表
+.analysis-charts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.analysis-chart {
+  border-color: var(--accent-info);
+  
+  &:hover {
+    border-color: var(--accent-info);
+    box-shadow: 0 4px 12px rgba(var(--accent-info-rgb, 6, 182, 212), 0.15);
+  }
+}
+
+// 图表控制按钮
+.chart-controls {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+}
+
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -363,67 +518,29 @@ function formatPrice(priceString) {
     font-size: 0.9rem;
   }
 
-  .progress-bar-container {
-    height: 30px;
+  // 移动端图表布局
+  .charts-section {
+    grid-template-columns: 1fr;
+    gap: 16px;
   }
 
-  .progress-text {
-    font-size: 0.85rem;
-  }
-  
-  .progress-info {
-    gap: 8px;
+  .chart-container {
+    padding: 12px;
+    
+    h4 {
+      font-size: 0.9rem;
+      margin-bottom: 8px;
+    }
   }
 
-  .info-item {
-    padding: 6px 12px;
-    gap: 6px;
-  }
-  
-  .info-icon {
-    font-size: 1rem;
-  }
-  
-  .info-label {
-    font-size: 0.75rem;
-  }
-  
-  .info-count {
-    font-size: 0.9rem;
-    padding-left: 4px;
+  .analysis-charts {
+    grid-template-columns: 1fr;
+    gap: 16px;
   }
 
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;
-  }
-
-  .stat-item {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: 12px;
-    padding: 16px;
-  }
-
-  .stat-content {
-    text-align: center;
-  }
-
-  .stat-icon {
-    font-size: 1.8rem;
-  }
-
-  .stat-number {
-    font-size: 1.3rem;
-  }
-
-  .stat-label {
-    font-size: 0.8rem;
-  }
-
-  .stat-extra {
-    font-size: 0.7rem;
   }
 }
 </style>
