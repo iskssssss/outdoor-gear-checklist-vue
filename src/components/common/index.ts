@@ -23,6 +23,7 @@ export { default as BaseAlert } from './feedback/BaseAlert.vue';
 
 // Form Components
 export { default as BaseButton } from './form/BaseButton.vue';
+export { default as BaseButtonGroup } from './form/BaseButtonGroup.vue';
 export { default as BaseInput } from './form/BaseInput.vue';
 export { default as BaseSelect } from './form/BaseSelect.vue';
 export { default as BaseTextarea } from './form/BaseTextarea.vue';
@@ -31,7 +32,6 @@ export { default as BaseRadio } from './form/BaseRadio.vue';
 export { default as BaseSwitch } from './form/BaseSwitch.vue';
 export { default as InputSelect } from './form/InputSelect.vue';
 export { default as BaseFormField } from './form/BaseFormField.vue';
-export { default as BaseButtonGroup } from './form/BaseButtonGroup.vue';
 export { default as BaseForm } from './form/BaseForm.vue';
 export type { ButtonConfig } from './form/BaseButtonGroup.vue';
 export type { FormField } from './form/BaseForm.vue';
