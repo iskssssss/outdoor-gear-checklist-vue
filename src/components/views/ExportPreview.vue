@@ -87,7 +87,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { useEquipmentStore } from '@/stores/equipment.js'
+import { useEquipmentStore } from '@/stores/equipment.ts'
 import { BaseStatCard } from '@/components/common'
 
 const equipmentStore = useEquipmentStore()

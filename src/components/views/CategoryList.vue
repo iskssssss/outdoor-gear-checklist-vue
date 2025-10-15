@@ -141,8 +141,8 @@
 
 <script setup>
 import { ref, computed, nextTick, watch, onMounted, onUnmounted, inject } from 'vue'
-import { useEquipmentStore } from '@/stores/equipment.js'
-import { useOperationLogStore } from '@/stores/operationLog.js'
+import { useEquipmentStore } from '@/stores/equipment.ts'
+import { useOperationLogStore } from '@/stores/operationLog.ts'
 // 引入
 import CategoryItem from './CategoryItem.vue'
 import WaterfallLayout from '../layout/WaterfallLayout.vue'
@@ -152,7 +152,7 @@ import ExportPreview from './ExportPreview.vue'
 import ImportCartModal from '../modals/ImportCartModal.vue'
 import CategoryTableView from './CategoryTableView.vue'
 import html2canvas from 'html2canvas'
-import { imageExportConfig } from '@/config/appConfig.js'
+import { imageExportConfig } from '@/config/appConfig.ts'
 import { useDebounceFn } from '@vueuse/core'
 
 // 定义事件

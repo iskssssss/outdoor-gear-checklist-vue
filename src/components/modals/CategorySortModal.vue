@@ -24,7 +24,7 @@
 
 <script setup>
 import { ref, defineExpose } from 'vue'
-import { useEquipmentStore } from '@/stores/equipment.js'
+import { useEquipmentStore } from '@/stores/equipment.ts'
 import { BaseModal, BaseButton, BaseAlert, BaseButtonGroup } from '@/components/common'
 import { useDebounceFn } from '@vueuse/core';
 

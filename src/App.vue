@@ -54,7 +54,7 @@ import { useModelConfigStore } from './stores/modelConfig';
 import { useThemeStore } from './stores/themeStore';
 import { toast as toastService } from './utils/toast';
 // 1. 导入 eventBus
-import { eventBus } from './utils/eventBus';
+import { eventBus } from './utils/eventBus.ts';
 // 引入 Composable
 import { useVersionChecker } from './composables/useVersionChecker';
 

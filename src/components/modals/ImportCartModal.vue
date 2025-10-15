@@ -124,12 +124,12 @@
 import { ref, inject, watch, computed } from 'vue';
 import { BaseModal, BaseButton, BaseInput, BaseTextarea, BaseCheckbox, BaseAlert, BaseLoadingOverlay, BaseButtonGroup } from '@/components/common'
 import { useDebounceFn } from '@vueuse/core';
-import { useEquipmentStore } from '@/stores/equipment.js';
-import { useModelConfigStore } from '@/stores/modelConfig.js';
-import { useOperationLogStore } from '@/stores/operationLog.js';
-import { useJdParser } from '@/composables/useJdParser.js';
-import { useModelAnalyzer } from '@/composables/useModelAnalyzer.js';
-import { useImporter } from '@/composables/useImporter.js';
+import { useEquipmentStore } from '@/stores/equipment.ts';
+import { useModelConfigStore } from '@/stores/modelConfig.ts';
+import { useOperationLogStore } from '@/stores/operationLog.ts';
+import { useJdParser } from '@/composables/useJdParser.ts';
+import { useModelAnalyzer } from '@/composables/useModelAnalyzer.ts';
+import { useImporter } from '@/composables/useImporter.ts';
 
 const equipmentStore = useEquipmentStore();
 const modelConfigStore = useModelConfigStore();
