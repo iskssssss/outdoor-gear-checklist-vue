@@ -215,8 +215,7 @@ function showVersionUpdateDialog() {
 </script>
 
 <style lang="scss">
-/* 引入基础样式 */
-@import './assets/main.scss';
+/* 基础样式已在 main.ts 中导入，这里只需要组件特定的样式 */
 
 /* 移除旧的主题切换动画 */
 ::view-transition-old(root),

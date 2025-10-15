@@ -3,8 +3,8 @@
  * 只定义差异化样式，通用样式在 _base.scss 中
  */
 
-@use 'mixins' as *;
-@use 'theme-outdoor-mixins' as outdoor;
+@use './_mixins' as *;
+@use './_theme-outdoor-mixins' as outdoor;
 
 body.theme-snowpeak-aurora {
   // 防止特效导致的滚动条异常

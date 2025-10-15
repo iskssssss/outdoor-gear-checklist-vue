@@ -1,5 +1,5 @@
 /* 引入工具样式 */
-@use './styles/utilities' as *;
+@use './styles/_utilities' as *;
 
 /* 全局样式重置和基础样式 - 仅保留与主题无关的基础样式 */
 * {

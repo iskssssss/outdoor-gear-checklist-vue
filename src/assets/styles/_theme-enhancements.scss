@@ -3,7 +3,7 @@
  * 包括：沙漠日落、雨林探秘、高原晨雾、火山熔岩、北极光雪原
  */
 
-@use 'theme-outdoor-mixins' as outdoor;
+@use './_theme-outdoor-mixins' as outdoor;
 
 // 沙漠日落主题增强效果
 body.theme-desert-sunset {
