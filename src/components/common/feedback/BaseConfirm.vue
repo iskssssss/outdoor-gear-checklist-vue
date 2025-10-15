@@ -4,7 +4,7 @@
       <div class="modal-container" :style="{ width: width, maxHeight: maxHeight }">
         <div class="modal-header">
           <h3 class="modal-title">{{ title }}</h3>
-          <button class="modal-close-btn" @click="cancel">✕</button>
+          <BaseButton class="modal-close-btn" variant="text" size="sm" icon="✕" @click="cancel" />
         </div>
         <div class="modal-body">
           <p class="confirm-message">{{ message }}</p>
@@ -13,10 +13,22 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button class="btn confirm-btn" :class="{ 'danger': showDangerWarning }" @click="debouncedConfirm">
+          <BaseButton 
+            class="btn confirm-btn" 
+            :variant="showDangerWarning ? 'danger' : 'primary'" 
+            :loading="isConfirming"
+            @click="debouncedConfirm"
+          >
             {{ confirmButtonText }}
-          </button>
-          <button class="btn cancel-btn" @click="debouncedCancel">{{ cancelButtonText }}</button>
+          </BaseButton>
+          <BaseButton 
+            class="btn cancel-btn" 
+            variant="secondary" 
+            :disabled="isConfirming"
+            @click="debouncedCancel"
+          >
+            {{ cancelButtonText }}
+          </BaseButton>
         </div>
       </div>
     </div>
@@ -26,6 +38,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useDebounceFn } from '@vueuse/core';
+import BaseButton from '../form/BaseButton.vue';
 
 const props = defineProps({
   width: { type: String, default: '400px' },
@@ -33,6 +46,7 @@ const props = defineProps({
 });
 
 const isVisible = ref(false);
+const isConfirming = ref(false);
 const title = ref('确认')
 const message = ref('')
 const confirmButtonText = ref('确定')

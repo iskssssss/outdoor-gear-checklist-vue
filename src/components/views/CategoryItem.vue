@@ -1,24 +1,26 @@
 <template>
   <div class="category" :class="{ collapsed: category.collapsed, 'waterfall-mode': layoutMode === 'waterfall' }">
     <div class="category-header">
-      <button class="category-collapse-btn" @click="debouncedToggleCollapse" :title="category.collapsed ? '展开' : '收起'">
+      <BaseButton class="category-collapse-btn" variant="text" size="sm" @click="debouncedToggleCollapse" :title="category.collapsed ? '展开' : '收起'">
         {{ category.collapsed ? '▶' : '▼' }}
-      </button>
+      </BaseButton>
 
       <div v-if="!isEditingName" class="category-title" @click="debouncedStartEditName" title="点击编辑分类名称">
         <span class="category-icon" :class="{ 'is-editing-icon': isEditingIcon }" @click.stop="debouncedStartEditIcon"
           :title="isEditingIcon ? '保存或取消图标编辑' : '点击编辑图标'">
           {{ category.icon || '✨' }}
         </span>
-        <input v-if="isEditingIcon" ref="iconInput" v-model="editingIcon" class="category-icon-input"
+        <BaseInput v-if="isEditingIcon" ref="iconInput" v-model="editingIcon" class="category-icon-input"
           @blur="debouncedSaveEditIcon" @keypress.enter="debouncedSaveEditIcon" @keypress.esc="debouncedCancelEditIcon"
-          @click.stop placeholder="输入图标" :style="{ width: `${editingIcon.length + 2}ch` }">
+          @click.stop placeholder="输入图标" :style="{ width: `${editingIcon.length + 2}ch` }" 
+          size="sm" clearable maxlength="2" hint="输入1-2个字符作为图标" />
         <span v-else class="category-name-display">{{ category.name }}</span>
       </div>
       <div v-else class="category-name-edit-group">
         <span class="category-icon edit-icon">{{ category.icon || '✨' }}</span>
-        <input ref="nameInput" v-model="editingName" class="category-name-input" @blur="debouncedSaveEditName"
-          @keypress.enter="debouncedSaveEditName" @keypress.esc="debouncedCancelEditName" @click.stop>
+        <BaseInput ref="nameInput" v-model="editingName" class="category-name-input" @blur="debouncedSaveEditName"
+          @keypress.enter="debouncedSaveEditName" @keypress.esc="debouncedCancelEditName" @click.stop 
+          size="sm" clearable maxlength="20" hint="输入分类名称" required />
       </div>
 
       <div class="category-actions" v-if="!isEditingName && !isEditingIcon">
@@ -83,7 +85,7 @@ import { ref, computed, nextTick, watch, inject } from 'vue'
 import { useEquipmentStore } from '@/stores/equipment.ts'
 import EquipmentItem from './EquipmentItem.vue'
 import { useDebounceFn } from '@vueuse/core'
-import { BaseButton, BaseButtonDropdown, BaseDropdownItem } from '@/components/common'
+import { BaseButton, BaseInput, BaseButtonDropdown, BaseDropdownItem } from '@/components/common'
 
 const props = defineProps({
   category: {

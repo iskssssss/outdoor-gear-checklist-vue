@@ -3,22 +3,22 @@
     <div class="tabs-container"
       :class="{ 'can-scroll-left': canScrollLeft, 'can-scroll-right': canScrollRight }">
       <div class="tabs" ref="tabsRef">
-        <button v-for="category in categories" :key="category.id" class="tab-button"
-          :class="{ 'active': selectedCategoryId === category.id }" @click="selectCategory(category.id)">
+        <BaseButton v-for="category in categories" :key="category.id" class="tab-button"
+          :variant="selectedCategoryId === category.id ? 'primary' : 'outline'" @click="selectCategory(category.id)">
           <span class="category-icon">{{ category.icon || '✨' }}</span>
           <span class="category-name">{{ category.name }}</span>
-        </button>
+        </BaseButton>
         <!-- 添加新分类 -->
         <div class="add-category-wrapper">
-          <button v-if="!isAdding" @click="showAddInput" class="tab-button btn-add-tab">
+          <BaseButton v-if="!isAdding" @click="showAddInput" class="tab-button btn-add-tab" variant="dashed">
             <span class="category-icon">+</span>
             <span class="category-name">添加分类</span>
-          </button>
+          </BaseButton>
           <div v-else class="add-category-form">
             <BaseInput ref="categoryInput" v-model="newCategoryName" placeholder="新分类名称" class="category-input-inline"
               @keyup.enter="addCategory" @blur="cancelAdd" />
-            <BaseButton @click="addCategory" variant="success" size="sm" icon="✓" />
-            <BaseButton @click="cancelAdd" variant="danger" size="sm" icon="✕" />
+            <BaseButton @click="addCategory" variant="success" size="sm" icon="✓" :loading="isAddingCategory" />
+            <BaseButton @click="cancelAdd" variant="secondary" size="sm" icon="✕" :disabled="isAddingCategory" />
           </div>
         </div>
       </div>
@@ -138,6 +138,7 @@ const canScrollRight = ref(false)
 // 添加分类相关
 const newCategoryName = ref('')
 const isAdding = ref(false)
+const isAddingCategory = ref(false)
 const categoryInput = ref(null)
 
 // 选中的分类（响应式）
@@ -406,11 +407,25 @@ function showAddInput() {
   })
 }
 
-function addCategory() {
-  if (equipmentStore.addCategory(newCategoryName.value)) {
-    toast?.success(`分类"${newCategoryName.value}"添加成功！`)
-    newCategoryName.value = ''
-    isAdding.value = false
+async function addCategory() {
+  if (!newCategoryName.value.trim()) {
+    toast?.warning('请输入分类名称')
+    return
+  }
+  
+  isAddingCategory.value = true
+  
+  try {
+    if (equipmentStore.addCategory(newCategoryName.value)) {
+      toast?.success(`分类"${newCategoryName.value}"添加成功！`)
+      newCategoryName.value = ''
+      isAdding.value = false
+    }
+  } catch (error) {
+    console.error('添加分类失败:', error)
+    toast?.error('添加分类失败，请重试')
+  } finally {
+    isAddingCategory.value = false
   }
 }
 
