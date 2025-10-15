@@ -1,6 +1,6 @@
 # 🏗️ 架构设计文档
 
-> 本文档详细说明了"户外装备清单"项目的架构设计、技术选型和核心模块。
+> 本文档详细说明了"户外装备清单"项目的架构设计、技术选型和核心模块。近期，我们正在对基础组件进行全面的优化改造，以提升其通用性、类型安全和主题集成能力。
 
 ## 📋 目录
 
@@ -40,7 +40,7 @@
 
 | 库 | 用途 |
 |------|------|
-| @vueuse/core | Vue Composition API 工具集 |
+| @vueuse/core | Vue Composition API 工具集（如滚动锁定等） |
 | uuid | 唯一标识符生成 |
 | html2canvas | 页面截图导出 |
 
@@ -62,6 +62,7 @@ hiking-checklist-vue/
 │   ├── USAGE.md                  # 使用文档
 │   ├── CONTRIBUTING.md           # 贡献指南
 │   ├── ARCHITECTURE.md           # 架构文档（本文档）
+│   ├── guides/COMPONENT_TRANSFORMATION_PLAN.md # 基础组件改造计划文档
 │   └── ...                       # 其他文档
 │
 ├── src/                          # 💻 源代码
@@ -75,7 +76,7 @@ hiking-checklist-vue/
 │   │       └── themes.scss      # 主题入口
 │   │
 │   ├── components/              # 🧩 Vue 组件
-│   │   ├── common/             # 通用基础组件
+│   │   ├── common/             # 通用基础组件（正在进行全面优化改造，详见 COMPONENT_TRANSFORMATION_PLAN.md）
 │   │   │   ├── BackToTopButton.vue    # 返回顶部
 │   │   │   ├── BaseConfirm.vue        # 确认框
 │   │   │   ├── BaseModal.vue          # 模态框基类
@@ -238,6 +239,38 @@ interface Equipment {
 - CSS Variables 动态切换
 - SCSS 主题变量体系
 - localStorage 持久化
+
+### CSS Variables 体系 (补充)
+随着基础组件的优化，我们引入了更多语义化的 CSS Variables，以实现更细粒度的样式控制和更强大的主题兼容性。以下是一些新增的通用变量示例：
+
+```scss
+// 组件状态相关
+--opacity-disabled          // 禁用状态透明度
+--bg-overlay-light          // 浅色遮罩层背景
+--shadow-selected-primary   // 主色调选中状态阴影
+
+// 按钮和文本颜色
+--accent-primary            // 主强调色（用于按钮、标签等）
+--text-on-accent            // 在强调色背景上的文本颜色
+--bg-button-secondary       // 次要按钮背景色
+--text-button-secondary     // 次要按钮文本色
+--bg-danger                 // 危险状态背景色
+--text-on-danger            // 在危险色背景上的文本颜色
+
+// 表格相关
+--bg-table-header           // 表格头部背景色
+--text-on-table-header      // 表格头部文本色
+--bg-table-header-hover     // 表格头部悬浮背景色
+
+// 焦点与轮廓
+--outline-focus             // 焦点轮廓颜色
+
+// 动画过渡
+--transition-duration-normal  // 正常过渡时长
+--transition-ease-out         // 缓出过渡函数
+```
+
+这些变量应在 `assets/styles/themes.scss` 或具体主题文件中进行定义，并被组件广泛使用。
 
 ### 5. 操作日志模块
 
@@ -532,6 +565,13 @@ window.addEventListener('storage', (e) => {
 
 ---
 
+### 组件优化如何强化技术决策？
+本次基础组件的全面优化，进一步强化了我们在技术选型上的优势：
+- **TypeScript**: 通过为每个组件的 Props、Emits 和内部状态提供详尽的类型定义，显著提升了代码的健壮性和开发效率。
+- **Composition API**: 所有组件逻辑都以组合式函数的方式重构或增强，提升了逻辑复用性和可维护性。
+- **SCSS 与 CSS Variables**: 样式层面的语义化变量替换，使得主题系统更加强大灵活，组件能够更好地适应多种视觉风格。
+本次优化实践证明了当前技术栈在构建高质量、高可维护性前端应用方面的卓越表现。
+
 ## 📊 性能优化
 
 ### 1. 构建优化
@@ -590,5 +630,5 @@ window.addEventListener('storage', (e) => {
 
 **架构设计是项目成功的基础。让我们持续优化和改进！** 🚀
 
-**Last Updated**: 2025-10-13
+**Last Updated**: 2025-10-15
 

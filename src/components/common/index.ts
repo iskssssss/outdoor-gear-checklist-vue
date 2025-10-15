@@ -6,10 +6,12 @@
 // 统一导出所有基础组件，以便全局或按需导入
 
 // Data Components
+export { default as BaseAvatar } from './data/BaseAvatar.vue';
 export { default as BaseBadge } from './data/BaseBadge.vue';
 export { default as BaseCard } from './data/BaseCard.vue';
 export { default as BaseTable } from './data/BaseTable.vue';
 export { default as BaseStatCard } from './data/BaseStatCard.vue';
+export { default as BaseTag } from './data/BaseTag.vue';
 export { default as MarkdownViewer } from './data/MarkdownViewer.vue';
 
 // Feedback Components
@@ -48,4 +50,5 @@ export type { MenuItem } from './navigation/BaseMenuDropdown.vue';
 // Others Components
 export { default as BackToTopButton } from './others/BackToTopButton.vue';
 export { default as BaseDivider } from './others/BaseDivider.vue';
+export { default as BaseTooltip } from './others/BaseTooltip.vue';
 

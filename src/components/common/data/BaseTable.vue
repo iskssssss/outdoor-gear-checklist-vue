@@ -20,8 +20,14 @@
               :style="{ width: column.width, textAlign: column.align || 'left' }"
               :class="{ 'sortable': column.sortable }"
               @click="column.sortable ? handleSort(column) : null"
+              :aria-sort="sortKey === column.key ? (sortOrder === 'asc' ? 'ascending' : 'descending') : 'none'"
             >
-              {{ column.label }}
+              <template v-if="column.headerRender">
+                <component :is="column.headerRender(column)" />
+              </template>
+              <template v-else>
+                {{ column.label }}
+              </template>
               <span v-if="column.sortable" class="sort-icon">
                 {{ getSortIcon(column.key) }}
               </span>
@@ -47,9 +53,14 @@
               :key="colIndex"
               :style="{ textAlign: column.align || 'left' }"
             >
-              <slot :name="`cell-${column.key}`" :row="row" :value="row[column.key]" :index="rowIndex">
-                {{ row[column.key] }}
-              </slot>
+              <template v-if="column.render">
+                <component :is="column.render(row, column, getNestedValue(row, column.key), rowIndex)" />
+              </template>
+              <template v-else>
+                <slot :name="`cell-${column.key}`" :row="row" :value="getNestedValue(row, column.key)" :index="rowIndex">
+                  {{ getNestedValue(row, column.key) }}
+                </slot>
+              </template>
             </td>
           </tr>
         </tbody>
@@ -86,31 +97,87 @@
 import { computed, ref } from 'vue'
 
 interface TableColumn {
+  /**
+   * 列的唯一标识符，用于访问数据和排序。
+   * 支持嵌套路径，如 'user.name'。
+   */
   key: string
+  /**
+   * 列的显示名称。
+   */
   label: string
+  /**
+   * 列的宽度，可以是 CSS 宽度值。
+   */
   width?: string
+  /**
+   * 列内容的对齐方式。
+   * @values 'left' | 'center' | 'right'
+   * @default 'left'
+   */
   align?: 'left' | 'center' | 'right'
+  /**
+   * 是否允许该列排序。
+   * @default false
+   */
   sortable?: boolean
+  /**
+   * 自定义排序函数。接收两个行数据，返回比较结果。
+   */
+  sorter?: (a: Record<string, any>, b: Record<string, any>) => number;
+  /**
+   * 自定义单元格渲染函数。接收当前行、列和值，返回 VNode。
+   */
+  render?: (row: Record<string, any>, column: TableColumn, value: any, index: number) => any;
+  /**
+   * 自定义表头渲染函数。接收当前列，返回 VNode。
+   */
+  headerRender?: (column: TableColumn) => any;
 }
 
 interface Props {
-  // 表格标题
+  /**
+   * 表格的标题。
+   */
   title?: string
-  // 列配置
+  /**
+   * 表格的列配置数组。
+   */
   columns?: TableColumn[]
-  // 数据
+  /**
+   * 表格的数据数组。
+   */
   data?: Record<string, any>[]
-  // 是否带边框
+  /**
+   * 是否显示表格边框。
+   * @default true
+   */
   bordered?: boolean
-  // 是否带斑马纹
+  /**
+   * 是否显示斑马纹。
+   * @default true
+   */
   striped?: boolean
-  // 是否可悬浮
+  /**
+   * 是否在鼠标悬浮时显示行高亮效果。
+   * @default true
+   */
   hoverable?: boolean
-  // 行是否可点击
+  /**
+   * 行是否可点击，会触发 'row-click' 事件。
+   * @default false
+   */
   rowClickable?: boolean
-  // 是否可滚动
+  /**
+   * 是否允许表格内容垂直滚动。
+   * @default false
+   */
   scrollable?: boolean
-  // 尺寸
+  /**
+   * 表格的尺寸。
+   * @values 'sm' | 'md' | 'lg'
+   * @default 'md'
+   */
   size?: 'sm' | 'md' | 'lg'
 }
 
@@ -131,8 +198,18 @@ const emit = defineEmits<{
   'sort': [key: string, order: 'asc' | 'desc']
 }>()
 
-const sortKey = ref('')
+const sortKey = ref<string>('')
 const sortOrder = ref<'asc' | 'desc'>('asc')
+
+/**
+ * 安全地获取对象的嵌套属性值。
+ * @param obj 源对象
+ * @param key 属性路径，可以是 'a.b.c' 形式
+ * @returns 嵌套属性的值或 undefined
+ */
+function getNestedValue(obj: Record<string, any>, key: string): any {
+  return key.split('.').reduce((acc, part) => acc && acc[part], obj);
+}
 
 const tableClasses = computed(() => [
   'base-table',
@@ -146,10 +223,17 @@ const tableClasses = computed(() => [
 
 const sortedData = computed(() => {
   if (!sortKey.value) return props.data
+
+  const currentColumn = props.columns?.find(col => col.key === sortKey.value)
+  if (!currentColumn) return props.data
   
   return [...props.data].sort((a, b) => {
-    const aVal = a[sortKey.value]
-    const bVal = b[sortKey.value]
+    if (currentColumn.sorter) {
+      return sortOrder.value === 'asc' ? currentColumn.sorter(a, b) : -currentColumn.sorter(a, b)
+    }
+    
+    const aVal = getNestedValue(a, sortKey.value)
+    const bVal = getNestedValue(b, sortKey.value)
     
     if (aVal === bVal) return 0
     
@@ -232,8 +316,8 @@ function getSortIcon(key: string) {
   }
 
   th {
-    background: var(--primary-color);
-    color: var(--btn-primary-text);
+    background: var(--bg-table-header); /* 使用语义化变量 */
+    color: var(--text-on-table-header); /* 使用语义化变量 */
     font-weight: var(--font-weight-bold);
     user-select: none;
 
@@ -242,7 +326,7 @@ function getSortIcon(key: string) {
       transition: background 0.2s ease;
 
       &:hover {
-        background: var(--primary-dark);
+        background: var(--bg-table-header-hover); /* 使用语义化变量 */
       }
     }
   }

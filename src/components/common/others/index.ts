@@ -5,4 +5,5 @@
 
 export { default as BackToTopButton } from './BackToTopButton.vue'
 export { default as BaseDivider } from './BaseDivider.vue'
+export { default as BaseTooltip } from './BaseTooltip.vue'
 

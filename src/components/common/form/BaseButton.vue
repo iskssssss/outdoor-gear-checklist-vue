@@ -1,7 +1,8 @@
 <template>
   <button
     :class="buttonClasses"
-    :type="type"
+    :style="buttonStyle"
+    :type="nativeType"
     :disabled="disabled || loading"
     @click="handleClick"
   >
@@ -9,7 +10,8 @@
       <span class="spinner"></span>
     </span>
     <span v-if="icon && iconPosition === 'left'" class="btn-icon" :class="`icon-${iconSize}`">{{ icon }}</span>
-    <span class="btn-content"><slot></slot></span>
+    <span v-if="icon && iconPosition === 'only'" class="btn-icon" :class="`icon-${iconSize}`">{{ icon }}</span>
+    <span v-if="iconPosition !== 'only'" class="btn-content"><slot></slot></span>
     <span v-if="icon && iconPosition === 'right'" class="btn-icon" :class="`icon-${iconSize}`">{{ icon }}</span>
     <span v-if="$slots.badge" class="btn-badge">
       <slot name="badge"></slot>
@@ -21,39 +23,103 @@
 import { computed } from 'vue'
 
 interface Props {
-  // 按钮类型
-  variant?: 'primary' | 'success' | 'warning' | 'danger' | 'info' | 'secondary' | 'outline' | 'text' | 'dashed'
-  // 按钮尺寸
-  size?: 'sm' | 'md' | 'lg'
-  // 原生type属性
-  type?: 'button' | 'submit' | 'reset'
-  // 禁用状态
+  /**
+   * 按钮的风格变体。
+   * @values 'primary' | 'success' | 'warning' | 'danger' | 'info' | 'secondary' | 'outline' | 'text' | 'dashed' | 'link' | 'ghost'
+   * @default 'primary'
+   */
+  variant?: 'primary' | 'success' | 'warning' | 'danger' | 'info' | 'secondary' | 'outline' | 'text' | 'dashed' | 'link' | 'ghost'
+  /**
+   * 按钮的尺寸。
+   * @values 'xs' | 'sm' | 'md' | 'lg' | 'xl'
+   * @default 'md'
+   */
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
+  /**
+   * 原生 button 元素的 type 属性。
+   * @values 'button' | 'submit' | 'reset'
+   * @default 'button'
+   */
+  nativeType?: 'button' | 'submit' | 'reset'
+  /**
+   * 按钮是否禁用。
+   * @default false
+   */
   disabled?: boolean
-  // 加载状态
+  /**
+   * 按钮是否处于加载状态。
+   * @default false
+   */
   loading?: boolean
-  // 图标
+  /**
+   * 按钮的图标。通常是一个字体图标类名或 SVG 名称。
+   */
   icon?: string
-  // 图标位置
-  iconPosition?: 'left' | 'right'
-  // 图标大小
-  iconSize?: 'sm' | 'md' | 'lg'
-  // 块级按钮（占满宽度）
+  /**
+   * 图标在按钮中的位置。
+   * @values 'left' | 'right' | 'only'
+   * @default 'left'
+   */
+  iconPosition?: 'left' | 'right' | 'only'
+  /**
+   * 图标的尺寸。
+   * @values 'xs' | 'sm' | 'md' | 'lg' | 'xl'
+   * @default 'md'
+   */
+  iconSize?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
+  /**
+   * 按钮是否为块级元素，宽度占满其父元素。
+   * @default false
+   */
   block?: boolean
-  // 圆角按钮
+  /**
+   * 按钮是否为完全圆角。
+   * @default false
+   */
   rounded?: boolean
+  /**
+   * 按钮的形状。
+   * @values 'default' | 'circle' | 'round'
+   * @default 'default'
+   */
+  shape?: 'default' | 'circle' | 'round'
+  /**
+   * 按钮是否为危险/错误状态。
+   * @default false
+   */
+  danger?: boolean
+  /**
+   * 按钮在按钮组中的位置。
+   * @values 'first' | 'middle' | 'last' | 'only'
+   * @default 'only'
+   */
+  groupPosition?: 'first' | 'middle' | 'last' | 'only'
+  /**
+   * 按钮的最小宽度。可以是一个数字 (px) 或 CSS 字符串。
+   */
+  minWidth?: string | number
+  /**
+   * 按钮的最大宽度。可以是一个数字 (px) 或 CSS 字符串。
+   */
+  maxWidth?: string | number
 }
 
 const props = withDefaults(defineProps<Props>(), {
   variant: 'primary',
   size: 'md',
-  type: 'button',
+  nativeType: 'button', // Changed from 'type' to 'nativeType'
   disabled: false,
   loading: false,
   icon: '',
   iconPosition: 'left',
   iconSize: 'md',
   block: false,
-  rounded: false
+  rounded: false,
+  shape: 'default',
+  danger: false,
+  groupPosition: 'only',
+  minWidth: undefined,
+  maxWidth: undefined
 })
 
 const emit = defineEmits<{
@@ -64,12 +130,23 @@ const buttonClasses = computed(() => [
   'base-btn',
   `btn-${props.variant}`,
   `btn-${props.size}`,
+  `btn-shape-${props.shape}`,
   {
     'btn-block': props.block,
     'btn-rounded': props.rounded,
-    'btn-loading': props.loading
+    'btn-loading': props.loading,
+    'btn-danger': props.danger,
+    'btn-group-first': props.groupPosition === 'first',
+    'btn-group-middle': props.groupPosition === 'middle',
+    'btn-group-last': props.groupPosition === 'last',
+    'btn-icon-only': props.iconPosition === 'only'
   }
 ])
+
+const buttonStyle = computed(() => ({
+  minWidth: props.minWidth ? (typeof props.minWidth === 'number' ? `${props.minWidth}px` : props.minWidth) : undefined,
+  maxWidth: props.maxWidth ? (typeof props.maxWidth === 'number' ? `${props.maxWidth}px` : props.maxWidth) : undefined
+}))
 
 function handleClick(event: MouseEvent) {
   if (!props.disabled && !props.loading) {
@@ -111,22 +188,39 @@ function handleClick(event: MouseEvent) {
 }
 
 /* ========== 按钮尺寸 ========== */
+.btn-xs {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: 0.75rem;
+  min-height: 24px;
+  border-radius: var(--radius-sm);
+}
+
 .btn-sm {
   padding: var(--spacing-xs) var(--spacing-md);
   font-size: 0.875rem;
+  min-height: 28px;
   border-radius: var(--radius-sm);
 }
 
 .btn-md {
   padding: var(--spacing-sm) var(--spacing-lg);
   font-size: 1rem;
+  min-height: 32px;
   border-radius: var(--radius-md);
 }
 
 .btn-lg {
   padding: var(--spacing-md) var(--spacing-xl);
   font-size: 1.125rem;
+  min-height: 40px;
   border-radius: var(--radius-lg);
+}
+
+.btn-xl {
+  padding: var(--spacing-lg) var(--spacing-2xl);
+  font-size: 1.25rem;
+  min-height: 48px;
+  border-radius: var(--radius-xl);
 }
 
 /* ========== 按钮变体 ========== */
@@ -153,8 +247,8 @@ function handleClick(event: MouseEvent) {
   border-color: var(--success-color);
 
   &:hover:not(:disabled) {
-    background: var(--color-success-600);
-    border-color: var(--color-success-600);
+    background: var(--success-dark);
+    border-color: var(--success-dark);
     transform: translateY(-2px);
     box-shadow: var(--shadow-md);
   }
@@ -162,12 +256,12 @@ function handleClick(event: MouseEvent) {
 
 .btn-warning {
   background: var(--warning-color);
-  color: var(--color-warning-900);
+  color: var(--btn-warning-text);
   border-color: var(--warning-color);
 
   &:hover:not(:disabled) {
-    background: var(--color-warning-600);
-    border-color: var(--color-warning-600);
+    background: var(--warning-dark);
+    border-color: var(--warning-dark);
     transform: translateY(-2px);
     box-shadow: var(--shadow-md);
   }
@@ -179,8 +273,8 @@ function handleClick(event: MouseEvent) {
   border-color: var(--danger-color);
 
   &:hover:not(:disabled) {
-    background: var(--color-danger-700);
-    border-color: var(--color-danger-700);
+    background: var(--danger-dark);
+    border-color: var(--danger-dark);
     transform: translateY(-2px);
     box-shadow: var(--danger-shadow);
   }
@@ -188,12 +282,12 @@ function handleClick(event: MouseEvent) {
 
 .btn-info {
   background: var(--info-color);
-  color: var(--btn-primary-text);
+  color: var(--btn-info-text);
   border-color: var(--info-color);
 
   &:hover:not(:disabled) {
-    background: var(--color-info-600);
-    border-color: var(--color-info-600);
+    background: var(--info-dark);
+    border-color: var(--info-dark);
     transform: translateY(-2px);
     box-shadow: var(--shadow-md);
   }
@@ -244,6 +338,30 @@ function handleClick(event: MouseEvent) {
   }
 }
 
+.btn-link {
+  background: transparent;
+  color: var(--primary-color);
+  border: none;
+  text-decoration: underline;
+  padding: 0;
+
+  &:hover:not(:disabled) {
+    color: var(--primary-dark);
+    text-decoration: none;
+  }
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--primary-color);
+  border: var(--border-width) solid var(--primary-color);
+
+  &:hover:not(:disabled) {
+    background: var(--primary-color);
+    color: var(--btn-primary-text);
+  }
+}
+
 /* ========== 按钮修饰符 ========== */
 .btn-block {
   display: flex;
@@ -252,6 +370,147 @@ function handleClick(event: MouseEvent) {
 
 .btn-rounded {
   border-radius: var(--radius-full);
+}
+
+/* ========== 按钮形状变体 ========== */
+.btn-shape-circle {
+  border-radius: var(--radius-full);
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  
+  &.btn-xs {
+    width: 24px;
+    height: 24px;
+  }
+  
+  &.btn-sm {
+    width: 28px;
+    height: 28px;
+  }
+  
+  &.btn-md {
+    width: 32px;
+    height: 32px;
+  }
+  
+  &.btn-lg {
+    width: 40px;
+    height: 40px;
+  }
+  
+  &.btn-xl {
+    width: 48px;
+    height: 48px;
+  }
+}
+
+.btn-shape-round {
+  border-radius: var(--radius-full);
+  padding-left: var(--spacing-lg);
+  padding-right: var(--spacing-lg);
+}
+
+/* ========== 危险状态 ========== */
+.btn-danger {
+  &.btn-primary {
+    background: var(--danger-color);
+    border-color: var(--danger-color);
+    color: var(--btn-danger-text);
+
+    &:hover:not(:disabled) {
+      background: var(--danger-dark);
+      border-color: var(--danger-dark);
+    }
+  }
+
+  &.btn-outline {
+    color: var(--danger-color);
+    border-color: var(--danger-color);
+
+    &:hover:not(:disabled) {
+      background: var(--danger-color);
+      color: var(--btn-danger-text);
+    }
+  }
+
+  &.btn-text {
+    color: var(--danger-color);
+
+    &:hover:not(:disabled) {
+      background: var(--danger-light);
+    }
+  }
+
+  &.btn-ghost {
+    color: var(--danger-color);
+    border-color: var(--danger-color);
+
+    &:hover:not(:disabled) {
+      background: var(--danger-color);
+      color: var(--btn-danger-text);
+    }
+  }
+}
+
+/* ========== 按钮组样式 ========== */
+.btn-group-first {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  border-right: none;
+}
+
+.btn-group-middle {
+  border-radius: 0;
+  border-right: none;
+}
+
+.btn-group-last {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.btn-group-first:not(:last-child) {
+  border-right: none;
+}
+
+.btn-group-middle:not(:last-child) {
+  border-right: none;
+}
+
+/* ========== 图标按钮 ========== */
+.btn-icon-only {
+  padding: 0;
+  width: auto;
+  min-width: auto;
+
+  &.btn-xs {
+    width: 24px;
+    height: 24px;
+  }
+
+  &.btn-sm {
+    width: 28px;
+    height: 28px;
+  }
+
+  &.btn-md {
+    width: 32px;
+    height: 32px;
+  }
+
+  &.btn-lg {
+    width: 40px;
+    height: 40px;
+  }
+
+  &.btn-xl {
+    width: 48px;
+    height: 48px;
+  }
 }
 
 /* ========== 加载状态 ========== */
@@ -279,6 +538,10 @@ function handleClick(event: MouseEvent) {
   font-size: 1.2em;
   line-height: 1;
 
+  &.icon-xs {
+    font-size: 0.875rem;
+  }
+
   &.icon-sm {
     font-size: 1rem;
   }
@@ -289,6 +552,10 @@ function handleClick(event: MouseEvent) {
 
   &.icon-lg {
     font-size: 1.5em;
+  }
+
+  &.icon-xl {
+    font-size: 1.75em;
   }
 }
 

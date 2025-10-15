@@ -103,7 +103,7 @@ interface Props {
   disabled?: boolean
   // 菜单选项配置（数据驱动）
   options: MenuItem[]
-  // 子菜单展开触发方式（参考 cascader 的 expandTrigger）
+  // 子菜单展开触发方式
   expandTrigger?: 'click' | 'hover'
 }
 

@@ -1,3 +1,4 @@
+/// <reference types="vue/macros-global" />
 <template>
   <form :class="['base-form', `form-${layout}`]" @submit.prevent="handleSubmit">
     <div
@@ -12,8 +13,9 @@
       </label>
       
       <!-- Input -->
-      <BaseInput
-        v-if="field.type === 'text' || field.type === 'email' || field.type === 'password' || field.type === 'number'"
+      <component
+        :is="field.component || getComponent(field.type)"
+        v-if="field.type !== 'radio' && field.type !== 'checkbox' && field.type !== 'switch'"
         :id="field.name"
         :type="field.type"
         v-model="formData[field.name]"
@@ -24,35 +26,11 @@
         :clearable="field.clearable"
         :prefixIcon="field.prefixIcon"
         :suffixIcon="field.suffixIcon"
-        :error="errors[field.name]"
-        :hint="field.hint"
-      />
-      
-      <!-- Textarea -->
-      <BaseTextarea
-        v-else-if="field.type === 'textarea'"
-        :id="field.name"
-        v-model="formData[field.name]"
-        :placeholder="field.placeholder"
-        :disabled="field.disabled"
-        :readonly="field.readonly"
-        :maxlength="field.maxlength"
-        :rows="field.rows"
-        :showCount="field.showCount"
-        :error="errors[field.name]"
-        :hint="field.hint"
-      />
-      
-      <!-- Select -->
-      <BaseSelect
-        v-else-if="field.type === 'select'"
-        :id="field.name"
-        v-model="formData[field.name]"
-        :options="field.options || []"
-        :placeholder="field.placeholder"
-        :disabled="field.disabled"
-        :error="errors[field.name]"
-        :hint="field.hint"
+        :status="errors[field.name]?.status || field.status || 'normal'"
+        :hint="errors[field.name]?.message || field.hint"
+        :rows="field.type === 'textarea' ? field.rows : undefined"
+        :showCount="field.type === 'textarea' ? field.showCount : undefined"
+        :options="field.type === 'select' ? (field.options || []) : undefined"
       />
       
       <!-- Checkbox -->
@@ -86,8 +64,8 @@
       />
       
       <!-- Error Message -->
-      <div v-if="errors[field.name]" class="field-error">
-        {{ errors[field.name] }}
+      <div v-if="errors[field.name]?.message" class="field-error">
+        {{ errors[field.name]?.message }}
       </div>
     </div>
     
@@ -112,65 +90,141 @@ import BaseRadio from './BaseRadio.vue'
 import BaseSwitch from './BaseSwitch.vue'
 import BaseButtonGroup from './BaseButtonGroup.vue'
 import type { ButtonConfig } from './BaseButtonGroup.vue'
+import type { PropType } from 'vue'
 
 export interface FormField {
-  // 字段名称（用作 v-model 的 key）
+  /**
+   * 字段名称（用作 v-model 的 key）。
+   */
   name: string
-  // 字段类型
-  type: 'text' | 'email' | 'password' | 'number' | 'textarea' | 'select' | 'checkbox' | 'radio' | 'switch'
-  // 字段标签
+  /**
+   * 字段类型。
+   * @values 'text' | 'email' | 'password' | 'number' | 'textarea' | 'select' | 'checkbox' | 'radio' | 'switch' | 'custom'
+   */
+  type: 'text' | 'email' | 'password' | 'number' | 'textarea' | 'select' | 'checkbox' | 'radio' | 'switch' | 'custom'
+  /**
+   * 字段标签。
+   */
   label?: string
-  // 占位符
+  /**
+   * 占位符文本。
+   */
   placeholder?: string
-  // 是否必填
+  /**
+   * 是否必填。
+   * @default false
+   */
   required?: boolean
-  // 是否禁用
+  /**
+   * 字段是否禁用。
+   * @default false
+   */
   disabled?: boolean
-  // 是否只读
+  /**
+   * 字段是否只读。
+   * @default false
+   */
   readonly?: boolean
-  // 最大长度
+  /**
+   * 字段允许的最大长度。
+   */
   maxlength?: number
-  // 是否可清空
+  /**
+   * 是否显示清空按钮（仅对 BaseInput 有效）。
+   * @default true
+   */
   clearable?: boolean
-  // 前缀图标
+  /**
+   * 前缀图标（仅对 BaseInput 有效）。
+   */
   prefixIcon?: string
-  // 后缀图标
+  /**
+   * 后缀图标（仅对 BaseInput 有效）。
+   */
   suffixIcon?: string
-  // 提示文本
+  /**
+   * 提示文本。
+   */
   hint?: string
-  // 行数（textarea）
+  /**
+   * 字段的当前状态，会影响样式和错误信息显示。
+   * @values 'normal' | 'error' | 'success' | 'warning'
+   * @default 'normal'
+   */
+  status?: 'normal' | 'error' | 'success' | 'warning'
+  /**
+   * Textarea 的行数（仅对 BaseTextarea 有效）。
+   * @default 3
+   */
   rows?: number
-  // 显示计数（textarea）
+  /**
+   * Textarea 是否显示字数计数（仅对 BaseTextarea 有效）。
+   * @default false
+   */
   showCount?: boolean
-  // 选项（select/radio）
+  /**
+   * Select 或 Radio 组的选项数组。
+   */
   options?: Array<{ value: any; label: string; disabled?: boolean }>
-  // Checkbox 标签
+  /**
+   * Checkbox 的标签文本（仅对 BaseCheckbox 有效）。
+   */
   checkboxLabel?: string
-  // Switch 标签
+  /**
+   * Switch 的标签文本（仅对 BaseSwitch 有效）。
+   */
   switchLabel?: string
-  // 校验规则
-  rules?: Array<(value: any) => string | true>
+  /**
+   * 字段的校验规则数组，每个规则函数接收当前值并返回 `true`（通过）或错误信息字符串（失败）。
+   */
+  rules?: Array<(value: any) => string | boolean>
+  /**
+   * 自定义组件，当 `type` 为 'custom' 时使用。
+   */
+  component?: any
 }
 
 interface Props {
-  // 表单字段配置（数据驱动）
+  /**
+   * 表单字段配置数组，用于数据驱动生成表单。
+   */
   fields: FormField[]
-  // 表单数据
+  /**
+   * 表单数据对象，使用 v-model 绑定。
+   */
   modelValue: Record<string, any>
-  // 表单布局
+  /**
+   * 表单的布局方式。
+   * @values 'vertical' | 'horizontal' | 'inline'
+   * @default 'vertical'
+   */
   layout?: 'vertical' | 'horizontal' | 'inline'
-  // 是否显示操作按钮
+  /**
+   * 是否显示底部操作按钮区域。
+   * @default true
+   */
   showActions?: boolean
-  // 操作按钮配置
+  /**
+   * 自定义操作按钮配置数组。
+   */
   actions?: ButtonConfig[]
-  // 操作按钮对齐方式
+  /**
+   * 操作按钮的对齐方式。
+   * @values 'start' | 'center' | 'end' | 'between'
+   * @default 'end'
+   */
   actionsAlign?: 'start' | 'center' | 'end' | 'between'
+  /**
+   * 表单的标题，显示在表单上方。
+   */
+  title?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
   layout: 'vertical',
   showActions: true,
-  actionsAlign: 'end'
+  actionsAlign: 'end',
+  title: '',
 })
 
 const emit = defineEmits<{
@@ -186,7 +240,7 @@ const formData = computed({
 })
 
 // 错误信息
-const errors = ref<Record<string, string>>({})
+const errors = ref<Record<string, { message: string; status: 'error' | 'warning' } | undefined>>({})
 
 // 默认操作按钮
 const defaultActions: ButtonConfig[] = [
@@ -208,33 +262,63 @@ const defaultActions: ButtonConfig[] = [
 const actionButtons = computed(() => props.actions || defaultActions)
 
 /**
+ * 根据字段类型获取对应的组件。
+ * @param type 字段类型
+ * @returns 对应的 Vue 组件
+ */
+function getComponent(type: FormField['type']) {
+  switch (type) {
+    case 'text':
+    case 'email':
+    case 'password':
+    case 'number':
+      return BaseInput;
+    case 'textarea':
+      return BaseTextarea;
+    case 'select':
+      return BaseSelect;
+    case 'checkbox':
+      return BaseCheckbox;
+    case 'radio':
+      return BaseRadio;
+    case 'switch':
+      return BaseSwitch;
+    case 'custom':
+      return undefined; // Custom components are passed directly via field.component
+    default:
+      return BaseInput;
+  }
+}
+
+/**
  * 校验表单
  */
 function validate(): boolean {
   errors.value = {}
   let isValid = true
-  
-  props.fields.forEach(field => {
+
+  props.fields.forEach((field: FormField) => {
+    const value = formData.value[field.name]
     // 必填校验
-    if (field.required && !formData.value[field.name]) {
-      errors.value[field.name] = `${field.label || field.name}不能为空`
+    if (field.required && (value === null || value === undefined || value === '')) {
+      errors.value[field.name] = { message: `${field.label || field.name}不能为空`, status: 'error' }
       isValid = false
-      return
+      // return // 不直接return，继续执行后续校验
     }
     
     // 自定义校验规则
     if (field.rules) {
       for (const rule of field.rules) {
-        const result = rule(formData.value[field.name])
+        const result = rule(value as any) // 显式转换为 any
         if (result !== true) {
-          errors.value[field.name] = result
+          errors.value[field.name] = { message: typeof result === 'string' ? result : '输入格式不正确', status: 'error' }
           isValid = false
           break
         }
       }
     }
   })
-  
+
   return isValid
 }
 
@@ -267,7 +351,7 @@ defineExpose({
   
   &.form-vertical {
     .form-field {
-      margin-bottom: 16px;
+      margin-bottom: var(--spacing-lg);
     }
   }
   
@@ -275,13 +359,13 @@ defineExpose({
     .form-field {
       display: grid;
       grid-template-columns: 120px 1fr;
-      gap: 12px;
+      gap: var(--spacing-md); /* 使用语义化变量 */
       align-items: start;
-      margin-bottom: 16px;
+      margin-bottom: var(--spacing-lg); /* 使用语义化变量 */
       
       .field-label {
         text-align: right;
-        padding-top: 8px;
+        padding-top: var(--spacing-sm);
       }
     }
   }
@@ -289,12 +373,12 @@ defineExpose({
   &.form-inline {
     display: flex;
     flex-wrap: wrap;
-    gap: 16px;
+    gap: var(--spacing-lg); /* 使用语义化变量 */
     
     .form-field {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: var(--spacing-md); /* 使用语义化变量 */
     }
   }
 }
@@ -332,12 +416,12 @@ defineExpose({
 .field-error {
   color: var(--danger-color);
   font-size: 0.85rem;
-  margin-top: 4px;
+  margin-top: var(--spacing-xs);
 }
 
 .form-actions {
-  margin-top: 24px;
-  padding-top: 16px;
+  margin-top: var(--spacing-xl); /* 使用语义化变量 */
+  padding-top: var(--spacing-lg); /* 使用语义化变量 */
   border-top: 1px solid var(--border-color);
 }
 </style>

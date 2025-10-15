@@ -19,7 +19,7 @@
       <span class="submenu-arrow">▶</span>
     </div>
 
-    <!-- 子菜单 - 参考 cascader 的展开方式 -->
+    <!-- 子菜单 -->
     <transition name="submenu-slide">
       <div v-show="isSubMenuOpen" class="submenu-content" ref="submenuRef">
         <slot></slot>
@@ -42,7 +42,7 @@ interface Props {
   active?: boolean
   // 是否显示分隔线
   divided?: boolean
-  // 展开触发方式（参考 cascader 的 expandTrigger）
+  // 展开触发方式
   expandTrigger?: 'click' | 'hover'
   // 展开延迟（ms）
   expandDelay?: number
@@ -54,7 +54,7 @@ const props = withDefaults(defineProps<Props>(), {
   disabled: false,
   active: false,
   divided: false,
-  expandTrigger: 'hover',  // 默认悬停展开（参考 cascader）
+  expandTrigger: 'hover',  // 默认悬停展开
   expandDelay: 150,        // 展开延迟 150ms
   collapseDelay: 200       // 收起延迟 200ms
 })
@@ -86,7 +86,7 @@ function handleClick() {
 }
 
 /**
- * 鼠标进入（参考 cascader 的 hover 触发）
+ * 鼠标进入
  */
 function handleMouseEnter() {
   if (props.disabled) return
@@ -100,7 +100,7 @@ function handleMouseEnter() {
 }
 
 /**
- * 鼠标离开（参考 cascader 的延迟收起）
+ * 鼠标离开
  */
 function handleMouseLeave() {
   if (props.expandTrigger === 'hover') {
@@ -183,7 +183,7 @@ defineExpose({
   white-space: nowrap;
   user-select: none;
 
-  // 悬停效果（参考 cascader 的交互）
+  // 悬停效果
   &:hover:not(.is-disabled) {
     background: var(--bg-hover);
     color: var(--primary-color);
@@ -238,14 +238,14 @@ defineExpose({
   margin-left: auto;
   transform-origin: center;
 
-  // 展开时旋转（参考 cascader）
+  // 展开时旋转
   .is-open & {
     transform: rotate(90deg);
     color: var(--primary-color);
   }
 }
 
-// 子菜单容器（参考 cascader 的定位方式）
+// 子菜单容器
 .submenu-content {
   position: absolute;
   left: 100%;
@@ -280,7 +280,7 @@ defineExpose({
   }
 }
 
-// 子菜单滑入滑出动画（参考 cascader 的展开动画）
+// 子菜单滑入滑出动画
 .submenu-slide-enter-active {
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }

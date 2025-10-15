@@ -2,15 +2,33 @@
   <Teleport to="body">
     <Transition name="modal-fade" @after-leave="onAfterLeave">
       <div v-if="isVisible" class="base-modal-overlay" @click="handleOverlayClick">
-        <Transition name="modal-slide">
-          <div v-if="isVisible" class="base-modal-content" :style="contentStyle" @click.stop>
+        <Transition :name="`modal-${animation}`">
+          <div 
+            v-if="isVisible" 
+            :class="modalClasses" 
+            :style="contentStyle" 
+            @click.stop
+            @keydown.esc="handleEscKey"
+            tabindex="-1"
+            ref="modalContentRef"
+          >
             <!-- 头部区域 -->
-            <div class="base-modal-header">
+            <div v-if="showHeader" class="base-modal-header" :class="headerClasses">
               <slot name="header">
-                <component :is="titleTag" class="base-modal-title">{{ title }}</component>
-                <button class="base-modal-close" @click="attemptClose" :aria-label="closeButtonAriaLabel">
-                  {{ closeButtonText }}
-                </button>
+                <div class="modal-header-content">
+                  <div class="modal-title-section">
+                    <component :is="titleTag" class="base-modal-title">{{ title }}</component>
+                    <p v-if="description" class="modal-description">{{ description }}</p>
+                  </div>
+                  <button 
+                    v-if="showClose" 
+                    class="base-modal-close" 
+                    @click="attemptClose" 
+                    :aria-label="closeButtonAriaLabel"
+                  >
+                    {{ closeButtonText }}
+                  </button>
+                </div>
               </slot>
             </div>
 
@@ -30,86 +48,236 @@
   </Teleport>
 </template>
 
-<script setup>
-import { ref, computed, watch } from 'vue'
+<script setup lang="ts">
+import { ref, computed, watch, onUnmounted } from 'vue'
+import type { PropType } from 'vue'
 
-const props = defineProps({
-  // 模态框标题
-  title: {
-    type: String,
-    default: ''
-  },
-  // 标题标签类型 (h1-h6)
-  titleTag: {
-    type: String,
-    default: 'h3',
-    validator: (value) => ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(value)
-  },
-  // 模态框宽度
-  width: {
-    type: String,
-    default: '800px'
-  },
-  // 模态框最大高度
-  maxHeight: {
-    type: String,
-    default: '90vh'
-  },
-  // 是否显示底部
-  showFooter: {
-    type: Boolean,
-    default: false
-  },
-  // 点击遮罩层是否关闭
-  closeOnOverlayClick: {
-    type: Boolean,
-    default: true
-  },
-  // 是否禁止模态框主体滚动
-  disableBodyScroll: {
-    type: Boolean,
-    default: false
-  },
-  // 关闭按钮文本
-  closeButtonText: {
-    type: String,
-    default: '×'
-  },
-  // 关闭按钮 aria-label
-  closeButtonAriaLabel: {
-    type: String,
-    default: '关闭'
-  },
-  // body 额外的 class
-  bodyClass: {
-    type: [String, Array, Object],
-    default: ''
-  },
-  // 是否立即显示
-  modelValue: {
-    type: Boolean,
-    default: false
-  },
-  // 关闭前的钩子函数
-  beforeClose: {
-    type: Function,
-    default: null
-  }
+// 引入 useScrollLock
+import { useScrollLock } from '@vueuse/core'
+
+interface Props {
+  /**
+   * 模态框标题。
+   */
+  title?: string;
+  /**
+   * 标题标签类型 (h1-h6)。
+   * @values 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
+   * @default 'h3'
+   */
+  titleTag?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
+  /**
+   * 模态框描述文本。
+   */
+  description?: string;
+  /**
+   * 模态框宽度。可以是 CSS 宽度值或数字 (px)。
+   * @default '800px'
+   */
+  width?: string | number;
+  /**
+   * 模态框高度。可以是 CSS 高度值或数字 (px)。
+   * @default 'auto'
+   */
+  height?: string | number;
+  /**
+   * 模态框最大高度。可以是 CSS 高度值或数字 (px)。
+   * @default '90vh'
+   */
+  maxHeight?: string | number;
+  /**
+   * 模态框最小高度。可以是 CSS 高度值或数字 (px)。
+   * @default '200px'
+   */
+  minHeight?: string | number;
+  /**
+   * 模态框预设尺寸。
+   * @values 'small' | 'medium' | 'large' | 'fullscreen'
+   * @default 'medium'
+   */
+  size?: 'small' | 'medium' | 'large' | 'fullscreen';
+  /**
+   * 模态框类型。可以影响样式和行为。
+   * @values 'default' | 'confirm' | 'alert' | 'drawer'
+   * @default 'default'
+   */
+  type?: 'default' | 'confirm' | 'alert' | 'drawer';
+  /**
+   * 是否显示模态框底部区域。
+   * @default false
+   */
+  showFooter?: boolean;
+  /**
+   * 是否显示模态框头部区域。
+   * @default true
+   */
+  showHeader?: boolean;
+  /**
+   * 是否显示右上角的关闭按钮。
+   * @default true
+   */
+  showClose?: boolean;
+  /**
+   * 点击遮罩层时是否关闭模态框。
+   * @default true
+   */
+  closeOnOverlayClick?: boolean;
+  /**
+   * 按下 ESC 键时是否关闭模态框。
+   * @default true
+   */
+  closeOnEsc?: boolean;
+  /**
+   * 是否禁止模态框主体内容区域的滚动。
+   * @default false
+   */
+  disableBodyScroll?: boolean;
+  /**
+   * 关闭按钮的文本内容。通常是 '×'。
+   * @default '×'
+   */
+  closeButtonText?: string;
+  /**
+   * 关闭按钮的 aria-label 属性，用于无障碍访问。
+   * @default '关闭'
+   */
+  closeButtonAriaLabel?: string;
+  /**
+   * 模态框主体内容的额外 class。
+   */
+  bodyClass?: string | string[] | Record<string, boolean>;
+  /**
+   * 控制模态框的显示/隐藏 (v-model)。
+   * @default false
+   */
+  modelValue?: boolean;
+  /**
+   * 关闭前的钩子函数。如果返回 `false` 或 Promise resolve `false`，则阻止关闭。
+   */
+  beforeClose?: () => boolean | Promise<boolean>;
+  /**
+   * 模态框的动画类型。
+   * @values 'slide' | 'fade' | 'zoom' | 'none'
+   * @default 'slide'
+   */
+  animation?: 'slide' | 'fade' | 'zoom' | 'none';
+  /**
+   * 是否允许模态框拖拽。目前暂未实现此功能。
+   * @default false
+   */
+  draggable?: boolean;
+  /**
+   * 是否允许模态框调整大小。目前暂未实现此功能。
+   * @default false
+   */
+  resizable?: boolean;
+  /**
+   * 是否启用主题集成样式。
+   * @default true
+   */
+  themeIntegration?: boolean;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  title: '',
+  titleTag: 'h3',
+  description: '',
+  width: '800px',
+  height: 'auto',
+  maxHeight: '90vh',
+  minHeight: '200px',
+  size: 'medium',
+  type: 'default',
+  showFooter: false,
+  showHeader: true,
+  showClose: true,
+  closeOnOverlayClick: true,
+  closeOnEsc: true,
+  disableBodyScroll: false,
+  closeButtonText: '×',
+  closeButtonAriaLabel: '关闭',
+  bodyClass: () => [], // Use a factory function for array/object defaults
+  modelValue: false,
+  beforeClose: undefined,
+  animation: 'slide',
+  draggable: false, // Changed default to false
+  resizable: false, // Changed default to false
+  themeIntegration: true
 })
 
-const emit = defineEmits(['close', 'update:modelValue', 'after-close'])
+const emit = defineEmits<{
+  (e: 'close'): void;
+  (e: 'update:modelValue', value: boolean): void;
+  (e: 'after-close'): void;
+}>()
 
 // 内部状态
-const isVisible = ref(props.modelValue)
-let scrollPosition = 0
-let modalCount = 0 // 全局模态框计数器
+const isVisible = ref<boolean>(props.modelValue)
+const modalContentRef = ref<HTMLDivElement | null>(null)
+
+// 使用 useScrollLock 锁定 body 滚动
+const isLocked = useScrollLock(document.body)
 
 // 计算内容样式
-const contentStyle = computed(() => ({
-  width: props.width,
-  maxWidth: '90%',
-  maxHeight: props.maxHeight
-}))
+const contentStyle = computed<Record<string, string>>(() => {
+  const style: Record<string, string> = {}
+  
+  // 宽度
+  if (props.size === 'small') {
+    style.width = '400px'
+  } else if (props.size === 'medium') {
+    style.width = '800px'
+  } else if (props.size === 'large') {
+    style.width = '1200px'
+  } else if (props.size === 'fullscreen') {
+    style.width = '100vw'
+    style.height = '100vh'
+    style.maxWidth = '100vw'
+    style.maxHeight = '100vh'
+    style.borderRadius = '0'
+  } else {
+    style.width = typeof props.width === 'number' ? `${props.width}px` : props.width
+  }
+  
+  // 高度
+  if (props.height !== 'auto') {
+    style.height = typeof props.height === 'number' ? `${props.height}px` : props.height
+  }
+  
+  // 最大高度
+  style.maxHeight = typeof props.maxHeight === 'number' ? `${props.maxHeight}px` : props.maxHeight
+  
+  // 最小高度
+  style.minHeight = typeof props.minHeight === 'number' ? `${props.minHeight}px` : props.minHeight
+  
+  // 最大宽度
+  if (props.size !== 'fullscreen') {
+    style.maxWidth = '90%'
+  }
+  
+  return style
+})
+
+// 计算模态框类名
+const modalClasses = computed(() => [
+  'base-modal-content',
+  `modal-${props.type}`,
+  `modal-${props.size}`,
+  `modal-${props.animation}`,
+  {
+    'modal-draggable': props.draggable,
+    'modal-resizable': props.resizable,
+    'modal-theme-integration': props.themeIntegration
+  }
+])
+
+// 计算头部类名
+const headerClasses = computed(() => [
+  `header-${props.type}`,
+  {
+    'header-draggable': props.draggable
+  }
+])
 
 // 监听 modelValue 变化
 watch(() => props.modelValue, (newValue) => {
@@ -125,15 +293,7 @@ watch(() => props.modelValue, (newValue) => {
  */
 function show() {
   isVisible.value = true
-  modalCount++
-
-  // 只在第一个模态框打开时锁定滚动
-  if (modalCount === 1) {
-    scrollPosition = window.scrollY
-    document.body.style.top = `-${scrollPosition}px`
-    document.body.classList.add('no-scroll')
-  }
-
+  isLocked.value = true // 锁定滚动
   emit('update:modelValue', true)
 }
 
@@ -161,15 +321,7 @@ async function attemptClose() {
  */
 function close() {
   isVisible.value = false
-  modalCount = Math.max(0, modalCount - 1)
-
-  // 只在所有模态框关闭后解锁滚动
-  if (modalCount === 0) {
-    document.body.classList.remove('no-scroll')
-    document.body.style.top = ''
-    window.scrollTo(0, scrollPosition)
-  }
-
+  isLocked.value = false // 解锁滚动
   emit('close')
   emit('update:modelValue', false)
 }
@@ -184,11 +336,26 @@ function handleOverlayClick() {
 }
 
 /**
+ * 处理ESC键
+ */
+function handleEscKey() {
+  if (props.closeOnEsc) {
+    attemptClose()
+  }
+}
+
+/**
  * 在模态框关闭动画结束后触发
  */
 function onAfterLeave() {
   emit('after-close');
 }
+
+onUnmounted(() => {
+  if (isLocked.value) {
+    isLocked.value = false // 确保组件卸载时释放滚动锁
+  }
+})
 
 // 暴露方法
 defineExpose({
@@ -221,6 +388,91 @@ defineExpose({
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  position: relative;
+}
+
+/* ========== 模态框类型样式 ========== */
+.modal-confirm {
+  .base-modal-header {
+    border-bottom-color: var(--warning-color);
+    background: linear-gradient(135deg, var(--bg-warning-light), var(--bg-card)); /* 使用语义化变量 */
+  }
+}
+
+.modal-alert {
+  .base-modal-header {
+    border-bottom-color: var(--danger-color);
+    background: linear-gradient(135deg, var(--bg-danger-light), var(--bg-card)); /* 使用语义化变量 */
+  }
+}
+
+.modal-drawer {
+  border-radius: 0;
+  box-shadow: none;
+  border-left: var(--border-width-lg) solid var(--primary-color);
+}
+
+/* ========== 拖拽和调整大小相关样式已移除 ========== */
+/*
+.modal-draggable {
+  cursor: move;
+}
+
+.header-draggable {
+  cursor: move;
+  user-select: none;
+}
+
+.modal-drag-handle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 20px;
+  cursor: move;
+  z-index: 10;
+}
+
+.modal-resize-handle {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 20px;
+  height: 20px;
+  cursor: nw-resize;
+  z-index: 10;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 8px;
+    height: 8px;
+    border-right: 2px solid var(--text-muted);
+    border-bottom: 2px solid var(--text-muted);
+  }
+}
+*/
+
+/* ========== 头部样式增强 ========== */
+.modal-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  width: 100%;
+}
+
+.modal-title-section {
+  flex: 1;
+}
+
+.modal-description {
+  margin: var(--spacing-xs) 0 0 0;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
 }
 
 /* 头部 */
@@ -287,7 +539,7 @@ defineExpose({
   flex-shrink: 0;
 }
 
-/* 动画 */
+/* ========== 动画样式 ========== */
 .modal-fade-enter-active,
 .modal-fade-leave-active {
   transition: opacity 0.3s ease;
@@ -306,7 +558,55 @@ defineExpose({
 .modal-slide-enter-from,
 .modal-slide-leave-to {
   opacity: 0;
-  transform: translateY(-50px);  /* 保持动画距离固定，不使用token */
+  transform: translateY(-50px);
+}
+
+.modal-zoom-enter-active,
+.modal-zoom-leave-active {
+  transition: all 0.3s ease;
+}
+
+.modal-zoom-enter-from,
+.modal-zoom-leave-to {
+  opacity: 0;
+  transform: scale(0.8);
+}
+
+.modal-none-enter-active,
+.modal-none-leave-active {
+  transition: none;
+}
+
+.modal-none-enter-from,
+.modal-none-leave-to {
+  opacity: 1;
+}
+
+/* ========== 主题集成 ========== */
+.modal-theme-integration {
+  /* 高山晨光主题 */
+  body.theme-mountain-sunrise & {
+    box-shadow: var(--shadow-modal-mountain-sunrise);
+    border: var(--border-modal-mountain-sunrise);
+  }
+
+  /* 森林探险主题 */
+  body.theme-forest-trek & {
+    box-shadow: var(--shadow-modal-forest-trek);
+    border: var(--border-modal-forest-trek);
+  }
+
+  /* 雪峰极光主题 */
+  body.theme-snowpeak-aurora & {
+    box-shadow: var(--shadow-modal-snowpeak-aurora);
+    border: var(--border-modal-snowpeak-aurora);
+  }
+
+  /* 手绘风格主题 */
+  body.theme-paper & {
+    box-shadow: var(--shadow-modal-paper);
+    border-style: dashed;
+  }
 }
 
 /* 响应式设计 - 移动端减小间距 */

@@ -6,16 +6,22 @@
       { 
         checked: isChecked, 
         disabled, 
-        indeterminate 
+        indeterminate, 
+        'is-error': status === 'error',
+        'is-success': status === 'success',
+        'is-warning': status === 'warning',
       }
     ]"
+    :for="id"
   >
     <input
       type="checkbox"
       class="checkbox-input"
+      :id="id"
       :checked="isChecked"
       :disabled="disabled"
       :indeterminate="indeterminate"
+      :aria-checked="indeterminate ? 'mixed' : (isChecked ? 'true' : 'false')"
       @change="handleChange"
     />
     <span class="checkbox-inner"></span>
@@ -29,14 +35,58 @@
 import { computed } from 'vue'
 
 interface Props {
+  /**
+   * v-model 绑定的值。
+   * - 当为单个复选框时，类型为 `boolean | string | number`。
+   * - 当用于复选框组时，类型为 `Array<string | number>`。
+   * @default false
+   */
   modelValue?: boolean | string | number | Array<string | number>
+  /**
+   * 复选框的标签文本。
+   */
   label?: string
+  /**
+   * 当前复选框的值，当 `modelValue` 为数组时使用。
+   */
   value?: string | number  // 当 modelValue 是数组时使用
+  /**
+   * 选中状态时 `modelValue` 的值。
+   * @default true
+   */
   trueValue?: boolean | string | number
+  /**
+   * 未选中状态时 `modelValue` 的值。
+   * @default false
+   */
   falseValue?: boolean | string | number
+  /**
+   * 是否禁用复选框。
+   * @default false
+   */
   disabled?: boolean
+  /**
+   * 是否处于半选（不确定）状态。
+   * @default false
+   */
   indeterminate?: boolean
+  /**
+   * 复选框的尺寸。
+   * @values 'sm' | 'md' | 'lg'
+   * @default 'md'
+   */
   size?: 'sm' | 'md' | 'lg'
+  /**
+   * 复选框的当前状态，可用于视觉提示。
+   * @values 'normal' | 'error' | 'success' | 'warning'
+   * @default 'normal'
+   */
+  status?: 'normal' | 'error' | 'success' | 'warning'
+  /**
+   * 复选框的唯一 ID。
+   * @default 随机生成的 ID
+   */
+  id?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -45,7 +95,9 @@ const props = withDefaults(defineProps<Props>(), {
   falseValue: false,
   disabled: false,
   indeterminate: false,
-  size: 'md'
+  size: 'md',
+  status: 'normal',
+  id: `checkbox-${Math.random().toString(36).substr(2, 9)}`,
 })
 
 const emit = defineEmits<{
@@ -101,7 +153,7 @@ function handleChange(event: Event) {
   position: relative;
 
   &.disabled {
-    opacity: 0.5;
+    opacity: var(--opacity-disabled); /* 使用语义化变量 */
     cursor: not-allowed;
   }
 }
@@ -132,18 +184,18 @@ function handleChange(event: Event) {
     top: 2px;
     width: 4px;
     height: 8px;
-    border: solid white;
+    border: solid var(--text-on-accent); /* 使用语义化变量 */
     border-width: 0 2px 2px 0;
     transform: rotate(45deg);
   }
 
   .base-checkbox:hover:not(.disabled) & {
-    border-color: var(--primary-color);
+    border-color: var(--accent-primary); /* 使用语义化变量 */
   }
 
   .base-checkbox.checked & {
-    background: var(--primary-color);
-    border-color: var(--primary-color);
+    background: var(--accent-primary); /* 使用语义化变量 */
+    border-color: var(--accent-primary); /* 使用语义化变量 */
 
     &::after {
       display: block;
@@ -151,8 +203,8 @@ function handleChange(event: Event) {
   }
 
   .base-checkbox.indeterminate & {
-    background: var(--primary-color);
-    border-color: var(--primary-color);
+    background: var(--accent-primary); /* 使用语义化变量 */
+    border-color: var(--accent-primary); /* 使用语义化变量 */
 
     &::after {
       display: block;
@@ -161,13 +213,13 @@ function handleChange(event: Event) {
       width: 8px;
       height: 2px;
       border: none;
-      background: white;
+      background: var(--text-on-accent); /* 使用语义化变量 */
       transform: translate(-50%, -50%) rotate(0deg);
     }
   }
 
   .base-checkbox.disabled & {
-    background: var(--bg-disabled, #f5f5f5);
+    background: var(--bg-disabled); /* 使用语义化变量 */
     border-color: var(--border-color);
   }
 }
@@ -178,7 +230,7 @@ function handleChange(event: Event) {
   line-height: 1.5;
 
   .base-checkbox.disabled & {
-    color: var(--text-disabled, #999);
+    color: var(--text-disabled); /* 使用语义化变量 */
   }
 }
 
@@ -221,7 +273,7 @@ function handleChange(event: Event) {
 
 /* 焦点样式 */
 .checkbox-input:focus-visible + .checkbox-inner {
-  outline: 2px solid var(--primary-color);
+  outline: 2px solid var(--outline-focus); /* 使用语义化变量 */
   outline-offset: 2px;
 }
 </style>

@@ -7,8 +7,10 @@
 - ✅ 使用统一的设计Token系统
 - ✅ 支持14个主题自动适配
 - ✅ 符合WCAG AA可访问性标准
-- ✅ 提供TypeScript类型支持
+- ✅ 提供TypeScript类型支持 (已全面完善 JSDoc 和类型推断)
 - ✅ 包含完整的交互状态
+
+> **注意**: 基础组件正在进行全面的优化改造。您可以在 [基础组件改造计划文档](COMPONENT_TRANSFORMATION_PLAN.md) 中查看详细的改造明细和未完成项。
 
 ---
 
@@ -19,37 +21,39 @@
 |------|------|------|
 | **BackToTopButton** | `others/BackToTopButton.vue` | 返回顶部按钮 |
 | **BaseDivider** | `others/BaseDivider.vue` | 分隔线 ⭐ |
+| **BaseTooltip** | `others/BaseTooltip.vue` | 提示框 |
 
 ---
 
 ### Form 表单组件
 | 组件 | 文件 | 用途 |
 |------|------|------|
-| **BaseButton** | `form/BaseButton.vue` | 统一按钮样式 |
+| **BaseButton** | `form/BaseButton.vue` | 统一按钮样式 (已优化) |
 | **BaseButtonGroup** | `form/BaseButtonGroup.vue` | 按钮组 ⭐ |
-| **BaseInput** | `form/BaseInput.vue` | 统一输入框样式 |
-| **BaseSelect** | `form/BaseSelect.vue` | 统一下拉框样式 |
+| **BaseInput** | `form/BaseInput.vue` | 统一输入框样式 (已优化) |
+| **BaseSelect** | `form/BaseSelect.vue` | 统一下拉框样式 (已优化) |
 | **BaseTextarea** | `form/BaseTextarea.vue` | 统一文本域样式 |
-| **BaseCheckbox** | `form/BaseCheckbox.vue` | 统一复选框样式 ⭐ |
+| **BaseCheckbox** | `form/BaseCheckbox.vue` | 统一复选框样式 (已优化) |
 | **BaseRadio** | `form/BaseRadio.vue` | 统一单选框样式 ⭐ |
 | **BaseSwitch** | `form/BaseSwitch.vue` | 开关组件 ⭐ |
-| **BaseForm** | `form/BaseForm.vue` | 表单容器 ⭐ |
+| **BaseForm** | `form/BaseForm.vue` | 表单容器 (已优化) |
 | **BaseFormField** | `form/BaseFormField.vue` | 表单项包装器 ⭐ |
 | **InputSelect** | `form/InputSelect.vue` | 输入选择器（已弃用） |
 
 ### Data 数据展示组件
 | 组件 | 文件 | 用途 |
 |------|------|------|
-| **BaseCard** | `data/BaseCard.vue` | 统一卡片容器 |
-| **BaseTable** | `data/BaseTable.vue` | 统一表格样式 |
+| **BaseCard** | `data/BaseCard.vue` | 统一卡片容器 (已优化) |
+| **BaseTable** | `data/BaseTable.vue` | 统一表格样式 (已优化) |
 | **BaseBadge** | `data/BaseBadge.vue` | 统一标签徽章 |
 | **BaseStatCard** | `data/BaseStatCard.vue` | 统计卡片 ⭐ |
+| **BaseAvatar** | `data/BaseAvatar.vue` | 头像组件 ⭐ |
 | **MarkdownViewer** | `data/MarkdownViewer.vue` | Markdown 渲染器 ⭐ |
 
 ### Feedback 反馈组件
 | 组件 | 文件 | 用途 |
 |------|------|------|
-| **BaseModal** | `feedback/BaseModal.vue` | 统一模态框 |
+| **BaseModal** | `feedback/BaseModal.vue` | 统一模态框 (已优化) |
 | **BaseConfirm** | `feedback/BaseConfirm.vue` | 统一确认对话框 |
 | **BaseEmpty** | `feedback/BaseEmpty.vue` | 统一空状态提示 ⭐ |
 | **BaseLoading** | `feedback/BaseLoading.vue` | 统一加载状态 ⭐ |
@@ -69,7 +73,9 @@
 
 ---
 
-## 🔘 BaseButton - 按钮组件
+## 🔘 BaseButton - 按钮组件 (已优化)
+
+> **注意**: 详细的 Props 参数和使用说明请查阅 [基础组件改造计划文档](COMPONENT_TRANSFORMATION_PLAN.md)。本节仅保留基础用法和迁移示例。
 
 ### 基础用法
 
@@ -80,8 +86,8 @@
   </BaseButton>
 </template>
 
-<script setup>
-import BaseButton from '@/components/common/BaseButton.vue'
+<script setup lang="ts">
+import BaseButton from '@/components/common/form/BaseButton.vue'
 
 function handleClick() {
   console.log('按钮被点击')
@@ -89,53 +95,9 @@ function handleClick() {
 </script>
 ```
 
-### Props参数
-
-| 参数 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| `variant` | `'primary' \| 'success' \| 'warning' \| 'danger' \| 'info' \| 'secondary' \| 'outline' \| 'text'` | `'primary'` | 按钮类型 |
-| `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | 按钮尺寸 |
-| `type` | `'button' \| 'submit' \| 'reset'` | `'button'` | 原生type |
-| `disabled` | `boolean` | `false` | 禁用状态 |
-| `loading` | `boolean` | `false` | 加载状态 |
-| `icon` | `string` | `''` | 图标 |
-| `iconPosition` | `'left' \| 'right'` | `'left'` | 图标位置 |
-| `block` | `boolean` | `false` | 块级按钮 |
-| `rounded` | `boolean` | `false` | 圆角按钮 |
-
-### 使用示例
-
-```vue
-<template>
-  <!-- 不同类型 -->
-  <BaseButton variant="primary">主要按钮</BaseButton>
-  <BaseButton variant="success">成功按钮</BaseButton>
-  <BaseButton variant="warning">警告按钮</BaseButton>
-  <BaseButton variant="danger">危险按钮</BaseButton>
-  <BaseButton variant="outline">边框按钮</BaseButton>
-  
-  <!-- 不同尺寸 -->
-  <BaseButton size="sm">小按钮</BaseButton>
-  <BaseButton size="md">中按钮</BaseButton>
-  <BaseButton size="lg">大按钮</BaseButton>
-  
-  <!-- 带图标 -->
-  <BaseButton icon="🔍" icon-position="left">搜索</BaseButton>
-  <BaseButton icon="→" icon-position="right">下一步</BaseButton>
-  
-  <!-- 状态 -->
-  <BaseButton disabled>禁用按钮</BaseButton>
-  <BaseButton loading>加载中...</BaseButton>
-  
-  <!-- 修饰符 -->
-  <BaseButton block>块级按钮</BaseButton>
-  <BaseButton rounded>圆形按钮</BaseButton>
-</template>
-```
-
 ### 样式特点
 
-- ✅ 自动使用设计Token（`--primary-color`、`--spacing-*`等）
+- ✅ 自动使用设计Token（`--accent-primary`、`--spacing-*`等）
 - ✅ 悬浮时上移2px + 阴影增强
 - ✅ 焦点时显示焦点环
 - ✅ 加载时自动禁用 + 显示loading图标
@@ -143,7 +105,9 @@ function handleClick() {
 
 ---
 
-## 📝 BaseInput - 输入框组件
+## 📝 BaseInput - 输入框组件 (已优化)
+
+> **注意**: 详细的 Props 参数和使用说明请查阅 [基础组件改造计划文档](COMPONENT_TRANSFORMATION_PLAN.md)。本节仅保留基础用法和迁移示例。
 
 ### 基础用法
 
@@ -156,74 +120,12 @@ function handleClick() {
   />
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
-import BaseInput from '@/components/common/BaseInput.vue'
+import BaseInput from '@/components/common/form/BaseInput.vue'
 
 const username = ref('')
 </script>
-```
-
-### Props参数
-
-| 参数 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| `modelValue` | `string \| number` | `''` | 输入值 |
-| `type` | `string` | `'text'` | 输入类型 |
-| `label` | `string` | `''` | 标签文本 |
-| `placeholder` | `string` | `''` | 占位符 |
-| `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | 尺寸 |
-| `disabled` | `boolean` | `false` | 禁用 |
-| `readonly` | `boolean` | `false` | 只读 |
-| `required` | `boolean` | `false` | 必填标记 |
-| `clearable` | `boolean` | `false` | 可清空 |
-| `maxlength` | `number` | - | 最大长度 |
-| `prefixIcon` | `string` | `''` | 前缀图标 |
-| `suffixIcon` | `string` | `''` | 后缀图标 |
-| `hint` | `string` | `''` | 提示文本 |
-| `error` | `string` | `''` | 错误信息 |
-
-### 使用示例
-
-```vue
-<template>
-  <!-- 基础输入 -->
-  <BaseInput
-    v-model="form.name"
-    label="装备名称"
-    placeholder="请输入装备名称"
-    required
-  />
-  
-  <!-- 带图标 -->
-  <BaseInput
-    v-model="form.search"
-    prefix-icon="🔍"
-    placeholder="搜索..."
-    clearable
-  />
-  
-  <!-- 带提示 -->
-  <BaseInput
-    v-model="form.weight"
-    type="number"
-    label="重量（克）"
-    hint="请输入装备重量"
-    suffix-icon="⚖️"
-  />
-  
-  <!-- 错误状态 -->
-  <BaseInput
-    v-model="form.price"
-    label="价格"
-    :error="priceError"
-  />
-  
-  <!-- 不同尺寸 -->
-  <BaseInput size="sm" placeholder="小尺寸" />
-  <BaseInput size="md" placeholder="中尺寸" />
-  <BaseInput size="lg" placeholder="大尺寸" />
-</template>
 ```
 
 ### 事件
@@ -238,7 +140,9 @@ const username = ref('')
 
 ---
 
-## 📋 BaseSelect - 下拉框组件
+## 📋 BaseSelect - 下拉框组件 (已优化)
+
+> **注意**: 详细的 Props 参数和使用说明请查阅 [基础组件改造计划文档](COMPONENT_TRANSFORMATION_PLAN.md)。本节仅保留基础用法和迁移示例。
 
 ### 基础用法
 
@@ -252,9 +156,9 @@ const username = ref('')
   />
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
-import BaseSelect from '@/components/common/BaseSelect.vue'
+import BaseSelect from '@/components/common/form/BaseSelect.vue'
 
 const category = ref('')
 const categoryOptions = [
@@ -265,33 +169,32 @@ const categoryOptions = [
 </script>
 ```
 
-### Props参数
+---
 
-| 参数 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| `modelValue` | `string \| number` | `''` | 选中值 |
-| `options` | `SelectOption[]` | `[]` | 选项列表 |
-| `label` | `string` | `''` | 标签文本 |
-| `placeholder` | `string` | `''` | 占位符 |
-| `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | 尺寸 |
-| `disabled` | `boolean` | `false` | 禁用 |
-| `required` | `boolean` | `false` | 必填标记 |
-| `hint` | `string` | `''` | 提示文本 |
-| `error` | `string` | `''` | 错误信息 |
+## ✅ BaseCheckbox - 复选框组件 (已优化)
 
-### SelectOption类型
+> **注意**: 详细的 Props 参数和使用说明请查阅 [基础组件改造计划文档](COMPONENT_TRANSFORMATION_PLAN.md)。本节仅保留基础用法和迁移示例。
 
-```typescript
-interface SelectOption {
-  label: string        // 显示文本
-  value: string | number  // 选项值
-  disabled?: boolean   // 是否禁用
-}
+### 基础用法
+
+```vue
+<template>
+  <BaseCheckbox v-model="agree">我已阅读并同意</BaseCheckbox>
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue'
+import BaseCheckbox from '@/components/common/form/BaseCheckbox.vue'
+
+const agree = ref(false)
+</script>
 ```
 
 ---
 
 ## 📄 BaseTextarea - 文本域组件
+
+> **注意**: 详细的 Props 参数和使用说明请查阅 [基础组件改造计划文档](COMPONENT_TRANSFORMATION_PLAN.md)。
 
 ### 基础用法
 
@@ -315,26 +218,11 @@ const description = ref('')
 </script>
 ```
 
-### Props参数
-
-| 参数 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| `modelValue` | `string` | `''` | 文本值 |
-| `label` | `string` | `''` | 标签文本 |
-| `placeholder` | `string` | `''` | 占位符 |
-| `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | 尺寸 |
-| `rows` | `number` | `4` | 行数 |
-| `disabled` | `boolean` | `false` | 禁用 |
-| `readonly` | `boolean` | `false` | 只读 |
-| `required` | `boolean` | `false` | 必填标记 |
-| `maxlength` | `number` | - | 最大长度 |
-| `showCount` | `boolean` | `false` | 显示字符计数 |
-| `hint` | `string` | `''` | 提示文本 |
-| `error` | `string` | `''` | 错误信息 |
-
 ---
 
-## 🃏 BaseCard - 卡片组件
+## 🃏 BaseCard - 卡片组件 (已优化)
+
+> **注意**: 详细的 Props 参数和使用说明请查阅 [基础组件改造计划文档](COMPONENT_TRANSFORMATION_PLAN.md)。本节仅保留基础用法和迁移示例。
 
 ### 基础用法
 
@@ -350,22 +238,11 @@ const description = ref('')
   </BaseCard>
 </template>
 
-<script setup>
-import BaseCard from '@/components/common/BaseCard.vue'
-import BaseButton from '@/components/common/BaseButton.vue'
+<script setup lang="ts">
+import BaseCard from '@/components/common/data/BaseCard.vue'
+import BaseButton from '@/components/common/form/BaseButton.vue'
 </script>
 ```
-
-### Props参数
-
-| 参数 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| `title` | `string` | `''` | 卡片标题 |
-| `hoverable` | `boolean` | `false` | 可悬浮效果 |
-| `clickable` | `boolean` | `false` | 可点击 |
-| `bordered` | `boolean` | `true` | 显示边框 |
-| `shadow` | `'none' \| 'sm' \| 'md' \| 'lg' \| 'xl'` | `'md'` | 阴影深度 |
-| `padding` | `'none' \| 'sm' \| 'md' \| 'lg'` | `'md'` | 内边距 |
 
 ### 插槽
 
@@ -375,49 +252,14 @@ import BaseButton from '@/components/common/BaseButton.vue'
 | `header` | 自定义头部 |
 | `extra` | 头部右侧额外内容 |
 | `footer` | 底部操作区 |
-
-### 使用示例
-
-```vue
-<template>
-  <!-- 基础卡片 -->
-  <BaseCard>
-    简单内容
-  </BaseCard>
-  
-  <!-- 带标题和操作 -->
-  <BaseCard title="我的装备">
-    <template #extra>
-      <BaseButton variant="text" size="sm">更多</BaseButton>
-    </template>
-    
-    <p>装备列表...</p>
-    
-    <template #footer>
-      <BaseButton>保存</BaseButton>
-    </template>
-  </BaseCard>
-  
-  <!-- 可悬浮卡片 -->
-  <BaseCard 
-    title="森林探险装备" 
-    hoverable 
-    clickable
-    @click="viewDetails"
-  >
-    点击查看详情
-  </BaseCard>
-  
-  <!-- 无阴影卡片 -->
-  <BaseCard shadow="none" :bordered="false">
-    扁平风格
-  </BaseCard>
-</template>
-```
+| `cover` | 封面内容 |
+| `tags` | 标签内容 |
 
 ---
 
-## 📊 BaseTable - 表格组件
+## 📊 BaseTable - 表格组件 (已优化)
+
+> **注意**: 详细的 Props 参数和使用说明请查阅 [基础组件改造计划文档](COMPONENT_TRANSFORMATION_PLAN.md)。本节仅保留基础用法和迁移示例。
 
 ### 基础用法
 
@@ -432,9 +274,9 @@ import BaseButton from '@/components/common/BaseButton.vue'
   />
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
-import BaseTable from '@/components/common/BaseTable.vue'
+import BaseTable from '@/components/common/data/BaseTable.vue'
 
 const columns = [
   { key: 'name', label: '名称', width: '200px', sortable: true },
@@ -449,61 +291,34 @@ const tableData = ref([
 </script>
 ```
 
-### Props参数
+---
 
-| 参数 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| `title` | `string` | `''` | 表格标题 |
-| `columns` | `TableColumn[]` | `[]` | 列配置 |
-| `data` | `any[]` | `[]` | 表格数据 |
-| `bordered` | `boolean` | `true` | 显示边框 |
-| `striped` | `boolean` | `true` | 斑马纹 |
-| `hoverable` | `boolean` | `true` | 可悬浮 |
-| `rowClickable` | `boolean` | `false` | 行可点击 |
-| `scrollable` | `boolean` | `false` | 可滚动 |
-| `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | 尺寸 |
+## ⚪ BaseModal - 模态框组件 (已优化)
 
-### TableColumn类型
+> **注意**: 详细的 Props 参数和使用说明请查阅 [基础组件改造计划文档](COMPONENT_TRANSFORMATION_PLAN.md)。本节仅保留基础用法和迁移示例。
 
-```typescript
-interface TableColumn {
-  key: string          // 数据字段名
-  label: string        // 列标题
-  width?: string       // 列宽度
-  align?: 'left' | 'center' | 'right'  // 对齐方式
-  sortable?: boolean   // 是否可排序
-}
-```
-
-### 高级用法 - 自定义单元格
+### 基础用法
 
 ```vue
 <template>
-  <BaseTable :columns="columns" :data="data">
-    <!-- 自定义名称列 -->
-    <template #cell-name="{ row }">
-      <strong>{{ row.name }}</strong>
-    </template>
-    
-    <!-- 自定义状态列 -->
-    <template #cell-status="{ row }">
-      <BaseBadge :variant="getStatusVariant(row.status)">
-        {{ row.status }}
-      </BaseBadge>
-    </template>
-    
-    <!-- 自定义操作列 -->
-    <template #cell-actions="{ row }">
-      <BaseButton size="sm" variant="text" @click="edit(row)">编辑</BaseButton>
-      <BaseButton size="sm" variant="text" @click="delete(row)">删除</BaseButton>
-    </template>
-  </BaseTable>
+  <BaseModal v-model="showModal" title="提示" description="这是一个模态框。"></BaseModal>
+  <BaseButton @click="showModal = true">打开模态框</BaseButton>
 </template>
+
+<script setup lang="ts">
+import { ref } from 'vue'
+import BaseModal from '@/components/common/feedback/BaseModal.vue'
+import BaseButton from '@/components/common/form/BaseButton.vue'
+
+const showModal = ref(false)
+</script>
 ```
 
 ---
 
 ## 🏷 BaseBadge - 标签徽章组件
+
+> **注意**: 详细的 Props 参数和使用说明请查阅 [基础组件改造计划文档](COMPONENT_TRANSFORMATION_PLAN.md)。
 
 ### 基础用法
 
@@ -515,43 +330,8 @@ interface TableColumn {
 </template>
 
 <script setup>
-import BaseBadge from '@/components/common/BaseBadge.vue'
+import BaseBadge from '@/components/common/data/BaseBadge.vue'
 </script>
-```
-
-### Props参数
-
-| 参数 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| `variant` | `'primary' \| 'success' \| 'warning' \| 'danger' \| 'info' \| 'secondary' \| 'neutral'` | `'primary'` | 徽章类型 |
-| `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | 尺寸 |
-| `closable` | `boolean` | `false` | 可关闭 |
-| `icon` | `string` | `''` | 图标 |
-| `dot` | `boolean` | `false` | 圆点样式 |
-| `rounded` | `boolean` | `false` | 圆形 |
-
-### 使用示例
-
-```vue
-<template>
-  <!-- 不同类型 -->
-  <BaseBadge variant="primary">蓝色</BaseBadge>
-  <BaseBadge variant="success">成功</BaseBadge>
-  <BaseBadge variant="warning">警告</BaseBadge>
-  <BaseBadge variant="danger">危险</BaseBadge>
-  
-  <!-- 带图标 -->
-  <BaseBadge icon="✓" variant="success">已验证</BaseBadge>
-  
-  <!-- 可关闭 -->
-  <BaseBadge closable @close="handleClose">标签</BaseBadge>
-  
-  <!-- 圆点 -->
-  <BaseBadge dot variant="danger" />
-  
-  <!-- 圆形 -->
-  <BaseBadge rounded>99+</BaseBadge>
-</template>
 ```
 
 ---
@@ -563,46 +343,74 @@ import BaseBadge from '@/components/common/BaseBadge.vue'
 ```vue
 <template>
   <BaseCard title="添加装备" padding="lg">
-    <form @submit.prevent="handleSubmit">
-      <BaseInput
-        v-model="form.name"
-        label="装备名称"
-        placeholder="请输入装备名称"
-        required
-        :error="errors.name"
-      />
-      
-      <BaseSelect
-        v-model="form.category"
-        label="装备类型"
-        :options="categories"
-        required
-        :error="errors.category"
-      />
-      
-      <BaseInput
-        v-model="form.weight"
-        type="number"
-        label="重量（克）"
-        suffix-icon="⚖️"
-        hint="请输入装备的准确重量"
-      />
-      
-      <BaseTextarea
-        v-model="form.description"
-        label="装备描述"
-        :rows="6"
-        :maxlength="500"
-        show-count
-      />
-      
-      <template #footer>
-        <BaseButton type="submit" variant="primary">提交</BaseButton>
-        <BaseButton variant="secondary" @click="handleCancel">取消</BaseButton>
-      </template>
-    </form>
+    <BaseForm 
+      v-model="form"
+      :fields="formFields"
+      @submit="handleSubmit"
+    />
   </BaseCard>
 </template>
+
+<script setup lang="ts">
+import { ref, reactive } from 'vue'
+import BaseCard from '@/components/common/data/BaseCard.vue'
+import BaseForm from '@/components/common/form/BaseForm.vue'
+import { FormField } from '@/components/common/form/BaseForm.vue'
+
+const form = reactive({
+  name: '',
+  category: '',
+  weight: null,
+  description: '',
+})
+
+const formFields: FormField[] = [
+  {
+    name: 'name',
+    label: '装备名称',
+    type: 'text',
+    placeholder: '例如：65L登山背包',
+    required: true,
+    hint: '请输入装备名称',
+  },
+  {
+    name: 'category',
+    label: '装备类型',
+    type: 'select',
+    options: [
+      { label: '背包', value: 'backpack' },
+      { label: '帐篷', value: 'tent' },
+      { label: '睡袋', value: 'sleeping-bag' },
+    ],
+    required: true,
+  },
+  {
+    name: 'weight',
+    label: '重量（克）',
+    type: 'number',
+    suffixIcon: '⚖️',
+    hint: '请输入装备的准确重量',
+  },
+  {
+    name: 'description',
+    label: '装备描述',
+    type: 'textarea',
+    placeholder: '装备的详细描述、使用场景、注意事项等...',
+    rows: 6,
+    maxlength: 1000,
+    showCount: true,
+  },
+]
+
+function handleSubmit(formData: Record<string, any>) {
+  console.log('表单提交', formData)
+  // 可以在这里集成 operationLog.ts 记录操作
+}
+
+function handleCancel() {
+  console.log('取消')
+}
+</script>
 ```
 
 ### 场景2：状态展示
@@ -666,7 +474,7 @@ import BaseBadge from '@/components/common/BaseBadge.vue'
 所有基础组件都使用设计Token，自动适配14个主题：
 
 ```vue
-<style scoped>
+<style scoped lang="scss">
 /* ✅ 组件内部使用Token */
 .component {
   background: var(--bg-card);           /* 自动适配主题背景 */
@@ -674,6 +482,11 @@ import BaseBadge from '@/components/common/BaseBadge.vue'
   padding: var(--spacing-md);           /* 自动适配主题间距 */
   border-radius: var(--radius-md);      /* 自动适配主题圆角 */
   box-shadow: var(--shadow-md);         /* 自动适配主题阴影 */
+}
+
+/* 统一的禁用透明度示例 */
+.my-disabled-element {
+  opacity: var(--opacity-disabled);
 }
 </style>
 ```
@@ -694,90 +507,94 @@ import BaseBadge from '@/components/common/BaseBadge.vue'
 ```vue
 <template>
   <BaseCard title="装备信息" shadow="lg" padding="lg">
-    <form class="equipment-form" @submit.prevent="handleSubmit">
-      <!-- 基本信息 -->
-      <div class="form-section">
-        <h4>基本信息</h4>
-        
-        <BaseInput
-          v-model="form.name"
-          label="装备名称"
-          placeholder="例如：65L登山背包"
-          required
-          :error="errors.name"
-          clearable
-        />
-        
-        <BaseSelect
-          v-model="form.category"
-          label="装备类型"
-          :options="categoryOptions"
-          required
-          :error="errors.category"
-        />
-        
-        <div class="form-row">
-          <BaseInput
-            v-model="form.weight"
-            type="number"
-            label="重量（克）"
-            suffix-icon="⚖️"
-            size="md"
-          />
-          
-          <BaseInput
-            v-model="form.price"
-            type="number"
-            label="价格（元）"
-            prefix-icon="¥"
-            size="md"
-          />
-        </div>
-      </div>
-      
-      <!-- 详细描述 -->
-      <div class="form-section">
-        <h4>详细描述</h4>
-        
-        <BaseTextarea
-          v-model="form.description"
-          placeholder="装备的详细描述、使用场景、注意事项等..."
-          :rows="6"
-          :maxlength="1000"
-          show-count
-        />
-      </div>
-      
-      <!-- 状态标签 -->
-      <div class="form-section">
-        <h4>状态</h4>
-        
-        <div class="badge-group">
-          <BaseBadge 
-            v-for="tag in form.tags"
-            :key="tag"
-            variant="primary"
-            closable
-            @close="removeTag(tag)"
-          >
-            {{ tag }}
-          </BaseBadge>
-        </div>
-      </div>
-    </form>
-    
-    <template #footer>
-      <BaseButton type="submit" variant="primary" :loading="submitting">
-        保存装备
-      </BaseButton>
-      <BaseButton variant="secondary" @click="handleCancel">
-        取消
-      </BaseButton>
-    </template>
+    <BaseForm
+      v-model="form"
+      :fields="formFields"
+      @submit="handleSubmit"
+      title="装备信息表单"
+    />
   </BaseCard>
 </template>
 
-<style scoped>
+<script setup lang="ts">
+import { ref, reactive } from 'vue'
+import BaseCard from '@/components/common/data/BaseCard.vue'
+import BaseForm from '@/components/common/form/BaseForm.vue'
+import { FormField } from '@/components/common/form/BaseForm.vue'
+
+const form = reactive({
+  name: '',
+  category: '',
+  weight: null,
+  description: '',
+  agreeTerms: false, // 新增 checkbox 字段
+})
+
+const categoryOptions = [
+  { label: '背包', value: 'backpack' },
+  { label: '帐篷', value: 'tent' },
+  { label: '睡袋', value: 'sleeping-bag' },
+]
+
+const formFields: FormField[] = [
+  {
+    name: 'name',
+    label: '装备名称',
+    type: 'text',
+    placeholder: '例如：65L登山背包',
+    required: true,
+    // error: '请输入装备名称', // 错误信息现在通过 status 属性传递
+    hint: '请输入装备名称',
+    clearable: true,
+    status: 'normal', // 默认状态
+  },
+  {
+    name: 'category',
+    label: '装备类型',
+    type: 'select',
+    options: categoryOptions,
+    required: true,
+    // error: '请选择装备类型', // 错误信息现在通过 status 属性传递
+    status: 'normal',
+  },
+  {
+    name: 'weight',
+    label: '重量（克）',
+    type: 'number',
+    suffixIcon: '⚖️',
+    hint: '请输入装备的准确重量',
+    status: 'normal',
+  },
+  {
+    name: 'description',
+    label: '装备描述',
+    type: 'textarea',
+    placeholder: '装备的详细描述、使用场景、注意事项等...',
+    rows: 6,
+    maxlength: 1000,
+    showCount: true,
+    status: 'normal',
+  },
+  {
+    name: 'agreeTerms',
+    type: 'checkbox',
+    checkboxLabel: '我已阅读并同意用户协议',
+    required: true,
+    status: 'normal',
+  }
+]
+
+function handleSubmit(formData: Record<string, any>) {
+  console.log('表单提交', formData)
+  // 可以在这里集成 operationLog.ts 记录操作
+}
+
+function handleCancel() {
+  console.log('取消')
+}
+</script>
+
+<style scoped lang="scss">
 .equipment-form {
   display: flex;
   flex-direction: column;
@@ -880,6 +697,7 @@ import BaseBadge from '@/components/common/BaseBadge.vue'
 <BaseInput
   v-model="name"
   placeholder="请输入"
+  status="normal" // 默认状态
 />
 ```
 
@@ -899,7 +717,20 @@ import BaseBadge from '@/components/common/BaseBadge.vue'
     { label: '选项1', value: '1' }
   ]"
   placeholder="请选择"
+  status="normal" // 默认状态
+  clearable
 />
+```
+
+#### Checkbox迁移
+
+```vue
+<!-- 旧代码 -->
+<input type="checkbox" v-model="agree" id="agree-terms" />
+<label for="agree-terms">我已阅读并同意</label>
+
+<!-- 新代码 -->
+<BaseCheckbox v-model="agree">我已阅读并同意</BaseCheckbox>
 ```
 
 ---
@@ -913,11 +744,13 @@ import BaseBadge from '@/components/common/BaseBadge.vue'
 <BaseButton variant="primary">按钮</BaseButton>
 <BaseInput v-model="value" />
 <BaseCard>内容</BaseCard>
+<BaseCheckbox v-model="checked" />
 
 <!-- ❌ 避免 -->
 <button class="custom-btn">按钮</button>
 <input type="text" />
 <div class="card">内容</div>
+<input type="checkbox" />
 ```
 
 ### 2. 利用组合
@@ -951,20 +784,21 @@ import BaseBadge from '@/components/common/BaseBadge.vue'
 ### 1. 按需导入
 
 ```vue
-<script setup>
+<script setup lang="ts">
 // ✅ 只导入需要的组件
-import BaseButton from '@/components/common/BaseButton.vue'
-import BaseInput from '@/components/common/BaseInput.vue'
+import BaseButton from '@/components/common/form/BaseButton.vue'
+import BaseInput from '@/components/common/form/BaseInput.vue'
 </script>
 ```
 
 ### 2. 懒加载大型组件
 
 ```vue
-<script setup>
+<script setup lang="ts">
+import { defineAsyncComponent } from 'vue'
 // 对于复杂表格，使用异步加载
 const BaseTable = defineAsyncComponent(() =>
-  import('@/components/common/BaseTable.vue')
+  import('@/components/common/data/BaseTable.vue')
 )
 </script>
 ```
@@ -989,8 +823,8 @@ const BaseTable = defineAsyncComponent(() =>
   />
 </template>
 
-<script setup>
-import BaseInput from '@/components/common/BaseInput.vue'
+<script setup lang="ts">
+import BaseInput from '@/components/common/form/BaseInput.vue'
 // ... 业务逻辑
 </script>
 ```
@@ -1021,16 +855,16 @@ import BaseInput from '@/components/common/BaseInput.vue'
 
 | 原生元素 | 基础组件 | 状态 |
 |---------|---------|------|
-| `<button>` | `BaseButton` | ✅ 已创建 |
-| `<input type="text">` | `BaseInput` | ✅ 已创建 |
-| `<input type="checkbox">` | `BaseCheckbox` | ✅ 已创建 ⭐ |
+| `<button>` | `BaseButton` | ✅ 已优化 |
+| `<input type="text">` | `BaseInput` | ✅ 已优化 |
+| `<input type="checkbox">` | `BaseCheckbox` | ✅ 已优化 |
 | `<input type="radio">` | `BaseRadio` | ✅ 已创建 ⭐ |
 | `<input type="switch">` | `BaseSwitch` | ✅ 已创建 ⭐ |
-| `<select>` | `BaseSelect` | ✅ 已创建 |
+| `<select>` | `BaseSelect` | ✅ 已优化 |
 | `<textarea>` | `BaseTextarea` | ✅ 已创建 |
-| `<form>` | `BaseForm` | ✅ 已创建 ⭐ |
-| `<table>` | `BaseTable` | ✅ 已创建 |
-| `<div class="card">` | `BaseCard` | ✅ 已创建 |
+| `<form>` | `BaseForm` | ✅ 已优化 |
+| `<table>` | `BaseTable` | ✅ 已优化 |
+| `<div class="card">` | `BaseCard` | ✅ 已优化 |
 | `<span class="badge">` | `BaseBadge` | ✅ 已创建 |
 | `.tab-btn` | `BaseTabs` | ✅ 已创建 ⭐ |
 | `.dropdown` | `BaseDropdown` | ✅ 已创建 ⭐ |
@@ -1046,22 +880,24 @@ import BaseInput from '@/components/common/BaseInput.vue'
 
 ### 计划中的组件
 
-- [x] BaseCheckbox - 复选框 ✅
-- [x] BaseRadio - 单选框 ✅
-- [x] BaseSwitch - 开关 ✅
-- [x] BaseTabs - 标签页 ✅
-- [x] BaseDropdown - 下拉菜单 ✅
-- [x] BaseEmpty - 空状态 ✅
-- [x] BaseLoading - 加载状态 ✅
-- [x] BaseDivider - 分隔线 ✅
-- [x] BaseAlert - 警告提示 ✅
-- [x] ToastNotification - Toast 通知 ✅
-- [x] BaseButtonGroup - 按钮组 ✅
-- [x] BaseForm - 表单容器 ✅
-- [x] BaseFormField - 表单项包装器 ✅
-- [x] BaseStatCard - 统计卡片 ✅
-- [x] MarkdownViewer - Markdown 渲染器 ✅
-- [ ] BaseTooltip - 提示框
+以下是未来计划中需要进一步优化或实现的组件列表，详细改造说明请参考 [基础组件改造计划文档](COMPONENT_TRANSFORMATION_PLAN.md)。
+
+- [ ] BaseCheckbox - 复选框 (已优化)
+- [ ] BaseRadio - 单选框 (待优化)
+- [ ] BaseSwitch - 开关 (待优化)
+- [ ] BaseTabs - 标签页 (待优化)
+- [ ] BaseDropdown - 下拉菜单 (待优化)
+- [ ] BaseEmpty - 空状态 (待优化)
+- [ ] BaseLoading - 加载状态 (待优化)
+- [ ] BaseDivider - 分隔线 (待优化)
+- [ ] BaseAlert - 警告提示 (待优化)
+- [ ] ToastNotification - Toast 通知 (待优化)
+- [ ] BaseButtonGroup - 按钮组 (待优化)
+- [ ] BaseForm - 表单容器 (已优化)
+- [ ] BaseFormField - 表单项包装器 (待优化)
+- [ ] BaseStatCard - 统计卡片 (待优化)
+- [ ] MarkdownViewer - Markdown 渲染器 (待优化)
+- [ ] BaseTooltip - 提示框 (待优化)
 - [ ] BasePagination - 分页器
 - [ ] BaseProgress - 进度条
 - [ ] BaseBreadcrumb - 面包屑
@@ -1085,9 +921,9 @@ import BaseInput from '@/components/common/BaseInput.vue'
 
 ---
 
-**文档版本**：v2.0.0  
+**文档版本**：v2.1.0  
 **创建日期**：2025-10-13  
-**最后更新**：2025-10-13  
+**最后更新**：2025-10-15  
 **维护者**：OutdoorChecklist Team  
 
 🎉 **基础组件库 - 让UI开发更简单、更统一！**
@@ -1095,6 +931,13 @@ import BaseInput from '@/components/common/BaseInput.vue'
 ---
 
 ## 📝 更新记录
+
+### v2.1.0 (2025-10-15)
+- ✅ 全面优化基础组件：BaseButton, BaseInput, BaseSelect, BaseCheckbox, BaseForm, BaseCard, BaseTable。
+- 强化了 TypeScript 类型安全，增加了详细的 JSDoc 注释。
+- 优化了样式变量的语义化，增强了主题系统集成。
+- 提升了组件的可配置性和可访问性。
+- 发布了 [基础组件改造计划文档](COMPONENT_TRANSFORMATION_PLAN.md)。
 
 ### v2.0.0 (2025-10-13)
 - ✅ 新增 Form 组件: BaseCheckbox, BaseRadio

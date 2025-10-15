@@ -131,7 +131,6 @@ import BaseModal from '@/components/common/feedback/BaseModal.vue'
 
 - [基础组件使用指南](../../../docs/guides/BASE_COMPONENTS_GUIDE.md)
 - [主题使用指南](../../../docs/guides/THEME_USAGE_GUIDE.md)
-- [Element Plus 组件库](https://element-plus.org/)
 
 ---
 
