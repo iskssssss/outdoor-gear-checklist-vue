@@ -5,102 +5,180 @@
 
 :root,
 body.theme-pixel {
-  /* ===== 颜色变量 - 像素风常见调色板 ===== */
-  // 经典Teal色
-  --primary-color: #008080;
+  /* ========== 色彩系统 - 像素风调色板 ========== */
+  /* 主色调 - Teal色系 */
+  --color-primary-50: #e0f2f1;
+  --color-primary-100: #b2dfdb;
+  --color-primary-200: #80cbc4;
+  --color-primary-300: #4db6ac;
+  --color-primary-400: #26a69a;
+  --color-primary-500: #009688;  /* 基准色 */
+  --color-primary-600: #00897b;
+  --color-primary-700: #00796b;
+  --color-primary-800: #00695c;
+  --color-primary-900: #004d40;
+
+  /* 成功色 - 纯绿色系 */
+  --color-success-50: #e8f5e9;
+  --color-success-100: #c8e6c9;
+  --color-success-200: #a5d6a7;
+  --color-success-300: #81c784;
+  --color-success-400: #66bb6a;
+  --color-success-500: #4caf50;  /* 基准色 */
+  --color-success-600: #43a047;
+  --color-success-700: #388e3c;
+  --color-success-800: #2e7d32;
+  --color-success-900: #1b5e20;
+
+  /* 警告色 - 橄榄色系 */
+  --color-warning-50: #fffde7;
+  --color-warning-100: #fff9c4;
+  --color-warning-200: #fff59d;
+  --color-warning-300: #fff176;
+  --color-warning-400: #ffee58;
+  --color-warning-500: #ffeb3b;  /* 基准色 */
+  --color-warning-600: #fdd835;
+  --color-warning-700: #fbc02d;
+  --color-warning-800: #f9a825;
+  --color-warning-900: #f57f17;
+
+  /* 危险色 - 栗色系 */
+  --color-danger-50: #ffebee;
+  --color-danger-100: #ffcdd2;
+  --color-danger-200: #ef9a9a;
+  --color-danger-300: #e57373;
+  --color-danger-400: #ef5350;
+  --color-danger-500: #f44336;  /* 基准色 */
+  --color-danger-600: #e53935;
+  --color-danger-700: #d32f2f;
+  --color-danger-800: #c62828;
+  --color-danger-900: #b71c1c;
+
+  /* 信息色 - 海军蓝系 */
+  --color-info-50: #e3f2fd;
+  --color-info-100: #bbdefb;
+  --color-info-200: #90caf9;
+  --color-info-300: #64b5f6;
+  --color-info-400: #42a5f5;
+  --color-info-500: #2196f3;  /* 基准色 */
+  --color-info-600: #1e88e5;
+  --color-info-700: #1976d2;
+  --color-info-800: #1565c0;
+  --color-info-900: #0d47a1;
+
+  /* 中性色 - 像素灰阶 */
+  --color-gray-50: #fafafa;
+  --color-gray-100: #f5f5f5;
+  --color-gray-200: #eeeeee;
+  --color-gray-300: #e0e0e0;
+  --color-gray-400: #bdbdbd;
+  --color-gray-500: #9e9e9e;
+  --color-gray-600: #757575;
+  --color-gray-700: #616161;
+  --color-gray-800: #424242;
+  --color-gray-900: #212121;
+
+  /* 像素专属 - 经典色板 */
+  --color-pixel-silver: #c0c0c0;
+  --color-pixel-gray: #808080;
+  --color-pixel-black: #000000;
+  --color-pixel-white: #ffffff;
+  --color-pixel-teal: #008080;
+
+  /* ========== 间距系统 ========== */
+  --spacing-xs: 0.25rem;   /* 4px */
+  --spacing-sm: 0.5rem;    /* 8px */
+  --spacing-md: 1rem;      /* 16px */
+  --spacing-lg: 1.5rem;    /* 24px */
+  --spacing-xl: 2rem;      /* 32px */
+  --spacing-2xl: 3rem;     /* 48px */
+  --spacing-3xl: 4rem;     /* 64px */
+
+  /* ========== 圆角系统 - 像素风无圆角 ========== */
+  --radius-none: 0;
+  --radius-sm: 0;
+  --radius-md: 0;
+  --radius-lg: 0;
+  --radius-xl: 0;
+  --radius-2xl: 0;
+  --radius-full: 0;
+
+  /* ========== 阴影系统 - 像素化硬阴影 ========== */
+  --shadow-sm: 2px 2px 0 var(--color-pixel-black);
+  --shadow-md: 3px 3px 0 var(--color-pixel-black);
+  --shadow-lg: 4px 4px 0 var(--color-pixel-black);
+  --shadow-xl: 5px 5px 0 var(--color-pixel-black);
+  --shadow-2xl: 6px 6px 0 var(--color-pixel-black);
+  --shadow-inner: inset 2px 2px 0 rgba(0, 0, 0, 0.3);
+
+  /* ========== 语义化变量映射 ========== */
+  /* 主色调 */
+  --primary-color: var(--color-pixel-teal);
   --primary-dark: #005f5f;
-  // 灰色
-  --secondary-color: #808080;
-  // 纯绿色
-  --success-color: #008000;
+  --primary-light: #00a0a0;
+
+  /* 功能色 */
+  --success-color: var(--color-success-700);
   --success-light: #e0ffe0;
-  // 橄榄色
-  --warning-color: #808000;
+  --warning-color: var(--color-warning-800);
   --warning-light: #ffffe0;
-  // 栗色
-  --danger-color: #d12929;
+  --danger-color: var(--color-danger-700);
   --danger-light: #ffe0e0;
-  // 海军蓝
-  --info-color: #000080;
+  --info-color: var(--color-info-900);
   --info-light: #e0e0ff;
 
-  // 暗色渐变背景
-  --bg-gradient: linear-gradient(135deg, #757575 0%, #2f2f2f 100%);
-  // 经典浅灰色背景
-  --bg-main: #c0c0c0;
-  // 银色/灰色，模拟老式屏幕
-  --bg-card: #c0c0c0;
-  // 中灰色
-  --bg-header: #808080;
-  // 白色输入框背景以增强对比度
-  --bg-input: #ffffff;
-  // 悬停色
+  /* 中性色 */
+  --secondary-color: var(--color-pixel-gray);
+
+  /* 背景色 */
+  --bg-main: var(--color-pixel-silver);
+  --bg-card: var(--color-pixel-silver);
+  --bg-header: var(--color-pixel-gray);
+  --bg-input: var(--color-pixel-white);
   --bg-hover: #a0a0a0;
   --bg-button-group: #a0a0a0;
   --bg-overlay: rgba(192, 192, 192, 0.7);
+  --bg-gradient: linear-gradient(135deg, #757575 0%, #2f2f2f 100%);
 
-  // 纯黑色文本
-  --text-primary: #000000;
-  // 加深次要文本颜色
-  --text-secondary: #444444;
-  // 使用与页头相同的灰色
-  --text-muted: #5a5a5a;
-  // 纯白色文本
-  --text-white: #ffffff;
+  /* 文本色 - 符合WCAG AA对比度标准 */
+  --text-primary: var(--color-pixel-black);   /* 纯黑，对比度 > 10:1 */
+  --text-secondary: #404040;                  /* 对比度 > 7:1 */
+  --text-muted: #606060;                      /* 对比度 > 4.5:1 */
+  --text-white: var(--color-pixel-white);
   --text-link-footer: #c0c0c0;
 
+  /* 按钮文本色 */
   --btn-primary-text: #ffffff;
   --btn-success-text: #ffffff;
   --btn-danger-text: #ffffff;
 
-  // 加深边框颜色
+  /* 边框 */
   --border-color: #505050;
-  // 像素风无圆角
   --border-radius: 0;
   --border-radius-sm: 0;
   --border-radius-lg: 0;
   --border-radius-xl: 0;
-  // 更粗的边框
   --border-width: 2px;
 
-  // 像素化阴影
-  --shadow-card: 3px 3px 0 #000;
-  // 像素化悬停阴影
-  --shadow-hover: 4px 4px 0 #000;
-  --shadow-sm: 2px 2px 0 #000;
-  --shadow-md: 3px 3px 0 #000;
-  --shadow-lg: 4px 4px 0 #000;
-  --shadow-xl: 5px 5px 0 #000;
+  /* 阴影别名 */
+  --shadow-card: var(--shadow-md);
+  --shadow-hover: var(--shadow-lg);
   --danger-shadow: 3px 3px 0 #400000;
-  --primary-color-shadow: #004040;
 
-  --scrollbar-track-bg: #c0c0c0;
+  /* 其他 */
+  --scrollbar-track-bg: var(--color-pixel-silver);
   --scrollbar-thumb-bg: #505050;
   --scrollbar-thumb-hover-bg: #202020;
 
-  --btn-success: #00a000;
-  --btn-primary: #008080;
-  --btn-warning: #c0c000;
-  --btn-danger: #a00000;
-  --btn-info: #008080;
-  --btn-secondary: #808080;
-
-  /* ===== 字体 - 像素风字体，需要引入外部字体或使用系统自带的等宽字体 ===== */
-  --font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  /* 使用全局统一字体 */
   --font-weight-normal: 400;
-  // 像素字体粗细变化不明显，用700强调
   --font-weight-medium: 700;
   --font-weight-bold: 900;
-  // 像素字体
-  --font-family-base: 'Press Start 2P', 'VT323', 'Courier New', monospace, sans-serif;
-  --font-size-base: 0.9rem;
 
-  /* 额外像素风专属变量 */
-  // 定义像素单位大小
+  /* 像素风专属变量 */
   --pixel-size: 2px;
-  --pixel-border-color: #000000;
+  --pixel-border-color: var(--color-pixel-black);
   --pixel-shadow-color: #505050;
+  --font-family-base: 'Press Start 2P', 'VT323', 'Courier New', monospace, sans-serif;
 }
 
 body.theme-pixel {

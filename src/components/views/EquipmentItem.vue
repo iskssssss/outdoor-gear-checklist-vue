@@ -7,7 +7,7 @@
       <span class="item-name">
         <span class="item-index" v-if="itemIndex">{{ itemIndex }}</span>
         {{ item?.name }}
-        <span v-if="item?.isRecommended" class="recommended-badge">🤖推荐</span>
+        <BaseBadge v-if="item?.isRecommended" variant="info" icon="🤖" size="sm">推荐</BaseBadge>
       </span>
       <span class="item-details">
         <template v-if="item">
@@ -38,56 +38,53 @@
       </span>
     </div>
     <div v-if="!completed && !isAdding" class="item-actions" @click.stop>
-      <div class="actions-dropdown">
-        <button class="actions-menu-btn">⋯</button>
-        <div class="actions-menu">
-          <a class="actions-menu-item" @click="debouncedStartEditing">✏️ 修改</a>
-          <a class="actions-menu-item danger" @click="debouncedDeleteItem">🗑️ 删除</a>
-        </div>
-      </div>
+      <BaseButtonDropdown text="⋯" size="sm" placement="bottom-end" class="actions-menu-btn">
+        <BaseDropdownItem icon="✏️" @click="debouncedStartEditing">修改</BaseDropdownItem>
+        <BaseDropdownItem icon="🗑️" danger @click="debouncedDeleteItem">删除</BaseDropdownItem>
+      </BaseButtonDropdown>
     </div>
   </div>
 
   <div v-else class="item editing">
     <div class="add-item-input-container">
-      <input type="text" class="add-item-input" v-model="editingData.name" ref="editNameInput"
-        :placeholder="isAdding ? '输入装备名称' : '装备名称'">
+      <BaseInput v-model="editingData.name" ref="editNameInput"
+        :placeholder="isAdding ? '输入装备名称' : '装备名称'" />
       <div class="add-item-details">
         <div class="add-item-field">
           <label>重量:</label>
-          <input type="number" v-model.number="editingData.weight" min="0" step="0.1">
-          <select v-model="editingData.weightUnit">
-            <option value="g">g</option>
-            <option value="kg">kg</option>
-            <option value="斤">斤</option>
-            <option value="磅">磅</option>
-          </select>
+          <BaseInput type="number" v-model.number="editingData.weight" />
+          <BaseSelect v-model="editingData.weightUnit" :options="[
+            { label: 'g', value: 'g' },
+            { label: 'kg', value: 'kg' },
+            { label: '斤', value: '斤' },
+            { label: '磅', value: '磅' }
+          ]" />
         </div>
         <div class="add-item-field">
           <label>数量:</label>
-          <input type="number" v-model.number="editingData.quantity" min="0" step="1">
-          <select v-model="editingData.quantityUnit">
-            <option value="个">个</option>
-            <option value="件">件</option>
-            <option value="双">双</option>
-            <option value="套">套</option>
-            <option value="瓶">瓶</option>
-          </select>
+          <BaseInput type="number" v-model.number="editingData.quantity" />
+          <BaseSelect v-model="editingData.quantityUnit" :options="[
+            { label: '个', value: '个' },
+            { label: '件', value: '件' },
+            { label: '双', value: '双' },
+            { label: '套', value: '套' },
+            { label: '瓶', value: '瓶' }
+          ]" />
         </div>
         <div class="add-item-field">
           <label>价格:</label>
-          <input type="number" v-model.number="editingData.price" min="0" step="0.01">
-          <select v-model="editingData.priceUnit">
-            <option value="人民币">人民币</option>
-            <option value="美元">美元</option>
-            <option value="英镑">英镑</option>
-            <option value="日元">日元</option>
-          </select>
+          <BaseInput type="number" v-model.number="editingData.price" />
+          <BaseSelect v-model="editingData.priceUnit" :options="[
+            { label: '人民币', value: '人民币' },
+            { label: '美元', value: '美元' },
+            { label: '英镑', value: '英镑' },
+            { label: '日元', value: '日元' }
+          ]" />
         </div>
       </div>
       <div class="add-item-button-container">
-        <button class="add-item-button" @click="debouncedConfirmChanges">{{ isAdding ? '✓ 确认添加' : '✓ 确认修改' }}</button>
-        <button class="add-item-button cancel" @click="debouncedCancelChanges">✕ 取消</button>
+        <BaseButton class="add-item-button" variant="primary" icon="✓" @click="debouncedConfirmChanges">{{ isAdding ? '确认添加' : '确认修改' }}</BaseButton>
+        <BaseButton class="add-item-button cancel" variant="secondary" icon="✕" @click="debouncedCancelChanges">取消</BaseButton>
       </div>
     </div>
   </div>
@@ -95,8 +92,9 @@
 
 <script setup>
 import { ref, nextTick, computed, inject } from 'vue'
-import { useEquipmentStore } from '../../stores/equipment'
+import { useEquipmentStore } from '@/stores/equipment.ts'
 import { useDebounceFn } from '@vueuse/core'
+import { BaseButton, BaseInput, BaseSelect, BaseButtonDropdown, BaseDropdownItem, BaseBadge } from '@/components/common'
 
 const props = defineProps({
   item: {
@@ -466,7 +464,7 @@ const debouncedToggleCompleted = useDebounceFn(toggleItem, 300)
     animation: dropdownFadeIn 0.2s ease;
   }
 
-  &:hover .actions-menu-btn {
+  &:hover :deep(.actions-menu-btn) {
     background: var(--primary-color);
     color: white;
   }
@@ -485,21 +483,12 @@ const debouncedToggleCompleted = useDebounceFn(toggleItem, 300)
 }
 
 // 三个点按钮
-.actions-menu-btn {
+:deep(.actions-menu-btn) {
   width: 32px;
   height: 32px;
-  border: none;
-  border-radius: var(--border-radius-sm);
-  background: var(--bg-input);
-  color: var(--text-primary);
+  padding: 0;
   font-size: 1.2rem;
   font-weight: bold;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
 
   &:hover {
     background: var(--primary-color);
@@ -563,30 +552,7 @@ const debouncedToggleCompleted = useDebounceFn(toggleItem, 300)
   }
 }
 
-.btn {
-  padding: 6px 12px;
-  border: none;
-  border-radius: var(--border-radius-sm);
-  font-size: 0.85rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.btn-warning {
-  background: var(--warning-color);
-  color: var(--text-primary);
-}
-
-.btn-danger {
-  background: var(--danger-color);
-  color: var(--text-white);
-}
-
-.btn:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-}
+// BaseButton 已接管所有按钮样式
 
 .add-item-input-container {
   display: flex;
@@ -596,23 +562,7 @@ const debouncedToggleCompleted = useDebounceFn(toggleItem, 300)
   width: 100%;
 }
 
-.add-item-input {
-  width: 100%;
-  padding: 10px 14px;
-  border: var(--border-width-lg) solid var(--border-color);
-  border-radius: var(--border-radius-sm);
-  font-size: 0.95rem;
-  transition: all 0.3s ease;
-  background: var(--bg-input);
-  color: var(--text-primary);
-  box-sizing: border-box;
-}
-
-.add-item-input:focus {
-  outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px var(--primary-color-shadow);
-}
+// BaseInput 已接管所有输入框样式
 
 .add-item-details {
   display: flex;
@@ -687,32 +637,9 @@ const debouncedToggleCompleted = useDebounceFn(toggleItem, 300)
   justify-content: center;
 }
 
-.add-item-button {
+:deep(.add-item-button) {
   padding: 8px 20px;
-  border: var(--border-width-lg) solid var(--primary-color);
-  background: var(--primary-color);
-  color: var(--text-white);
-  border-radius: var(--border-radius-sm);
   font-size: 0.9rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.add-item-button:hover {
-  background: var(--primary-dark);
-  border-color: var(--primary-dark);
-}
-
-.add-item-button.cancel {
-  border-color: var(--danger-color);
-  background: var(--danger-color);
-}
-
-.add-item-button.cancel:hover {
-  background: var(--danger-color);
-  border-color: var(--danger-color);
-  filter: brightness(0.9);
 }
 
 @media (max-width: 768px) {

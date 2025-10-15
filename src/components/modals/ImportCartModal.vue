@@ -3,60 +3,54 @@
     :disable-body-scroll="isImporting" :before-close="handleBeforeClose" @after-close="resetState">
     <div class="import-cart-wrapper" :class="{ importing: isImporting }">
       <!-- 导入中遮罩 -->
-      <div v-if="isImporting" class="importing-overlay">
-        <div class="importing-spinner">
-          <div class="spinner"></div>
-          <p>正在导入商品到清单...</p>
-          <p class="warning-text">⚠️ 请勿关闭此窗口</p>
-        </div>
-      </div>
+      <BaseLoadingOverlay :visible="isImporting" text="正在导入商品到清单..." 
+        hint="⚠️ 请勿关闭此窗口" hint-type="warning" />
       <div v-if="currentStep === 'input'" class="import-section">
         <h4>粘贴京东购物车分享信息</h4>
-        <p class="help-text">
+        <BaseAlert type="info" :showIcon="false">
           <strong>📋 方式一（推荐）：</strong>直接粘贴京东分享文本<br>
           例如：【京东】https://3.cn/xxx-xxx 「我的购物清单」<br><br>
           <strong>📄 方式二：</strong>粘贴页面源代码<br>
           如果自动获取失败，打开链接 → 右键"查看网页源代码" → 全选复制 → 粘贴到此处
-        </p>
-        <textarea v-model="cartShareLink" placeholder="请粘贴京东购物车分享信息或完整HTML源代码" class="share-link-input"
-          rows="10"></textarea>
+        </BaseAlert>
+        <BaseTextarea v-model="cartShareLink" placeholder="请粘贴京东购物车分享信息或完整HTML源代码" 
+          :rows="10"
+          :maxlength="50000"
+          :showCount="true"
+          hint="支持分享链接或完整HTML源代码" />
+        <!-- 操作按钮组（数据驱动） -->
         <div class="action-buttons">
-          <button class="btn btn-primary" @click="parseLink"
-            :disabled="!cartShareLink.trim() || isLoading || isImporting">
-            {{ isLoading ? '正在处理...' : '解析商品' }}
-          </button>
-          <button class="btn btn-secondary" @click="clearLink" :disabled="isImporting">清空</button>
+          <BaseButtonGroup :buttons="inputStepButtons" />
         </div>
       </div>
 
       <div v-if="currentStep === 'select'" class="parsed-items-section">
         <div class="parsed-items-header">
           <h4>解析到的商品 ({{ parsedItems.length }}件)</h4>
-          <button class="btn btn-secondary btn-sm" @click="goBackToInput">← 返回</button>
+          <BaseButton variant="secondary" size="sm" icon="←" @click="goBackToInput">返回</BaseButton>
         </div>
         <div class="select-all-controls">
-          <input type="checkbox" id="selectAllItems" :checked="isAllSelected" @change="toggleSelectAll"
-            :disabled="parsedItems.length === 0" />
-          <label for="selectAllItems">全选/取消全选</label>
+          <BaseCheckbox id="selectAllItems" :modelValue="isAllSelected" @update:modelValue="toggleSelectAll"
+            :disabled="parsedItems.length === 0" label="全选/取消全选" />
         </div>
         <div class="item-list">
           <div v-for="(item, index) in parsedItems" :key="item.id" class="parsed-item">
-            <input type="checkbox" :id="`item-${item.id}`" :value="item.id" v-model="selectedItems"
-              class="item-checkbox" />
-            <label :for="`item-${item.id}`" class="item-content">
+            <BaseCheckbox v-model="selectedItems" :value="item.id" />
+            <div class="item-content">
               <div class="item-name-and-price">
                 <span class="item-name">{{ item.name }}</span>
                 <span v-if="item.price !== null" class="item-price">￥{{ item.price.toFixed(2) }}</span>
               </div>
               <span class="item-quantity">x{{ item.quantity }}</span>
-            </label>
+            </div>
           </div>
         </div>
         <div class="import-actions">
-          <button class="btn btn-primary" @click="debouncedAnalyze"
-            :disabled="isLoading || selectedItems.length === 0">
-            {{ isLoading ? '正在分析...' : `分析选中商品 (${selectedItems.length}件)` }}
-          </button>
+          <BaseButton variant="primary" @click="debouncedAnalyze"
+            :disabled="isLoading || selectedItems.length === 0"
+            :loading="isLoading">
+            {{ isLoading ? '分析中...' : `分析选中商品 (${selectedItems.length}件)` }}
+          </BaseButton>
         </div>
       </div>
 
@@ -64,7 +58,7 @@
       <div v-if="currentStep === 'edit'" class="analyzed-items-section">
         <div class="analyzed-items-header">
           <h4>编辑商品信息 <span class="header-note">(可重新计算单价)</span></h4>
-          <button class="btn btn-secondary btn-sm" @click="goBackToSelect">← 返回</button>
+          <BaseButton variant="secondary" size="sm" icon="←" @click="goBackToSelect">返回</BaseButton>
         </div>
 
         <table class="edit-table">
@@ -82,39 +76,41 @@
           <tbody>
             <tr v-for="item in analyzedItems" :key="item.id">
               <td>
-                <input v-model="item.name" class="editable-input" />
+                <BaseInput v-model="item.name" />
                 <div v-if="item.note" class="item-note-edit">
                   {{ item.note }}
                 </div>
               </td>
               <td>
-                <input v-model="item.category" class="editable-input" />
+                <BaseInput v-model="item.category" />
               </td>
               <td class="text-center">
-                <input type="number" v-model.number="item.quantity" min="1" class="editable-input quantity" />
+                <BaseInput type="number" v-model.number="item.quantity" />
               </td>
               <td>
-                <input v-model="item.quantityUnit" class="editable-input unit" placeholder="件" />
+                <BaseInput v-model="item.quantityUnit" placeholder="件" />
               </td>
               <td class="text-center">
-                <input type="number" v-model.number="item.totalPrice" :placeholder="item.price ? (item.price * item.quantity).toFixed(2) : '0.00'" min="0" step="0.01" class="editable-input price" />
+                <BaseInput type="number" v-model.number="item.totalPrice" :placeholder="item.price ? (item.price * item.quantity).toFixed(2) : '0.00'" />
               </td>
               <td class="text-center">
                 <span class="font-medium">{{ item.price?.toFixed(2) ?? '—' }}</span>
               </td>
               <td class="text-center">
-                <button @click="recalculatePrice(item)" class="btn-recalculate">
+                <BaseButton variant="text" size="sm" @click="recalculatePrice(item)">
                   重新计算
-                </button>
+                </BaseButton>
               </td>
             </tr>
           </tbody>
         </table>
 
         <div class="import-actions">
-          <button @click="debouncedImport" :disabled="isImporting || analyzedItems.length === 0" class="btn btn-primary">
+          <BaseButton variant="primary" @click="debouncedImport" 
+            :disabled="isImporting || analyzedItems.length === 0"
+            :loading="isImporting">
             导入选中商品
-          </button>
+          </BaseButton>
         </div>
       </div>
 
@@ -126,14 +122,14 @@
 
 <script setup>
 import { ref, inject, watch, computed } from 'vue';
-import BaseModal from '../common/BaseModal.vue';
+import { BaseModal, BaseButton, BaseInput, BaseTextarea, BaseCheckbox, BaseAlert, BaseLoadingOverlay, BaseButtonGroup } from '@/components/common'
 import { useDebounceFn } from '@vueuse/core';
-import { useEquipmentStore } from '../../stores/equipment';
-import { useModelConfigStore } from '../../stores/modelConfig';
-import { useOperationLogStore } from '../../stores/operationLog';
-import { useJdParser } from '../../composables/useJdParser';
-import { useModelAnalyzer } from '../../composables/useModelAnalyzer';
-import { useImporter } from '../../composables/useImporter';
+import { useEquipmentStore } from '@/stores/equipment.ts';
+import { useModelConfigStore } from '@/stores/modelConfig.ts';
+import { useOperationLogStore } from '@/stores/operationLog.ts';
+import { useJdParser } from '@/composables/useJdParser.ts';
+import { useModelAnalyzer } from '@/composables/useModelAnalyzer.ts';
+import { useImporter } from '@/composables/useImporter.ts';
 
 const equipmentStore = useEquipmentStore();
 const modelConfigStore = useModelConfigStore();
@@ -152,6 +148,29 @@ const analyzedItems = ref([]);
 const currentStep = ref('input');
 const isLoading = ref(false);
 const isImporting = ref(false);
+
+// ==================== 数据驱动的按钮组配置 ====================
+
+// 输入步骤按钮组
+const inputStepButtons = computed(() => [
+  {
+    value: 'parse',
+    label: '解析商品',
+    variant: 'primary',
+    disabled: !cartShareLink.value?.trim() || isLoading.value || isImporting.value,
+    loading: isLoading.value,
+    handler: parseLink
+  },
+  {
+    value: 'clear',
+    label: '清空',
+    variant: 'secondary',
+    disabled: isImporting.value,
+    handler: clearLink
+  }
+])
+
+// ==================== 数据驱动配置结束 ====================
 const message = ref('');
 const messageType = ref('');
 const isCancelled = ref(false);
@@ -328,10 +347,10 @@ function recalculatePrice(item) {
   toast.success(`已重新计算单价为 ${item.price.toFixed(2)} 元`);
 }
 
-function toggleSelectAll() {
-  selectedItems.value = isAllSelected.value
-    ? []
-    : parsedItems.value.map(i => i.id);
+function toggleSelectAll(checked) {
+  selectedItems.value = checked
+    ? parsedItems.value.map(i => i.id)
+    : [];
 }
 
 defineExpose({ show, close });
@@ -582,40 +601,7 @@ defineExpose({ show, close });
   justify-content: flex-end;
 }
 
-.btn {
-  padding: 10px 24px;
-  border: none;
-  border-radius: var(--border-radius-sm);
-  font-size: 0.95rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-}
-
-.btn-primary {
-  background: var(--primary-color);
-  color: var(--text-white);
-
-  &:not(:disabled):hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px var(--primary-color-shadow);
-  }
-}
-
-.btn-secondary {
-  background: var(--text-muted, #6c757d);
-  color: var(--text-white, white);
-
-  &:not(:disabled):hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
-  }
-}
+// BaseButton 已接管所有按钮样式
 
 .parsed-items-section {
   background: var(--bg-input);
@@ -660,13 +646,7 @@ defineExpose({ show, close });
   margin-bottom: 15px;
   padding-left: 5px;
 
-  input[type="checkbox"] {
-    cursor: pointer;
-    width: 18px;
-    height: 18px;
-    accent-color: var(--primary-color);
-    // 选中颜色使用主题色
-  }
+  // BaseCheckbox 已接管所有checkbox样式
 
   label {
     font-size: 0.95rem;

@@ -1,0 +1,95 @@
+---
+alwaysApply: true
+---
+# OutdoorChecklist Architect 规则
+
+## 角色与使命
+你是这个项目的架构守护者：**确保所有生成的代码、组件、配置等符合项目的架构规范**（Vue 3 + TypeScript + Composition API + 模块化 + 主题体系 …）。
+
+---
+
+## 🧰 架构与技术约定
+
+- 框架：Vue 3 + TypeScript
+- 构建工具：Vite
+- 状态管理：Pinia
+- 路由：Vue Router
+- 样式系统：SCSS + CSS Variables
+- 工具库优先使用：`@vueuse/core`, `uuid`, `html2canvas`
+- 主题逻辑集中在 `themeStore.ts`，组件不得硬编码主题
+
+---
+
+## 📂 目录与模块划分
+
+- `components/common/`：通用基础组件
+- `components/layout/`：布局组件
+- `components/modals/`：弹窗组件
+- `components/views/`：各个视图页面
+- `composables/`：复用逻辑
+- `stores/`：Pinia 状态
+- `config/`：全局配置
+- `assets/`：样式、图片、主题 SCSS 等
+
+---
+
+## 📏 代码风格 & 约束规则
+
+- 命名策略：**camelCase** 用于函数、变量、文件夹；组件文件名用 **PascalCase**
+- 所有逻辑用 TypeScript 且应有显式类型声明
+- 组件尽量使用 Composition API，减少或避免 Options API
+- 新增功能必须记录操作日志至 `operationLog.ts`
+- 配置与持久化逻辑统一：读写 `appConfig.ts` 或相关 store
+- 新模块必须支持懒加载（使用 `import()`）
+- 注释要简洁明了，说明关键逻辑与依赖关系
+- 禁止在组件内硬编码主题值，要用 CSS 变量
+
+---
+
+## 🧠 智能行为预期
+
+当 AI／Cursor 根据该规则生成或修改代码时，应优先：
+
+- 根据已有架构建议文件路径（例如：用户没指明组件放在哪，AI 应给出合理目录）
+- 使用 Composition API + TypeScript 泛型
+- 自动生成类型接口及注释
+- 保证组件支持主题系统（使用 CSS Variables）
+- 当请求超出架构范围时，提出建议或说明原因
+
+---
+
+## 🧩 示例（示范用法）
+
+### 示例 ①：新增统计图表组件
+建议路径：`src/components/views/StatsPanel.vue`
+数据逻辑：`src/composables/useStats.ts`
+从 `stores/equipment.ts` 获取数据
+样式：使用 CSS 变量（如 `var(--accent-primary)`）
+操作记录：写入 `operationLog.ts`
+
+### 示例 ②：AI 模型配置弹窗
+组件路径：`src/components/modals/ModelConfigModal.vue`
+状态逻辑：`stores/modelConfig.ts`
+核心分析逻辑：`useModelAnalyzer.ts`
+持久化：localStorage（键如 `outdoorApiSettings`）
+
+---
+
+## 🔮 未来方向建议（可参考）
+
+- 考虑加入 PWA 离线支持
+- 云端同步与团队协作机制
+- 移动端／多平台适配
+- AI 推荐系统 & 动态主题扩展
+
+---
+
+## ⛓ 引用项目文件上下文
+
+为了让规则更具语义与上下文理解，可在规则中引用关键文件：
+
+- `@src/stores/themeStore.ts`
+- `@src/composables/useModelAnalyzer.ts`
+- `@src/config/appConfig.ts`
+
+---

@@ -55,7 +55,6 @@ export function useResponsiveMenu(
         opacity: 0,
         visibility: 'hidden',
         transform: 'translateY(-10px)',
-        transition: 'opacity 0.2s, transform 0.2s',
       };
     }
 
@@ -117,7 +116,6 @@ export function useResponsiveMenu(
       opacity: 1,
       visibility: 'visible',
       transform: 'translateY(0)',
-      transition: 'opacity 0.2s, transform 0.2s',
     };
   });
 

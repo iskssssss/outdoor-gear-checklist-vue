@@ -1,11 +1,8 @@
 <template>
   <BaseModal ref="modalRef" title="📋 操作日志" width="800px" max-height="90vh" @close="handleClose">
+    <!-- 日志操作按钮组（数据驱动） -->
     <div class="log-controls">
-      <button class="btn btn-danger btn-sm" @click="debouncedClearLogs">清空日志</button>
-      <button class="btn btn-primary btn-sm" @click="debouncedExportLogs">导出日志</button>
-      <button class="btn btn-success btn-sm" @click="debouncedQuickUndo" :disabled="logStore.undoableCount === 0">
-        ⟲ 快速撤销
-      </button>
+      <BaseButtonGroup :buttons="logActionButtons" size="sm" />
       <span class="log-count">
         共 <span>{{ logStore.logCount }}</span> 条记录 |
         可撤销 <span class="undoable-count">{{ logStore.undoableCount }}</span> 条
@@ -13,9 +10,10 @@
     </div>
 
     <div class="log-content">
-      <div v-if="logStore.logs.length === 0" class="empty-log">
-        暂无操作记录
-      </div>
+      <BaseEmpty v-if="logStore.logs.length === 0" 
+        icon="📋"
+        description="暂无操作记录" 
+        size="sm" />
 
       <div v-for="log in logStore.logs" :key="log.id" class="log-item"
         :class="[getLogClass(log.type), { 'log-undone': log.undone }]">
@@ -27,10 +25,10 @@
           </span>
           <div class="log-actions">
             <span class="log-time">{{ logStore.formatTime(log.timestamp) }}</span>
-            <button v-if="log.undoable && !log.undone && log.beforeState && log.beforeState.categories" class="btn-undo"
-              @click="debouncedHandleUndo(log)" title="撤销此操作">
-              ⟲ 撤销
-            </button>
+            <BaseButton v-if="log.undoable && !log.undone && log.beforeState && log.beforeState.categories" 
+              variant="success" size="sm" icon="⟲" @click="debouncedHandleUndo(log)" title="撤销此操作">
+              撤销
+            </BaseButton>
             <span v-else-if="log.undoable && !log.undone && !log.beforeState" class="old-log-tag" title="旧版本操作记录，不支持撤销">
               旧记录
             </span>
@@ -47,9 +45,9 @@
 
 <script setup>
 import { ref, inject } from 'vue'
-import { useOperationLogStore } from '../../stores/operationLog'
-import { useEquipmentStore } from '../../stores/equipment'
-import BaseModal from '../common/BaseModal.vue'
+import { useOperationLogStore } from '@/stores/operationLog.ts'
+import { useEquipmentStore } from '@/stores/equipment.ts'
+import { BaseModal, BaseButton, BaseEmpty, BaseButtonGroup } from '@/components/common'
 import { useDebounceFn } from '@vueuse/core';
 
 const logStore = useOperationLogStore()
@@ -148,6 +146,34 @@ const debouncedHandleUndo = useDebounceFn(handleUndo, 300);
 const debouncedClose = useDebounceFn(close, 300);
 const debouncedClearLogs = useDebounceFn(clearLogs, 300);
 
+// ==================== 数据驱动的按钮组配置 ====================
+
+// 日志操作按钮组（定义在 debounced 函数之后）
+const logActionButtons = [
+  {
+    value: 'clear',
+    label: '清空日志',
+    variant: 'danger',
+    handler: debouncedClearLogs
+  },
+  {
+    value: 'export',
+    label: '导出日志',
+    variant: 'primary',
+    handler: debouncedExportLogs
+  },
+  {
+    value: 'undo',
+    label: '快速撤销',
+    variant: 'success',
+    icon: '⟲',
+    disabled: logStore.undoableCount === 0,
+    handler: debouncedQuickUndo
+  }
+]
+
+// ==================== 数据驱动配置结束 ====================
+
 defineExpose({ show, close })
 </script>
 
@@ -176,45 +202,7 @@ defineExpose({ show, close })
   color: var(--success-color, #28a745);
 }
 
-.btn {
-  padding: 8px 16px;
-  border: none;
-  border-radius: 6px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.btn-sm {
-  padding: 6px 12px;
-  font-size: 0.85rem;
-}
-
-.btn-primary {
-  background: var(--primary-color);
-  color: var(--text-white, white);
-}
-
-.btn-danger {
-  background: var(--danger-color, #dc3545);
-  color: var(--text-white, white);
-}
-
-.btn-success {
-  background: var(--success-color, #28a745);
-  color: var(--text-white, white);
-}
-
-.btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-sm);
-}
-
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
+// BaseButton 已接管所有按钮样式
 
 .empty-log {
   text-align: center;

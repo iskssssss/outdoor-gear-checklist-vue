@@ -53,35 +53,32 @@ const APP_VERSION = __APP_VERSION__
 <style scoped lang="scss">
 .app-footer {
   background: var(--bg-card);
-  border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
-  padding: 24px;
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;  /* Footer顶部大圆角 */
+  padding: var(--spacing-lg);  /* Footer主内边距 */
   text-align: center;
-  box-shadow: var(--shadow-sm);
-  /* 模拟向上阴影 */
-  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.08);  /* 向上阴影效果固定 */
 }
 
 .footer-content {
-  max-width: 1400px;
+  max-width: 1400px;  /* 内容最大宽度固定，与Header保持一致 */
   margin: 0 auto;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 40px;
-  margin-bottom: 30px;
+  gap: var(--spacing-3xl);  /* Footer分区间的大间距 */
+  margin-bottom: var(--spacing-xl);  /* 内容底部间距 */
 }
 
 .footer-section {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--spacing-md);  /* Section内标准间距 */
 }
 
 .footer-logo {
   display: flex;
-  // 改为 baseline 对齐
   align-items: baseline;
-  gap: 10px;
-  margin-bottom: 8px;
+  gap: var(--spacing-sm);  /* Logo元素间小间距 */
+  margin-bottom: var(--spacing-sm);  /* Logo底部间距 */
 }
 
 .logo-icon {
@@ -90,11 +87,10 @@ const APP_VERSION = __APP_VERSION__
 
 .logo-text {
   font-size: 1.2rem;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   color: var(--text-primary);
   position: relative;
-  // 向下微调 3px
-  top: 3px;
+  top: 3px;  /* Logo文字微调，保持基线对齐 */
 }
 
 .footer-description {
@@ -106,9 +102,9 @@ const APP_VERSION = __APP_VERSION__
 
 .footer-title {
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: var(--font-weight-bold);
   color: var(--text-primary);
-  margin: 0 0 12px 0;
+  margin: 0 0 var(--spacing-md) 0;  /* 标题底部间距 */
 }
 
 .footer-links {
@@ -117,7 +113,7 @@ const APP_VERSION = __APP_VERSION__
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--spacing-sm);  /* 链接间小间距 */
 }
 
 .footer-links li a {
@@ -129,20 +125,20 @@ const APP_VERSION = __APP_VERSION__
 
   &:hover {
     color: var(--primary-color);
-    transform: translateX(4px);
+    transform: translateX(4px);  /* 悬浮动画距离固定 */
   }
 }
 
 .footer-bottom {
-  max-width: 1400px;
+  max-width: 1400px;  /* 底部内容最大宽度固定 */
   margin: 0 auto;
-  padding-top: 20px;
-  border-top: 1px solid var(--border-color);
+  padding-top: var(--spacing-lg);  /* 底部顶部间距 */
+  border-top: var(--border-width) solid var(--border-color);
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: 16px;
+  gap: var(--spacing-md);  /* 底部元素间标准间距 */
 }
 
 .copyright {
@@ -156,7 +152,7 @@ const APP_VERSION = __APP_VERSION__
   a {
     color: var(--primary-color);
     text-decoration: none;
-    font-weight: 600;
+    font-weight: var(--font-weight-bold);
     transition: opacity 0.3s ease;
 
     &:hover {
@@ -170,30 +166,30 @@ const APP_VERSION = __APP_VERSION__
   font-size: 0.85rem;
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: var(--spacing-md);  /* Meta信息间标准间距 */
   flex-wrap: wrap;
 }
 
 .version-tag {
-  padding: 4px 10px;
+  padding: var(--spacing-xs) var(--spacing-sm);  /* 版本标签紧凑内边距 */
   background: var(--bg-input);
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
+  border: var(--border-width) solid var(--border-color);
+  border-radius: var(--radius-lg);  /* 版本标签圆角 */
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: var(--font-weight-bold);
   letter-spacing: 0.5px;
   color: var(--text-secondary);
 }
 
-/* 响应式设计 */
+/* 响应式设计 - 移动端调整 */
 @media (max-width: 768px) {
   .app-footer {
-    padding: 30px 15px 15px;
+    padding: var(--spacing-xl) var(--spacing-md) var(--spacing-md);  /* 移动端减小内边距 */
   }
 
   .footer-content {
-    grid-template-columns: 1fr;
-    gap: 30px;
+    grid-template-columns: 1fr;  /* 移动端单列布局 */
+    gap: var(--spacing-xl);  /* 移动端Section间距 */
   }
 
   .footer-bottom {

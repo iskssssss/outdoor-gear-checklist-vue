@@ -61,15 +61,15 @@ function showModelConfig() {
   z-index: 100;
   background: var(--bg-header);
   box-shadow: var(--shadow-md);
-  padding: 4px 0;
+  padding: var(--spacing-xs) 0;  /* Header垂直内边距较小 */
   transition: box-shadow 0.3s ease;
 }
 
 // ==================== 容器布局 ====================
 .container {
-  max-width: 1400px;
+  max-width: 1400px;  /* 容器最大宽度固定，保持设计一致性 */
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 0 var(--spacing-lg);  /* 容器水平内边距 */
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -106,13 +106,9 @@ h1 {
   overflow: hidden;
   width: 100%;
   text-align: center;
-  // 恢复展开时的高度
-  max-height: 50px;
-  // 恢复展开时的透明度
+  max-height: 50px;  /* Slogan最大高度固定 */
   opacity: 1;
-  // 减小 margin
-  margin: 4px 0 0 0;
-  // 移除所有过渡效果
+  margin: var(--spacing-xs) 0 0 0;  /* 副标题顶部小间距 */
   transition: none;
 }
 
@@ -120,16 +116,13 @@ h1 {
 .nav-menu {
   display: flex;
   align-items: center;
-  gap: 15px;
-  // 减小 padding
-  padding: 8px 0;
-  // 减小 margin
-  margin-top: 10px;
+  gap: var(--spacing-md);  /* 导航链接间标准间距 */
+  padding: var(--spacing-sm) 0;  /* 导航栏垂直内边距 */
+  margin-top: var(--spacing-sm);  /* 导航栏顶部间距 */
   flex-shrink: 1;
   min-width: 0;
   white-space: nowrap;
-  // 修改为 visible，确保下拉菜单可见
-  overflow: visible;
+  overflow: visible;  /* 确保下拉菜单可见 */
   -webkit-overflow-scrolling: touch;
   transition: none;
 }
@@ -137,14 +130,12 @@ h1 {
 // 一级菜单链接
 .nav-link {
   position: relative;
-  // 减小内边距
-  padding: 6px 12px;
-  // 减小字体大小
+  padding: var(--spacing-xs) var(--spacing-md);  /* 链接紧凑内边距 */
   font-size: 0.85rem;
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
   cursor: pointer;
   transition: all 0.3s ease;
-  border-bottom: 2px solid transparent;
+  border-bottom: 2px solid transparent;  /* 激活指示器固定宽度 */
   text-decoration: none;
   white-space: nowrap;
   display: inline-block;
@@ -158,7 +149,7 @@ h1 {
   &.router-link-active {
     color: var(--primary-color);
     border-bottom-color: var(--primary-color);
-    font-weight: 700;
+    font-weight: var(--font-weight-bold);
   }
 
   &.disabled {
@@ -177,7 +168,7 @@ h1 {
   .container {
     flex-direction: column;
     align-items: center;
-    gap: 5px;
+    gap: var(--spacing-xs);  /* 移动端垂直布局间小间距 */
   }
 
   .nav-menu {

@@ -15,24 +15,19 @@
             <span class="category-name">添加分类</span>
           </button>
           <div v-else class="add-category-form">
-            <input ref="categoryInput" v-model="newCategoryName" placeholder="新分类名称" class="category-input-inline"
+            <BaseInput ref="categoryInput" v-model="newCategoryName" placeholder="新分类名称" class="category-input-inline"
               @keyup.enter="addCategory" @blur="cancelAdd" />
-            <button @click="addCategory" class="btn-confirm">✓</button>
-            <button @click="cancelAdd" class="btn-cancel-add">✕</button>
+            <BaseButton @click="addCategory" variant="success" size="sm" icon="✓" />
+            <BaseButton @click="cancelAdd" variant="danger" size="sm" icon="✕" />
           </div>
         </div>
       </div>
     </div>
 
     <div v-if="categories && categories.length > 0">
+      <!-- 表格操作按钮组（数据驱动） -->
       <div class="table-actions">
-        <button v-if="!isEditing" @click="enterEditMode" class="btn-edit">✏️ 编辑</button>
-        <template v-else>
-          <button @click="saveChanges" class="btn-save">💾 保存</button>
-          <button @click="cancelEdit" class="btn-cancel">❌ 取消</button>
-          <button v-if="selectedCategory" @click="reindexDraftItems" class="btn-reindex">🔢 重新编码</button>
-          <button @click="addNewDraftItem" class="btn-add">➕ 添加新装备</button>
-        </template>
+        <BaseButtonGroup :buttons="tableActionButtons" />
       </div>
       <div class="table-content">
         <table v-if="selectedCategory" class="equipment-table">
@@ -52,23 +47,23 @@
               <td data-label="序号">{{ index + 1 }}</td>
               <td data-label="装备信息" class="item-details">
                 <div class="item-name">
-                  <input v-if="isEditing" type="text" v-model="item.name" />
+                  <BaseInput v-if="isEditing" type="text" v-model="item.name" />
                   <span v-else>{{ item.name }}</span>
                 </div>
                 <div class="item-meta">
                   <div class="meta-item">
                     <strong class="meta-label">重量:</strong>
                     <div v-if="isEditing" class="meta-inputs">
-                      <input type="number" v-model.number="item.weight" class="meta-input" />
-                      <input type="text" v-model="item.weightUnit" class="unit-input meta-unit-input" />
+                      <BaseInput type="number" v-model.number="item.weight" class="meta-input" />
+                      <BaseInput type="text" v-model="item.weightUnit" class="unit-input meta-unit-input" />
                     </div>
                     <span v-else class="meta-value">{{ item.weight }}{{ item.weightUnit }}</span>
                   </div>
                   <div class="meta-item">
                     <strong class="meta-label">价格:</strong>
                     <div v-if="isEditing" class="meta-inputs">
-                      <input type="number" v-model.number="item.price" class="meta-input" />
-                      <input type="text" v-model="item.priceUnit" class="unit-input meta-unit-input" />
+                      <BaseInput type="number" v-model.number="item.price" class="meta-input" />
+                      <BaseInput type="text" v-model="item.priceUnit" class="unit-input meta-unit-input" />
                     </div>
                     <span v-else class="meta-value">{{ item.price }}{{ item.priceUnit }}</span>
                   </div>
@@ -76,8 +71,8 @@
               </td>
               <td data-label="数量" class="quantity-cell">
                 <div class="meta-inputs" v-if="isEditing">
-                  <input type="number" v-model.number="item.quantity" class="quantity-input" />
-                  <input type="text" v-model="item.quantityUnit" class="unit-input" />
+                  <BaseInput type="number" v-model.number="item.quantity" class="quantity-input" />
+                  <BaseInput type="text" v-model="item.quantityUnit" class="unit-input" />
                 </div>
                 <span v-else>{{ item.quantity }}{{ item.quantityUnit }}</span>
               </td>
@@ -86,12 +81,14 @@
               <td data-label="小计价格" class="subtotal">{{ ((item.price || 0) * (item.quantity || 0)).toFixed(2) }} {{
                 item.priceUnit }}</td>
               <td data-label="准备状态">
-                <div class="status-switch" :class="{ 'completed': item.completed }" @click="toggleItemStatus(item)">
-                  <div class="switch-handle"></div>
-                </div>
+                <BaseSwitch 
+                  v-model="item.completed" 
+                  @change="toggleItemStatus(item)"
+                  :title="item.completed ? '已准备' : '待准备'"
+                />
               </td>
               <td v-if="isEditing" data-label="操作">
-                <button @click="removeDraftItem(item.id)" class="btn-remove">删除</button>
+                <BaseButton @click="removeDraftItem(item.id)" variant="danger" size="sm">删除</BaseButton>
               </td>
             </tr>
           </tbody>
@@ -113,9 +110,11 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted, computed, nextTick, onUnmounted, onUpdated, inject } from 'vue'
-import { useEquipmentStore } from '../../stores/equipment'
-import { useOperationLogStore } from '../../stores/operationLog'
+import { ref, watch, onMounted, computed, nextTick, onUpdated, inject } from 'vue'
+import { useEventListener } from '@vueuse/core'
+import { useEquipmentStore } from '@/stores/equipment.ts'
+import { useOperationLogStore } from '@/stores/operationLog.ts'
+import { BaseButton, BaseSwitch, BaseButtonGroup, BaseInput } from '@/components/common'
 
 const props = defineProps({
   categories: {
@@ -146,6 +145,65 @@ const selectedCategory = computed(() => {
   if (!selectedCategoryId.value) return null
   return props.categories.find(c => c.id === selectedCategoryId.value)
 })
+
+// ==================== 数据驱动的按钮组配置 ====================
+
+// 表格操作按钮配置（动态）
+const tableActionButtons = computed(() => {
+  if (!isEditing.value) {
+    // 非编辑模式：只显示编辑按钮
+    return [
+      {
+        value: 'edit',
+        label: '编辑',
+        variant: 'outline',
+        icon: '✏️',
+        handler: enterEditMode
+      }
+    ]
+  } else {
+    // 编辑模式：显示保存、取消、重新编码、添加装备
+    const buttons = [
+      {
+        value: 'save',
+        label: '保存',
+        variant: 'success',
+        icon: '💾',
+        handler: saveChanges
+      },
+      {
+        value: 'cancel',
+        label: '取消',
+        variant: 'secondary',
+        icon: '❌',
+        handler: cancelEdit
+      }
+    ]
+    
+    // 只有选中分类时才显示重新编码按钮
+    if (selectedCategory.value) {
+      buttons.push({
+        value: 'reindex',
+        label: '重新编码',
+        variant: 'info',
+        icon: '🔢',
+        handler: reindexDraftItems
+      })
+    }
+    
+    buttons.push({
+      value: 'add',
+      label: '添加新装备',
+      variant: 'primary',
+      icon: '➕',
+      handler: addNewDraftItem
+    })
+    
+    return buttons
+  }
+})
+
+// ==================== 数据驱动配置结束 ====================
 
 // 显示的数据：编辑模式下使用草稿，否则使用原始数据
 const displayItems = computed(() => {
@@ -378,21 +436,13 @@ watch(() => props.categories, () => {
   })
 }, { deep: true, immediate: true })
 
-onMounted(() => {
-  if (tabsRef.value) {
-    tabsRef.value.addEventListener('scroll', checkScroll)
-    tabsRef.value.addEventListener('wheel', handleWheelScroll)
-  }
-  window.addEventListener('resize', checkScroll)
-  checkScroll()
-})
+// 使用 useEventListener 自动管理事件监听器
+useEventListener(tabsRef, 'scroll', checkScroll)
+useEventListener(tabsRef, 'wheel', handleWheelScroll)
+useEventListener(window, 'resize', checkScroll)
 
-onUnmounted(() => {
-  if (tabsRef.value) {
-    tabsRef.value.removeEventListener('scroll', checkScroll)
-    tabsRef.value.removeEventListener('wheel', handleWheelScroll)
-  }
-  window.removeEventListener('resize', checkScroll)
+onMounted(() => {
+  checkScroll()
 })
 
 onUpdated(() => {
@@ -541,33 +591,9 @@ onMounted(() => {
 
 .category-input-inline {
   width: 120px;
-  padding: 8px;
-  border-radius: var(--border-radius-sm);
-  border: 1px solid var(--border-color);
-  background-color: var(--bg-input);
-  color: var(--text-primary);
-  &:focus {
-    outline: none;
-    border-color: var(--primary-color);
-  }
 }
 
-.btn-confirm,
-.btn-cancel-add {
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  font-size: 1.2rem;
-  padding: 4px;
-}
-
-.btn-confirm {
-  color: var(--success-color);
-}
-
-.btn-cancel-add {
-  color: var(--danger-color);
-}
+// BaseInput 和 BaseButton 已接管所有样式
 
 .equipment-table {
   width: 100%;
@@ -594,35 +620,7 @@ onMounted(() => {
     background-color: var(--bg-card);
   }
 
-  .status-switch {
-    position: relative;
-    width: 44px;
-    height: 24px;
-    background-color: var(--text-muted);
-    border-radius: 12px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    margin: 0 auto;
-
-    &.completed {
-      background-color: var(--success-color);
-    }
-
-    .switch-handle {
-      position: absolute;
-      top: 2px;
-      left: 2px;
-      width: 20px;
-      height: 20px;
-      background-color: #fff;
-      border-radius: 50%;
-      transition: transform 0.3s ease;
-    }
-
-    &.completed .switch-handle {
-      transform: translateX(20px);
-    }
-  }
+  // BaseSwitch 已接管状态开关样式
 
   tbody tr {
     transition: background-color 0.2s ease-in-out;
@@ -636,25 +634,7 @@ onMounted(() => {
     }
   }
 
-  input[type="text"],
-  input[type="number"] {
-    width: 100%;
-    background-color: var(--bg-main);
-    color: var(--text-primary);
-    border: var(--border-width) solid var(--border-color);
-    padding: 8px;
-    border-radius: var(--border-radius-sm);
-    transition: all 0.3s ease;
-    text-align: center;
-    position: relative; /* Add position for z-index to work */
-
-    &:focus {
-      outline: none;
-      border-color: var(--primary-color);
-      box-shadow: 0 0 0 3px var(--primary-color-shadow);
-      z-index: 1; /* Ensure the focused input is on top */
-    }
-  }
+  // BaseInput 已接管所有输入框样式
 
   .subtotal {
     background-color: var(--bg-card);
@@ -737,13 +717,16 @@ onMounted(() => {
     align-items: center;
   }
 
+  // BaseInput 已接管所有输入框样式
   .meta-input {
     width: 80px;
-    padding: 2px 4px;
-    font-size: 0.85rem;
   }
 
   .meta-unit-input {
+    width: 50px;
+  }
+
+  .quantity-input {
     width: 50px;
   }
 }
@@ -755,80 +738,7 @@ onMounted(() => {
   gap: 10px;
 }
 
-.btn-add,
-.btn-remove,
-.btn-reindex,
-.btn-edit,
-.btn-save,
-.btn-cancel {
-  padding: 8px 12px;
-  border: var(--border-width) solid transparent;
-  border-radius: var(--border-radius-sm);
-  cursor: pointer;
-  font-weight: 500;
-  transition: all 0.3s ease;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
-  }
-}
-
-.btn-add {
-  background-color: var(--primary-color);
-  color: var(--btn-primary-text);
-
-  &:hover {
-    background-color: var(--primary-dark);
-  }
-}
-
-.btn-edit {
-  background-color: transparent;
-  color: var(--primary-color);
-  border-color: var(--primary-color);
-
-  &:hover {
-    background-color: var(--primary-color);
-    color: var(--btn-primary-text);
-  }
-}
-
-.btn-save {
-  background-color: var(--success-color);
-  color: #fff;
-
-  &:hover {
-    background-color: var(--success-dark);
-  }
-}
-
-.btn-cancel {
-  background-color: var(--text-muted);
-  color: #fff;
-
-  &:hover {
-    background-color: var(--danger-color);
-  }
-}
-
-.btn-reindex {
-  background-color: var(--secondary-color);
-  color: var(--btn-secondary-text);
-
-  &:hover {
-    background-color: var(--secondary-dark);
-  }
-}
-
-.btn-remove {
-  background-color: var(--danger-color);
-  color: var(--btn-danger-text);
-
-  &:hover {
-    background-color: var(--danger-dark);
-  }
-}
+// BaseButton 已接管所有按钮样式
 
 @media (max-width: 768px) {
   .equipment-table {

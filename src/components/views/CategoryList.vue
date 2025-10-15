@@ -2,91 +2,64 @@
   <div class="categories-section">
     <!-- 全局操作按钮 -->
     <div class="global-actions" v-if="equipmentStore.categories.length > 0 || isAdding || equipmentStore.hasLoaded">
-      <!-- 左侧操作组 -->
+      <!-- 左侧操作组（数据驱动） -->
       <div class="actions-left">
-        <!-- 智能推荐按钮 -->
-        <button class="btn btn-recommendation" @click="debouncedShowRecommendation" title="AI 智能推荐装备">
-          <span class="btn-icon">💡</span>
-          <span class="btn-text">智能推荐</span>
-        </button>
-
-        <!-- 导入下拉菜单 -->
-        <div class="action-dropdown">
-          <button class="btn btn-primary btn-sm">
-            📥 导入
-          </button>
-          <div class="action-menu">
-            <a class="menu-item" @click.prevent="debouncedImportData">📄 导入 JSON</a>
-            <a class="menu-item" @click.prevent="debouncedImportFromCart">🛒 导入购物车</a>
-          </div>
-        </div>
-
-        <!-- 导出下拉菜单 -->
-        <div class="action-dropdown">
-          <button class="btn btn-primary btn-sm">
-            📤 导出
-          </button>
-          <div class="action-menu">
-            <a class="menu-item" @click.prevent="debouncedExportData">📄 导出 JSON</a>
-            <a class="menu-item" @click.prevent="debouncedExportToImage">🖼️ 导出图片</a>
-          </div>
-        </div>
-
-        <!-- 分类管理下拉菜单 -->
-        <div class="action-dropdown">
-          <button class="btn btn-secondary btn-sm">
-            📂 分类管理
-          </button>
-          <div class="action-menu">
-            <a class="menu-item" @click.prevent="debouncedInitializeCategories">✨ 初始化分类</a>
-            <a class="menu-item danger" @click.prevent="debouncedClearAllData">🗑️ 清空所有数据</a>
-          </div>
-        </div>
+        <template v-for="action in leftActions" :key="action.value">
+          <!-- 按钮 -->
+          <BaseButton
+            v-if="action.type === 'button'"
+            :variant="action.variant"
+            :size="action.size"
+            :icon="action.icon"
+            :disabled="action.disabled"
+            :title="action.title"
+            :class="action.class"
+            @click="action.handler"
+          >
+            {{ action.label }}
+          </BaseButton>
+          
+          <!-- 下拉菜单 -->
+          <BaseMenuDropdown
+            v-else-if="action.type === 'menu'"
+            :text="action.label"
+            :icon="action.icon"
+            :variant="action.variant"
+            :size="action.size"
+            :options="action.options"
+          />
+        </template>
       </div>
 
-      <!-- 右侧操作组 -->
+      <!-- 右侧操作组（数据驱动） -->
       <div class="actions-right">
-        <!-- 快捷撤销按钮 -->
-        <button class="btn btn-undo" @click="debouncedQuickUndo" :disabled="!canUndo"
-          :title="`撤销最近的操作 (Ctrl+Z)${undoableCount > 0 ? ` - 共${undoableCount}条可撤销` : ''}`">
-          <span class="undo-icon">⟲</span>
-          <span class="undo-text">撤销</span>
-          <span v-if="undoableCount > 0" class="undo-count">{{ undoableCount }}</span>
-        </button>
-
-        <!-- 更多操作下拉菜单 -->
-        <div class="more-actions-dropdown">
-          <button class="btn btn-secondary btn-sm">
-            ⋯ 更多
-          </button>
-          <div class="more-actions-menu">
-            <div class="menu-item has-submenu">
-              <span>{{ currentViewInfo.icon }} {{ currentViewInfo.name }}</span>
-              <div class="submenu">
-                <a class="submenu-item" :class="{ active: layoutMode === 'grid' }" @click.prevent="setLayoutMode('grid')">
-                  <span class="icon">🔲</span> 网格
-                </a>
-                <a class="submenu-item" :class="{ active: layoutMode === 'waterfall' }"
-                  @click.prevent="setLayoutMode('waterfall')">
-                  <span class="icon">💧</span> 瀑布流
-                </a>
-                <a class="submenu-item" :class="{ active: layoutMode === 'table' }" @click.prevent="setLayoutMode('table')">
-                  <span class="icon">📋</span> 表格
-                </a>
-              </div>
-            </div>
-            <a class="menu-item" @click.prevent="debouncedShowCategorySort">🔀 排序分类</a>
-            <a class="menu-item" :class="{ 'disabled': layoutMode === 'table' }"
-              @click.prevent="layoutMode !== 'table' && debouncedToggleAllCategories()">
-              {{ allCollapsed ? '📂 展开全部' : '📁 收起全部' }}
-            </a>
-            <a class="menu-item" :class="{ 'disabled': layoutMode === 'table' }"
-              @click.prevent="layoutMode !== 'table' && debouncedToggleGroupByStatus()">
-              {{ equipmentStore.groupByStatus ? '📊 取消状态分栏' : '📋 启用状态分栏' }}
-            </a>
-            <a class="menu-item" @click.prevent="debouncedShowOperationLog">📋 操作日志</a>
-          </div>
-        </div>
+        <template v-for="action in rightActions" :key="action.value">
+          <!-- 按钮 -->
+          <BaseButton
+            v-if="action.type === 'button'"
+            :variant="action.variant"
+            :size="action.size"
+            :icon="action.icon"
+            :disabled="action.disabled"
+            :title="action.title"
+            :class="action.class"
+            @click="action.handler"
+          >
+            {{ action.label }}
+            <span v-if="action.badge" class="undo-count">{{ action.badge }}</span>
+          </BaseButton>
+          
+          <!-- 下拉菜单 -->
+          <BaseMenuDropdown
+            v-else-if="action.type === 'menu'"
+            :text="action.label"
+            :icon="action.icon"
+            :variant="action.variant"
+            :size="action.size"
+            :placement="action.placement"
+            :options="action.options"
+          />
+        </template>
       </div>
     </div>
 
@@ -101,8 +74,8 @@
       </div>
 
       <template #footer>
-        <button class="btn btn-primary" @click="confirmDownload">📥 下载图片</button>
-        <button class="btn btn-secondary" @click="closePreview">✕ 取消</button>
+        <BaseButton variant="primary" icon="📥" @click="confirmDownload">下载图片</BaseButton>
+        <BaseButton variant="secondary" icon="✕" @click="closePreview">取消</BaseButton>
       </template>
     </BaseModal>
 
@@ -116,10 +89,13 @@
     <ImportCartModal ref="importCartModalRef" />
 
     <!-- 装备分类列表 -->
-    <div v-if="equipmentStore.categories.length === 0 && !isAdding && layoutMode !== 'table'" class="empty-state">
-      <h3>还没有装备分类</h3>
-      <p>点击下方 "+" 按钮开始创建您的装备清单</p>
-    </div>
+    <BaseEmpty v-if="equipmentStore.categories.length === 0 && !isAdding && layoutMode !== 'table'" 
+      icon="📦"
+      description="还没有装备分类">
+      <template #extra>
+        点击下方 "+" 按钮开始创建您的装备清单
+      </template>
+    </BaseEmpty>
 
     <!-- 瀑布流布局组件 -->
     <WaterfallLayout v-show="layoutMode === 'waterfall'" :categories="equipmentStore.categories" :column-gap="16"
@@ -129,11 +105,11 @@
         <div class="add-text">添加分类</div>
       </template>
       <template v-slot:add-input-card-content>
-        <input ref="categoryInput" type="text" v-model="newCategoryName" @keypress.enter="addCategory" @blur="cancelAdd"
-          placeholder="输入分类名称" class="category-input">
+        <BaseInput ref="categoryInput" v-model="newCategoryName" @keypress.enter="addCategory" @blur="cancelAdd"
+          placeholder="输入分类名称" />
         <div class="input-actions">
-          <button class="btn btn-primary btn-sm" @click="addCategory">✓ 确认</button>
-          <button class="btn btn-secondary btn-sm" @click="cancelAdd">✕ 取消</button>
+          <BaseButton variant="primary" size="sm" icon="✓" @click="addCategory">确认</BaseButton>
+          <BaseButton variant="secondary" size="sm" icon="✕" @click="cancelAdd">取消</BaseButton>
         </div>
       </template>
     </WaterfallLayout>
@@ -150,11 +126,11 @@
       </div>
 
       <div class="add-category-input-card" v-else>
-        <input ref="categoryInput" type="text" v-model="newCategoryName" @keypress.enter="addCategory" @blur="cancelAdd"
-          placeholder="输入分类名称" class="category-input">
+        <BaseInput ref="categoryInput" v-model="newCategoryName" @keypress.enter="addCategory" @blur="cancelAdd"
+          placeholder="输入分类名称" />
         <div class="input-actions">
-          <button class="btn btn-primary btn-sm" @click="addCategory">✓ 确认</button>
-          <button class="btn btn-secondary btn-sm" @click="cancelAdd">✕ 取消</button>
+          <BaseButton variant="primary" size="sm" icon="✓" @click="addCategory">确认</BaseButton>
+          <BaseButton variant="secondary" size="sm" icon="✕" @click="cancelAdd">取消</BaseButton>
         </div>
       </div>
     </div>
@@ -165,20 +141,18 @@
 
 <script setup>
 import { ref, computed, nextTick, watch, onMounted, onUnmounted, inject } from 'vue'
-import { useEquipmentStore } from '../../stores/equipment'
-import { useOperationLogStore } from '../../stores/operationLog'
+import { useEquipmentStore } from '@/stores/equipment.ts'
+import { useOperationLogStore } from '@/stores/operationLog.ts'
 // 引入
 import CategoryItem from './CategoryItem.vue'
 import WaterfallLayout from '../layout/WaterfallLayout.vue'
 import CategorySortModal from '../modals/CategorySortModal.vue'
-import BaseModal from '../common/BaseModal.vue'
+import { BaseModal, BaseConfirm, BaseButton, BaseInput, BaseEmpty, BaseMenuDropdown, BaseBadge, BaseButtonGroup } from '@/components/common'
 import ExportPreview from './ExportPreview.vue'
 import ImportCartModal from '../modals/ImportCartModal.vue'
 import CategoryTableView from './CategoryTableView.vue'
-// 引入自定义确认框
-import BaseConfirm from '../common/BaseConfirm.vue'
 import html2canvas from 'html2canvas'
-import { imageExportConfig } from '../../config/appConfig'
+import { imageExportConfig } from '@/config/appConfig.ts'
 import { useDebounceFn } from '@vueuse/core'
 
 // 定义事件
@@ -222,6 +196,186 @@ const currentViewInfo = computed(() => {
       return { icon: '🔲', name: '切换视图' }
   }
 })
+
+// ==================== 数据驱动的操作配置 ====================
+
+// 左侧操作组配置（混合按钮和菜单）
+const leftActions = computed(() => [
+  {
+    type: 'button',
+    value: 'recommend',
+    label: '智能推荐',
+    variant: 'primary',
+    icon: '💡',
+    class: 'btn-recommendation',
+    title: 'AI 智能推荐装备',
+    handler: debouncedShowRecommendation
+  },
+  {
+    type: 'menu',
+    value: 'import',
+    label: '导入',
+    icon: '📥',
+    variant: 'primary',
+    size: 'sm',
+    options: importMenuOptions.value
+  },
+  {
+    type: 'menu',
+    value: 'export',
+    label: '导出',
+    icon: '📤',
+    variant: 'primary',
+    size: 'sm',
+    options: exportMenuOptions.value
+  },
+  {
+    type: 'menu',
+    value: 'category-manage',
+    label: '分类管理',
+    icon: '📂',
+    variant: 'secondary',
+    size: 'sm',
+    options: categoryManageOptions.value
+  }
+])
+
+// 右侧操作组配置
+const rightActions = computed(() => [
+  {
+    type: 'button',
+    value: 'undo',
+    label: '撤销',
+    variant: 'success',
+    icon: '⟲',
+    class: 'btn-undo',
+    disabled: !canUndo.value,
+    badge: undoableCount.value > 0 ? undoableCount.value : null,
+    title: `撤销最近的操作 (Ctrl+Z)${undoableCount.value > 0 ? ` - 共${undoableCount.value}条可撤销` : ''}`,
+    handler: debouncedQuickUndo
+  },
+  {
+    type: 'menu',
+    value: 'more',
+    label: '更多',
+    icon: '⋯',
+    variant: 'info',
+    size: 'sm',
+    placement: 'bottom-end',
+    options: moreMenuOptions.value
+  }
+])
+
+// 导入菜单配置
+const importMenuOptions = computed(() => [
+  {
+    value: 'import-json',
+    label: '导入 JSON',
+    icon: '📄',
+    handler: debouncedImportData
+  },
+  {
+    value: 'import-cart',
+    label: '导入购物车',
+    icon: '🛒',
+    handler: debouncedImportFromCart
+  }
+])
+
+// 导出菜单配置
+const exportMenuOptions = computed(() => [
+  {
+    value: 'export-json',
+    label: '导出 JSON',
+    icon: '📄',
+    handler: debouncedExportData
+  },
+  {
+    value: 'export-image',
+    label: '导出图片',
+    icon: '🖼️',
+    handler: debouncedExportToImage
+  }
+])
+
+// 分类管理菜单配置
+const categoryManageOptions = computed(() => [
+  {
+    value: 'init-categories',
+    label: '初始化分类',
+    icon: '✨',
+    handler: debouncedInitializeCategories
+  },
+  {
+    value: 'clear-all',
+    label: '清空所有数据',
+    icon: '🗑️',
+    danger: true,
+    handler: debouncedClearAllData
+  }
+])
+
+// 更多操作菜单配置
+const moreMenuOptions = computed(() => [
+  // 视图切换子菜单
+  {
+    value: 'view-mode',
+    label: `${currentViewInfo.value.name}视图`,
+    icon: currentViewInfo.value.icon,
+    children: [
+      {
+        value: 'grid',
+        label: '网格视图',
+        icon: '🔲',
+        active: layoutMode.value === 'grid',
+        handler: () => setLayoutMode('grid')
+      },
+      {
+        value: 'waterfall',
+        label: '瀑布流视图',
+        icon: '💧',
+        active: layoutMode.value === 'waterfall',
+        handler: () => setLayoutMode('waterfall')
+      },
+      {
+        value: 'table',
+        label: '表格视图',
+        icon: '📋',
+        active: layoutMode.value === 'table',
+        handler: () => setLayoutMode('table')
+      }
+    ]
+  },
+  {
+    value: 'sort-categories',
+    label: '排序分类',
+    icon: '🔀',
+    divided: true,
+    handler: debouncedShowCategorySort
+  },
+  {
+    value: 'toggle-categories',
+    label: allCollapsed.value ? '展开全部' : '收起全部',
+    icon: '📂',
+    disabled: layoutMode.value === 'table',
+    handler: () => layoutMode.value !== 'table' && debouncedToggleAllCategories()
+  },
+  {
+    value: 'toggle-group',
+    label: equipmentStore.groupByStatus ? '取消状态分栏' : '启用状态分栏',
+    icon: '📋',
+    disabled: layoutMode.value === 'table',
+    handler: () => layoutMode.value !== 'table' && debouncedToggleGroupByStatus()
+  },
+  {
+    value: 'operation-log',
+    label: '操作日志',
+    icon: '📋',
+    handler: debouncedShowOperationLog
+  }
+])
+
+// ==================== 数据驱动配置结束 ====================
 
 function setLayoutMode(mode) {
   if (['grid', 'waterfall', 'table'].includes(mode)) {
@@ -590,52 +744,7 @@ const debouncedToggleGroupByStatus = useDebounceFn(toggleGroupByStatus, 300)
     flex-wrap: wrap;
   }
 
-  .btn {
-    transition: all 0.3s ease;
-    font-size: 0.9rem;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-
-    &:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-md);
-    }
-  }
-
-  .btn-icon,
-  .btn-text {
-    display: inline-block;
-  }
-
-  // 智能推荐按钮样式
-  .btn-recommendation {
-    padding: 8px 16px;
-    background: var(--primary-color);
-    color: var(--btn-primary-text);
-    border: var(--border-width, 1px) solid var(--primary-color);
-    border-radius: var(--border-radius-sm);
-    font-weight: 600;
-    cursor: pointer;
-    box-shadow: var(--shadow-sm);
-    position: relative;
-
-    &:hover:not(:disabled) {
-      background: var(--primary-dark);
-      border-color: var(--primary-dark);
-      box-shadow: var(--shadow-md);
-    }
-
-    &:active {
-      transform: translateY(0);
-      box-shadow: var(--shadow-sm);
-    }
-
-    .btn-icon {
-      font-size: 1.1rem;
-      line-height: 1;
-    }
-  }
+  // BaseButton 已接管所有按钮样式
 
   // 通用下拉菜单容器
   .action-dropdown,
@@ -673,63 +782,7 @@ const debouncedToggleGroupByStatus = useDebounceFn(toggleGroupByStatus, 300)
     }
   }
 
-  // 撤销按钮样式
-  .btn-undo {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 16px;
-    background: var(--success-color);
-    color: var(--btn-success-text);
-    border: var(--border-width, 1px) solid var(--success-color);
-    border-radius: var(--border-radius-sm);
-    font-weight: 600;
-    cursor: pointer;
-    box-shadow: var(--shadow-sm);
-    position: relative;
-
-    &:hover:not(:disabled) {
-      filter: brightness(0.9);
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-md);
-    }
-
-    &:active:not(:disabled) {
-      transform: translateY(0);
-      box-shadow: var(--shadow-sm);
-    }
-
-    &:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      background: var(--text-muted);
-      border-color: var(--text-muted);
-      box-shadow: none;
-      filter: none;
-    }
-
-    .undo-icon {
-      font-size: 1.1rem;
-      line-height: 1;
-    }
-
-    .undo-text {
-      font-weight: 600;
-    }
-
-    .undo-count {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 18px;
-      height: 18px;
-      padding: 0 5px;
-      background: var(--bg-mask);
-      border-radius: 9px;
-      font-size: 0.7rem;
-      font-weight: 700;
-    }
-  }
+  // BaseButton 已接管撤销按钮样式
 }
 
 // 下拉菜单样式
@@ -925,22 +978,7 @@ const debouncedToggleGroupByStatus = useDebounceFn(toggleGroupByStatus, 300)
   box-shadow: var(--shadow-md);
 }
 
-.category-input {
-  width: 100%;
-  padding: 12px 16px;
-  border: var(--border-width) solid var(--border-color);
-  border-radius: var(--border-radius);
-  font-size: 1rem;
-  background: var(--bg-input);
-  color: var(--text-primary);
-  transition: all 0.3s ease;
-}
-
-.category-input:focus {
-  outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px var(--primary-color-shadow);
-}
+// BaseInput 已接管所有输入框样式
 
 .input-actions {
   display: flex;
@@ -948,51 +986,7 @@ const debouncedToggleGroupByStatus = useDebounceFn(toggleGroupByStatus, 300)
   justify-content: center;
 }
 
-.btn {
-  padding: 10px 24px;
-  border: none;
-  border-radius: var(--border-radius);
-  font-size: 0.95rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.btn-sm {
-  padding: 8px 16px;
-  font-size: 0.9rem;
-}
-
-.btn-primary {
-  background: var(--primary-color);
-  color: var(--btn-primary-text);
-
-  &:hover {
-    background: var(--primary-dark);
-  }
-
-  &:active {
-    transform: translateY(-2px) scale(0.95);
-  }
-}
-
-.btn-secondary {
-  background: var(--text-muted);
-  color: var(--text-white);
-
-  &:hover {
-    background: var(--text-secondary);
-  }
-}
-
-.btn {
-  transition: all 0.2s ease;
-}
-
-.btn:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-}
+// BaseButton 已接管所有按钮样式
 
 /* 响应式布局 */
 @media (max-width: 1200px) {
@@ -1054,38 +1048,7 @@ const debouncedToggleGroupByStatus = useDebounceFn(toggleGroupByStatus, 300)
       justify-content: center;
     }
 
-    .btn-recommendation {
-      padding: 6px 12px;
-      font-size: 0.85rem;
-
-      .btn-icon {
-        font-size: 1rem;
-      }
-
-      .btn-text {
-        font-size: 0.85rem;
-      }
-    }
-
-    .btn-undo {
-      padding: 6px 12px;
-      font-size: 0.85rem;
-
-      .undo-icon {
-        font-size: 1rem;
-      }
-
-      .undo-text {
-        font-size: 0.85rem;
-      }
-
-      .undo-count {
-        min-width: 16px;
-        height: 16px;
-        padding: 0 4px;
-        font-size: 0.65rem;
-      }
-    }
+    // BaseButton 已接管所有按钮样式
   }
 
   .action-menu,
@@ -1118,22 +1081,7 @@ const debouncedToggleGroupByStatus = useDebounceFn(toggleGroupByStatus, 300)
   }
 }
 
-.category-input {
-  width: 100%;
-  padding: 12px 16px;
-  border: var(--border-width) solid var(--border-color);
-  border-radius: var(--border-radius);
-  font-size: 1rem;
-  background: var(--bg-input);
-  color: var(--text-primary);
-  transition: all 0.3s ease;
-}
-
-.category-input:focus {
-  outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px var(--primary-color-shadow);
-}
+// BaseInput 已接管所有输入框样式
 
 .input-actions {
   display: flex;
@@ -1141,51 +1089,7 @@ const debouncedToggleGroupByStatus = useDebounceFn(toggleGroupByStatus, 300)
   justify-content: center;
 }
 
-.btn {
-  padding: 10px 24px;
-  border: none;
-  border-radius: var(--border-radius);
-  font-size: 0.95rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.btn-sm {
-  padding: 8px 16px;
-  font-size: 0.9rem;
-}
-
-.btn-primary {
-  background: var(--primary-color);
-  color: var(--btn-primary-text);
-
-  &:hover {
-    background: var(--primary-dark);
-  }
-
-  &:active {
-    transform: translateY(-2px) scale(0.95);
-  }
-}
-
-.btn-secondary {
-  background: var(--text-muted);
-  color: var(--text-white);
-
-  &:hover {
-    background: var(--text-secondary);
-  }
-}
-
-.btn {
-  transition: all 0.2s ease;
-}
-
-.btn:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-}
+// BaseButton 已接管所有按钮样式
 
 /* 响应式布局 */
 @media (max-width: 1200px) {
@@ -1209,38 +1113,7 @@ const debouncedToggleGroupByStatus = useDebounceFn(toggleGroupByStatus, 300)
       justify-content: center;
     }
 
-    .btn-recommendation {
-      padding: 6px 12px;
-      font-size: 0.85rem;
-
-      .btn-icon {
-        font-size: 1rem;
-      }
-
-      .btn-text {
-        font-size: 0.85rem;
-      }
-    }
-
-    .btn-undo {
-      padding: 6px 12px;
-      font-size: 0.85rem;
-
-      .undo-icon {
-        font-size: 1rem;
-      }
-
-      .undo-text {
-        font-size: 0.85rem;
-      }
-
-      .undo-count {
-        min-width: 16px;
-        height: 16px;
-        padding: 0 4px;
-        font-size: 0.65rem;
-      }
-    }
+    // BaseButton 已接管所有按钮样式
   }
 
   .action-menu,

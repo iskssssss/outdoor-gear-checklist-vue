@@ -1,44 +1,38 @@
 <template>
   <BaseModal ref="modalRef" title="⚙️ 模型配置" width="800px" max-height="90vh" :close-on-overlay-click="false"
     @close="handleClose">
-    <div class="config-tabs">
-      <button class="tab-btn" :class="{ active: activeTab === 'basic' }" @click="activeTab = 'basic'">
-        基础配置
-      </button>
-      <button class="tab-btn" :class="{ active: activeTab === 'advanced' }" @click="activeTab = 'advanced'">
-        高级配置
-      </button>
-      <button class="tab-btn" :class="{ active: activeTab === 'test' }" @click="activeTab = 'test'">
-        连接测试
-      </button>
-    </div>
+    <BaseTabs v-model="activeTab" :tabs="tabs" />
 
     <!-- 基础配置标签页 -->
     <div v-show="activeTab === 'basic'" class="config-tab">
-      <div class="config-info">
-        <strong>💾 自动保存到本地存储</strong>
+      <BaseAlert type="info" title="💾 自动保存到本地存储">
         所有配置信息都会保存到浏览器本地缓存，刷新页面后自动恢复。
-      </div>
-      <div class="config-info warning">
-        <strong>📘 OpenAI接口规范</strong>
+      </BaseAlert>
+      <BaseAlert type="warning" title="📘 OpenAI接口规范">
         本应用遵循OpenAI标准API格式。所有API提供商（DeepSeek、OpenAI等）都应兼容OpenAI规范，使用标准的Bearer认证和messages格式。
-      </div>
+      </BaseAlert>
       <div class="config-section">
         <h4>基本配置</h4>
         <div class="setting-group">
-          <label>API URL：</label>
-          <input type="text" v-model="localSettings.apiUrl" placeholder="https://api.deepseek.com/v1">
-          <small>基础URL，系统将自动拼接 /chat/completions</small>
+          <BaseInput v-model="localSettings.apiUrl" label="API URL：" 
+            placeholder="https://api.deepseek.com/v1" 
+            hint="基础URL，系统将自动拼接 /chat/completions"
+            prefixIcon="🔗"
+            clearable />
         </div>
         <div class="setting-group">
-          <label>API Key：</label>
-          <input type="password" v-model="localSettings.apiKey" placeholder="sk-xxxxxxxxxxxxxxxx">
-          <small>格式：sk-开头的密钥</small>
+          <BaseInput type="password" v-model="localSettings.apiKey" label="API Key：" 
+            placeholder="sk-xxxxxxxxxxxxxxxx" 
+            hint="格式：sk-开头的密钥"
+            prefixIcon="🔑"
+            clearable />
         </div>
         <div class="setting-group">
-          <label>模型名称：</label>
-          <input type="text" v-model="localSettings.modelName" placeholder="deepseek-chat">
-          <small>如：deepseek-chat, gpt-3.5-turbo等</small>
+          <BaseInput v-model="localSettings.modelName" label="模型名称：" 
+            placeholder="deepseek-chat" 
+            hint="如：deepseek-chat, gpt-3.5-turbo等"
+            prefixIcon="🤖"
+            clearable />
         </div>
       </div>
     </div>
@@ -48,40 +42,51 @@
       <div class="config-section">
         <h4>请求参数</h4>
         <div class="setting-group">
-          <label>最大Token：</label>
-          <input type="number" v-model.number="localSettings.maxTokens" placeholder="1000" min="100" max="4000">
+          <BaseInput type="number" v-model.number="localSettings.maxTokens" label="最大Token：" 
+            placeholder="1000"
+            prefixIcon="📊"
+            hint="建议范围: 100-4000" />
         </div>
         <div class="setting-group">
-          <label>温度：</label>
-          <input type="number" v-model.number="localSettings.temperature" placeholder="0.7" min="0" max="2" step="0.1">
+          <BaseInput type="number" v-model.number="localSettings.temperature" label="温度：" 
+            placeholder="0.7"
+            prefixIcon="🌡️"
+            hint="范围: 0-2，越高越随机" />
         </div>
         <div class="setting-group">
-          <label>请求头：</label>
-          <textarea v-model="localSettings.customHeaders"
-            placeholder='{"Authorization": "Bearer your-key", "Content-Type": "application/json"}' rows="3"></textarea>
+          <BaseTextarea v-model="localSettings.customHeaders" label="请求头："
+            placeholder='{"Authorization": "Bearer your-key", "Content-Type": "application/json"}' 
+            :rows="3"
+            :maxlength="500"
+            :showCount="true"
+            hint="JSON 格式的自定义请求头" />
         </div>
         <div class="setting-group">
-          <label>请求体模板：</label>
-          <textarea v-model="localSettings.requestTemplate"
+          <BaseTextarea v-model="localSettings.requestTemplate" label="请求体模板："
             placeholder='{"model": "{{model}}", "messages": [{"role": "user", "content": "{{prompt}}"}], "max_tokens": {{max_tokens}}, "temperature": {{temperature}}}'
-            rows="4"></textarea>
+            :rows="4"
+            :maxlength="1000"
+            :showCount="true"
+            hint="支持变量: {{model}}, {{prompt}}, {{max_tokens}}, {{temperature}}" />
         </div>
       </div>
 
       <div class="config-section">
         <h4>响应解析</h4>
         <div class="setting-group">
-          <label>响应解析器：</label>
-          <select v-model="localSettings.responseParser">
-            <option value="openai">OpenAI格式</option>
-            <option value="claude">Claude格式</option>
-            <option value="custom">自定义解析</option>
-          </select>
+          <BaseSelect v-model="localSettings.responseParser" label="响应解析器："
+            :options="[
+              { label: 'OpenAI格式', value: 'openai' },
+              { label: 'Claude格式', value: 'claude' },
+              { label: '自定义解析', value: 'custom' }
+            ]" />
         </div>
         <div class="setting-group">
-          <label>响应路径：</label>
-          <input type="text" v-model="localSettings.responsePath"
-            placeholder="choices[0].message.content 或 content[0].text">
+          <BaseInput v-model="localSettings.responsePath" label="响应路径："
+            placeholder="choices[0].message.content 或 content[0].text"
+            prefixIcon="📍"
+            clearable
+            hint="用于从响应中提取内容的路径" />
         </div>
       </div>
     </div>
@@ -91,10 +96,14 @@
       <div class="config-section">
         <h4>连接测试</h4>
         <div class="test-area">
-          <textarea v-model="testPrompt" placeholder="输入测试提示词..." rows="3"></textarea>
-          <button class="btn btn-primary" @click="testConnection" :disabled="isTestingConnection">
+          <BaseTextarea v-model="testPrompt" placeholder="输入测试提示词..." 
+            :rows="3"
+            :maxlength="500"
+            :showCount="true"
+            hint="输入任意测试内容验证API连接" />
+          <BaseButton variant="primary" :loading="isTestingConnection" @click="testConnection" :disabled="isTestingConnection">
             {{ isTestingConnection ? '正在测试...' : '测试连接' }}
-          </button>
+          </BaseButton>
           <div v-if="testResult" class="test-result" :class="testResultType">
             {{ testResult }}
           </div>
@@ -102,19 +111,17 @@
       </div>
     </div>
 
+    <!-- 配置操作按钮组（数据驱动） -->
     <div class="config-actions">
-      <button class="btn btn-primary" @click="saveConfig" :disabled="!isChanged || isLoading">保存配置</button>
-      <button class="btn btn-secondary" @click="resetConfig" :disabled="!isChanged || isLoading">重置配置</button>
-      <button class="btn btn-secondary" @click="close">取消</button>
+      <BaseButtonGroup :buttons="configActionButtons" justify="end" />
     </div>
   </BaseModal>
 </template>
 
 <script setup>
-import { ref, reactive, inject, computed } from 'vue'
-import { useModelConfigStore } from '../../stores/modelConfig'
-import { defaultTestPrompt } from '../../config/appConfig'
-import BaseModal from '../common/BaseModal.vue'
+import { ref, inject, computed } from 'vue'
+import { useModelConfigStore } from '@/stores/modelConfig.ts'
+import { BaseModal, BaseTabs, BaseButton, BaseInput, BaseTextarea, BaseSelect, BaseAlert, BaseButtonGroup } from '@/components/common'
 
 const modelConfigStore = useModelConfigStore()
 const toast = inject('toast')
@@ -123,11 +130,51 @@ const modalRef = ref(null)
 const activeTab = ref('basic')
 const localSettings = ref({});
 const localPreferences = ref({});
+const testPrompt = ref('')
+const isTestingConnection = ref(false)
+const testResult = ref('')
+const testResultType = ref('')
+const isLoading = ref(false)
+
+const tabs = [
+  { label: '基础配置', value: 'basic' },
+  { label: '高级配置', value: 'advanced' },
+  { label: '连接测试', value: 'test' }
+];
 
 const isChanged = computed(() => {
   return JSON.stringify(localSettings.value) !== JSON.stringify(modelConfigStore.settings) ||
     JSON.stringify(localPreferences.value) !== JSON.stringify(modelConfigStore.recommendationPreferences)
-});
+})
+
+// ==================== 数据驱动的按钮组配置 ====================
+
+// 配置操作按钮组
+const configActionButtons = computed(() => [
+  {
+    value: 'save',
+    label: '保存配置',
+    variant: 'primary',
+    disabled: !isChanged.value || isLoading.value,
+    loading: isLoading.value,
+    handler: saveConfig
+  },
+  {
+    value: 'reset',
+    label: '重置配置',
+    variant: 'secondary',
+    disabled: !isChanged.value || isLoading.value,
+    handler: resetConfig
+  },
+  {
+    value: 'close',
+    label: '取消',
+    variant: 'secondary',
+    handler: close
+  }
+])
+
+// ==================== 数据驱动配置结束 ====================;
 
 function show() {
   localSettings.value = { ...modelConfigStore.settings };
@@ -338,35 +385,7 @@ defineExpose({ show, close })
   border-top: 2px solid var(--border-color);
 }
 
-.btn {
-  padding: 12px 30px;
-  border: none;
-  border-radius: var(--border-radius-sm);
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.btn-primary {
-  background: var(--primary-color);
-  color: var(--text-white);
-}
-
-.btn-secondary {
-  background: var(--text-muted);
-  color: var(--text-white);
-}
-
-.btn:not(:disabled):hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-}
+// BaseButton 已接管所有按钮样式
 
 @media (max-width: 768px) {
   .config-tabs {

@@ -1,96 +1,184 @@
 /**
  * 暗黑主题 - 深色高对比度
- * 只定义差异化样式，通用样式在 _base.scss 中
+ * 遵循CSS主题优化规范 - 完整设计token系统
  */
 
 body.theme-dark {
-  /* ===== CSS 变量定义 ===== */
-  // 原 #00bcd4
-  --primary-color: #0097a7;
-  // 原 #0097a7
-  --primary-dark: #00838f;
-  // 原 #7e57c2
-  --secondary-color: #5c6bc0;
-  // 原 #66bb6a
-  --success-color: #43a047;
-  // 更深的背景
+  /* ========== 色彩系统 ========== */
+  /* 主色调 - 青色系 */
+  --color-primary-50: #e0f7fa;
+  --color-primary-100: #b2ebf2;
+  --color-primary-200: #80deea;
+  --color-primary-300: #4dd0e1;
+  --color-primary-400: #26c6da;
+  --color-primary-500: #00bcd4;  /* 基准色 */
+  --color-primary-600: #00acc1;
+  --color-primary-700: #0097a7;
+  --color-primary-800: #00838f;
+  --color-primary-900: #006064;
+
+  /* 成功色 - 绿色系 */
+  --color-success-50: #e8f5e9;
+  --color-success-100: #c8e6c9;
+  --color-success-200: #a5d6a7;
+  --color-success-300: #81c784;
+  --color-success-400: #66bb6a;
+  --color-success-500: #4caf50;  /* 基准色 */
+  --color-success-600: #43a047;
+  --color-success-700: #388e3c;
+  --color-success-800: #2e7d32;
+  --color-success-900: #1b5e20;
+
+  /* 警告色 - 琥珀色系 */
+  --color-warning-50: #fff8e1;
+  --color-warning-100: #ffecb3;
+  --color-warning-200: #ffe082;
+  --color-warning-300: #ffd54f;
+  --color-warning-400: #ffca28;
+  --color-warning-500: #ffc107;  /* 基准色 */
+  --color-warning-600: #ffb300;
+  --color-warning-700: #ffa000;
+  --color-warning-800: #ff8f00;
+  --color-warning-900: #ff6f00;
+
+  /* 危险色 - 红色系 */
+  --color-danger-50: #ffebee;
+  --color-danger-100: #ffcdd2;
+  --color-danger-200: #ef9a9a;
+  --color-danger-300: #e57373;
+  --color-danger-400: #ef5350;
+  --color-danger-500: #f44336;  /* 基准色 */
+  --color-danger-600: #e53935;
+  --color-danger-700: #d32f2f;
+  --color-danger-800: #c62828;
+  --color-danger-900: #b71c1c;
+
+  /* 信息色 - 蓝色系 */
+  --color-info-50: #e3f2fd;
+  --color-info-100: #bbdefb;
+  --color-info-200: #90caf9;
+  --color-info-300: #64b5f6;
+  --color-info-400: #42a5f5;
+  --color-info-500: #2196f3;  /* 基准色 */
+  --color-info-600: #1e88e5;
+  --color-info-700: #1976d2;
+  --color-info-800: #1565c0;
+  --color-info-900: #0d47a1;
+
+  /* 中性色 - 暗色灰阶 */
+  --color-gray-50: #fafafa;
+  --color-gray-100: #f5f5f5;
+  --color-gray-200: #eeeeee;
+  --color-gray-300: #e0e0e0;
+  --color-gray-400: #bdbdbd;
+  --color-gray-500: #9e9e9e;
+  --color-gray-600: #757575;
+  --color-gray-700: #616161;
+  --color-gray-800: #424242;
+  --color-gray-900: #212121;
+
+  /* 暗色专属 - 深色背景层级 */
+  --color-dark-50: #3a3a3a;
+  --color-dark-100: #2c2c2c;
+  --color-dark-200: #1e1e1e;
+  --color-dark-300: #1a1a1a;
+  --color-dark-400: #161616;
+  --color-dark-500: #121212;  /* 基准深色背景 */
+  --color-dark-600: #0d0d0d;
+  --color-dark-700: #080808;
+  --color-dark-800: #050505;
+  --color-dark-900: #000000;
+
+  /* ========== 间距系统 ========== */
+  --spacing-xs: 0.25rem;   /* 4px */
+  --spacing-sm: 0.5rem;    /* 8px */
+  --spacing-md: 1rem;      /* 16px */
+  --spacing-lg: 1.5rem;    /* 24px */
+  --spacing-xl: 2rem;      /* 32px */
+  --spacing-2xl: 3rem;     /* 48px */
+  --spacing-3xl: 4rem;     /* 64px */
+
+  /* ========== 圆角系统 ========== */
+  --radius-none: 0;
+  --radius-sm: 0.25rem;    /* 4px */
+  --radius-md: 0.5rem;     /* 8px */
+  --radius-lg: 0.75rem;    /* 12px */
+  --radius-xl: 1rem;       /* 16px */
+  --radius-2xl: 1.5rem;    /* 24px */
+  --radius-full: 9999px;
+
+  /* ========== 阴影系统 - 荧光效果 ========== */
+  --shadow-sm: 0 2px 6px rgba(0, 188, 212, 0.1);
+  --shadow-md: 0 4px 12px rgba(0, 188, 212, 0.15);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 188, 212, 0.25), 0 4px 6px -2px rgba(0, 188, 212, 0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 188, 212, 0.25), 0 10px 10px -5px rgba(0, 188, 212, 0.1);
+  --shadow-2xl: 0 25px 50px -12px rgba(0, 188, 212, 0.3);
+  --shadow-inner: inset 0 2px 4px rgba(0, 188, 212, 0.1);
+
+  /* ========== 语义化变量映射 ========== */
+  /* 主色调 */
+  --primary-color: var(--color-primary-700);
+  --primary-dark: var(--color-primary-800);
+  --primary-light: var(--color-primary-500);
+
+  /* 功能色 */
+  --success-color: var(--color-success-600);
   --success-light: #1b1f1c;
-  // 原 #ffd740
-  --warning-color: #ffca28;
+  --warning-color: var(--color-warning-400);
   --warning-light: #2d2510;
-  // 原 #ff1744
-  --danger-color: #ef5350;
+  --danger-color: var(--color-danger-400);
   --danger-light: #2d0f13;
-  // 原 #29b6f6
-  --info-color: #1e88e5;
-  // 更深的背景
+  --info-color: var(--color-info-600);
   --info-light: #131c23;
 
-  // 更纯粹的黑色
-  --bg-main: #121212;
-  // 深灰色卡片
-  --bg-card: #1e1e1e;
-  --bg-header: #1e1e1e;
-  // 稍亮的输入框
-  --bg-input: #2c2c2c;
-  --bg-hover: #3a3a3a;
-  --bg-button-group: #2c2c2c;
-  --bg-gradient: linear-gradient(135deg, #1e1e1e 0%, #121212 100%);
-  --bg-overlay: rgba(0, 0, 0, 0.7);
+  /* 中性色 */
+  --secondary-color: var(--color-gray-700);
 
-  // 稍暗的白色
-  --text-primary: #e0e0e0;
-  --text-secondary: #b0b0b0;
-  // 更亮的灰色
-  --text-muted: #757575;
+  /* 背景色 */
+  --bg-main: var(--color-dark-500);
+  --bg-card: var(--color-dark-200);
+  --bg-header: var(--color-dark-200);
+  --bg-input: var(--color-dark-100);
+  --bg-hover: var(--color-dark-50);
+  --bg-button-group: var(--color-dark-100);
+  --bg-overlay: rgba(0, 0, 0, 0.7);
+  --bg-gradient: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+
+  /* 文本色 - 符合WCAG AA对比度标准（暗色背景） */
+  --text-primary: var(--color-gray-300);     /* 对比度 > 7:1 */
+  --text-secondary: var(--color-gray-400);   /* 对比度 > 4.5:1 */
+  --text-muted: var(--color-gray-600);       /* 对比度 > 3:1 */
   --text-white: #e7e7e7;
   --text-black: #000000;
 
-  // 主按钮文字改为白色
+  /* 按钮文本色 */
   --btn-primary-text: #e7e7e7;
-  // 成功按钮文字改为白色
   --btn-success-text: #e7e7e7;
   --btn-danger-text: #e7e7e7;
 
-  // 更亮的边框
+  /* 边框 */
   --border-color: #3b3f51;
-  --border-radius: 8px;
-  --border-radius-sm: 6px;
-  --border-radius-lg: 12px;
-  --border-radius-xl: 16px;
+  --border-radius: var(--radius-md);
+  --border-radius-sm: var(--radius-sm);
+  --border-radius-lg: var(--radius-lg);
+  --border-radius-xl: var(--radius-xl);
   --border-width: 2px;
 
+  /* 阴影别名 */
   --shadow-card: 0 5px 20px rgba(0, 0, 0, 0.4);
-  --shadow-hover: 0 6px 20px rgba(0, 151, 167, 0.25);
-  --shadow-sm: 0 2px 6px rgba(0, 151, 167, 0.1);
-  --shadow-md: 0 4px 12px rgba(0, 151, 167, 0.15);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 151, 167, 0.25), 0 4px 6px -2px rgba(0, 151, 167, 0.1);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 151, 167, 0.25), 0 10px 10px -5px rgba(0, 151, 167, 0.1);
+  --shadow-hover: 0 6px 20px rgba(0, 188, 212, 0.25);
   --danger-shadow: 0 2px 8px rgba(239, 83, 80, 0.4);
-  --primary-color-shadow: rgba(0, 151, 167, 0.2);
-  --primary-color-bg-light: rgba(0, 151, 167, 0.1);
-  --primary-color-border: rgba(0, 151, 167, 0.3);
-  --danger-dark: #c62828;
 
-  --bg-mask: rgba(255, 255, 255, 0.2);
-  --shadow-inset: inset 0 2px 4px rgba(0, 151, 167, 0.1);
-  --shimmer-gradient: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  --shimmer-gradient-light: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-  --text-shadow-sm: 0 1px 2px rgba(0, 151, 167, 0.3);
-  --pulse-glow-start: 0 0 15px rgba(0, 217, 255, 0.5);
-  --pulse-glow-end: 0 0 25px rgba(0, 217, 255, 0.8);
+  /* 其他 */
+  --scrollbar-track-bg: var(--color-dark-100);
+  --scrollbar-thumb-bg: var(--color-gray-700);
+  --scrollbar-thumb-hover-bg: var(--color-gray-600);
 
-  --warning-text: #ffca28;
-  --success-text: #43a047;
-  --danger-text: #ef5350;
-  --primary-light: rgba(0, 151, 167, 0.1);
-
-  --scrollbar-track-bg: #2c3e50;
-  --scrollbar-thumb-bg: #808b96;
-  --scrollbar-thumb-hover-bg: #abb7c4;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 600;
 
   /* ===== 差异化样式 - 仅暗黑主题特有 ===== */
-
   color: var(--text-primary);
 
   &, * {

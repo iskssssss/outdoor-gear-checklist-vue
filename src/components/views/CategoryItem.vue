@@ -22,16 +22,11 @@
       </div>
 
       <div class="category-actions" v-if="!isEditingName && !isEditingIcon">
-        <div class="category-dropdown">
-          <button class="category-menu-btn">⋯</button>
-          <div class="category-menu">
-            <a class="category-menu-item" @click="debouncedStartEditName">✏️ 编辑名称</a>
-            <a v-if="category.items.length > 0" class="category-menu-item" @click="debouncedReindexItems">
-              🔢 重新编码
-            </a>
-            <a class="category-menu-item danger" @click="debouncedDeleteCategory">🗑️ 删除分类</a>
-          </div>
-        </div>
+        <BaseButtonDropdown text="⋯" variant="secondary" size="sm" placement="bottom-end">
+          <BaseDropdownItem icon="✏️" @click="debouncedStartEditName">编辑名称</BaseDropdownItem>
+          <BaseDropdownItem v-if="category.items.length > 0" icon="🔢" @click="debouncedReindexItems">重新编码</BaseDropdownItem>
+          <BaseDropdownItem icon="🗑️" danger @click="debouncedDeleteCategory">删除分类</BaseDropdownItem>
+        </BaseButtonDropdown>
       </div>
     </div>
 
@@ -73,7 +68,7 @@
         <!-- 添加装备区域 -->
         <div class="add-item-section">
           <div v-if="!isAddingItem" class="add-item-button-container">
-            <button class="add-item-button" @click="debouncedShowAddItemInput">+ 添加装备</button>
+            <BaseButton variant="outline" icon="+" @click="debouncedShowAddItemInput" class="add-item-button">添加装备</BaseButton>
           </div>
           <EquipmentItem v-else :category-id="category.id" :is-adding="true" @save="handleAddItem"
             @cancel="cancelAddItem" />
@@ -85,9 +80,10 @@
 
 <script setup>
 import { ref, computed, nextTick, watch, inject } from 'vue'
-import { useEquipmentStore } from '../../stores/equipment'
+import { useEquipmentStore } from '@/stores/equipment.ts'
 import EquipmentItem from './EquipmentItem.vue'
 import { useDebounceFn } from '@vueuse/core'
+import { BaseButton, BaseButtonDropdown, BaseDropdownItem } from '@/components/common'
 
 const props = defineProps({
   category: {
@@ -437,101 +433,7 @@ const debouncedShowAddItemInput = useDebounceFn(showAddItemInput, 300)
   position: relative;
 }
 
-.category-dropdown {
-  position: relative;
-  display: inline-block;
-
-  /* 扩展hover区域，确保鼠标在按钮和菜单之间移动时不会断开 */
-  &::after {
-    content: '';
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    // 扩展10px的hover区域
-    height: 10px;
-    background: transparent;
-  }
-}
-
-.category-menu-btn {
-  background: var(--bg-input);
-  border: none;
-  padding: 6px 12px;
-  border-radius: var(--border-radius-sm);
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  line-height: 1;
-}
-
-.category-menu-btn:hover {
-  background: var(--bg-hover);
-  color: var(--primary-color);
-}
-
-.category-menu {
-  display: none;
-  position: absolute;
-  right: 0;
-  top: 100%;
-  // 无间隙，直接连接
-  margin-top: 0;
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow-lg);
-  min-width: 150px;
-  z-index: 100;
-  overflow: hidden;
-  // 顶部留一点呼吸空间
-  padding-top: 4px;
-}
-
-.category-dropdown:hover .category-menu,
-.category-menu:hover {
-  display: block;
-  animation: fadeIn 0.2s ease;
-}
-
-.category-menu-item {
-  display: block;
-  padding: 10px 16px;
-  color: var(--text-primary);
-  text-decoration: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 0.9rem;
-  white-space: nowrap;
-
-  &:hover {
-    background: var(--bg-hover);
-    color: var(--primary-color);
-  }
-
-  &.danger {
-    color: var(--danger-color);
-
-    &:hover {
-      background: var(--danger-light);
-      color: var(--danger-color);
-    }
-  }
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-8px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+// BaseButtonDropdown 和 BaseDropdownItem 已接管下拉菜单样式
 
 .category-content {
   padding: 16px;
@@ -586,33 +488,7 @@ const debouncedShowAddItemInput = useDebounceFn(showAddItemInput, 300)
   justify-content: center;
 }
 
-.add-item-button {
-  padding: 10px 24px;
-  border: var(--border-width-lg) dashed var(--primary-color);
-  background: transparent;
-  color: var(--primary-color);
-  border-radius: var(--border-radius);
-  font-size: 0.95rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.add-item-button:hover {
-  background: var(--primary-color);
-  color: var(--text-white);
-  border-style: solid;
-}
-
-.add-item-button.cancel {
-  border-color: var(--danger-color);
-  color: var(--danger-color);
-}
-
-.add-item-button.cancel:hover {
-  background: var(--danger-color);
-  color: var(--text-white);
-}
+// BaseButton 已接管添加按钮样式
 
 .category-name-edit-group {
   flex: 1 1 auto;

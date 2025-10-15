@@ -7,30 +7,36 @@
     <!-- 装备统计 -->
     <div class="export-stats">
       <div class="stats-grid">
-        <div class="stat-item">
-          <div class="stat-number">{{ equipmentStore.totalCategories }}</div>
-          <div class="stat-label">装备分类</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-number">{{ equipmentStore.totalItems }}</div>
-          <div class="stat-label">装备总数</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-number">{{ equipmentStore.completedItems }}</div>
-          <div class="stat-label">已准备</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-number">{{ equipmentStore.remainingItems }}</div>
-          <div class="stat-label">待准备</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-number">{{ equipmentStore.totalWeight }}</div>
-          <div class="stat-label">总重量</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-number">{{ equipmentStore.totalPrice }}</div>
-          <div class="stat-label">总价格</div>
-        </div>
+        <BaseStatCard
+          :number="equipmentStore.totalCategories"
+          label="装备分类"
+          variant="primary"
+        />
+        <BaseStatCard
+          :number="equipmentStore.totalItems"
+          label="装备总数"
+          variant="info"
+        />
+        <BaseStatCard
+          :number="equipmentStore.completedItems"
+          label="已准备"
+          variant="success"
+        />
+        <BaseStatCard
+          :number="equipmentStore.remainingItems"
+          label="待准备"
+          variant="warning"
+        />
+        <BaseStatCard
+          :number="equipmentStore.totalWeight"
+          label="总重量"
+          variant="default"
+        />
+        <BaseStatCard
+          :number="equipmentStore.totalPrice"
+          label="总价格"
+          variant="default"
+        />
       </div>
     </div>
 
@@ -81,7 +87,8 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { useEquipmentStore } from '../../stores/equipment'
+import { useEquipmentStore } from '@/stores/equipment.ts'
+import { BaseStatCard } from '@/components/common'
 
 const equipmentStore = useEquipmentStore()
 
@@ -192,25 +199,7 @@ defineExpose({
   gap: 16px;
 }
 
-.stat-item {
-  text-align: center;
-  padding: 16px;
-  background: var(--bg-gradient, var(--primary-color));
-  border-radius: var(--border-radius, 8px);
-  color: var(--text-white);
-  box-shadow: var(--shadow-card);
-}
-
-.stat-number {
-  font-size: 1.8rem;
-  font-weight: 700;
-  margin-bottom: 6px;
-}
-
-.stat-label {
-  font-size: 0.85rem;
-  opacity: 0.9;
-}
+// BaseStatCard 已接管统计卡片样式
 
 .export-body {
   display: flex;

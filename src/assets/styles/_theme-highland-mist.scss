@@ -6,75 +6,150 @@
 @use 'mixins' as *;
 
 body.theme-highland-mist {
-  /* ===== CSS 变量定义 ===== */
-  // 高原晨雾主题（Highland Mist）
-  // 主色调：雾蓝 → 浅灰
-  --primary-color: #b0bec5;        // 雾蓝色
-  --primary-dark: #94A3B8;         // 深雾蓝
-  --secondary-color: #90a4ae;      // 浅蓝灰
-  --success-color: #4CAF50;        // 已准备装备绿色
-  --success-light: #E6F4EA;
-  --warning-color: #FFB74D;        // 注意或待准备装备
-  --warning-light: #FFF3E0;
-  --danger-color: #E53935;         // 缺失装备
-  --danger-light: #FFEBEE;
-  --info-color: #2196F3;           // 信息提示蓝
-  --info-light: #E3F2FD;
+  /* ========== 色彩系统 - 高原晨雾 ========== */
+  /* 主色调 - 蓝灰色系 */
+  --color-primary-50: #f8fafc;
+  --color-primary-100: #f1f5f9;
+  --color-primary-200: #e2e8f0;
+  --color-primary-300: #cbd5e0;
+  --color-primary-400: #94a3b8;
+  --color-primary-500: #64748b;
+  --color-primary-600: #475569;
+  --color-primary-700: #334155;
+  --color-primary-800: #1e293b;
+  --color-primary-900: #0f172a;
 
-  --bg-gradient: linear-gradient(135deg, #CBD5E0 0%, #F0F4F8 100%);
-  --bg-main: #F7FAFC;
-  --bg-card: #FFFFFF;
-  --bg-header: #EDF2F7;
-  --bg-input: #E2E8F0;
-  --bg-hover: #D3DCE6;
-  --bg-button-group: #D3DCE6;
-  --bg-overlay: rgba(0, 0, 0, 0.5);
+  /* 成功色 - 绿色系 */
+  --color-success-50: #f0fdf4;
+  --color-success-100: #dcfce7;
+  --color-success-200: #bbf7d0;
+  --color-success-300: #86efac;
+  --color-success-400: #4ade80;
+  --color-success-500: #22c55e;
+  --color-success-600: #16a34a;
+  --color-success-700: #15803d;
+  --color-success-800: #166534;
+  --color-success-900: #14532d;
 
-  --text-primary: #1A202C;
-  --text-secondary: #4A5568;
-  --text-muted: #718096;
-  --text-white: #FFFFFF;
+  /* 警告色 - 橙色系 */
+  --color-warning-50: #fff7ed;
+  --color-warning-100: #ffedd5;
+  --color-warning-200: #fed7aa;
+  --color-warning-300: #fdba74;
+  --color-warning-400: #fb923c;
+  --color-warning-500: #f97316;
+  --color-warning-600: #ea580c;
+  --color-warning-700: #c2410c;
+  --color-warning-800: #9a3412;
+  --color-warning-900: #7c2d12;
 
-  --btn-primary-text: #1A202C;
-  --btn-success-text: #FFFFFF;
-  --btn-danger-text: #FFFFFF;
+  /* 危险色 - 红色系 */
+  --color-danger-50: #fef2f2;
+  --color-danger-100: #fee2e2;
+  --color-danger-200: #fecaca;
+  --color-danger-300: #fca5a5;
+  --color-danger-400: #f87171;
+  --color-danger-500: #ef4444;
+  --color-danger-600: #dc2626;
+  --color-danger-700: #b91c1c;
+  --color-danger-800: #991b1b;
+  --color-danger-900: #7f1d1d;
 
-  --border-color: #D3DCE6;
-  --border-radius: 8px;
-  --border-radius-sm: 6px;
-  --border-radius-lg: 12px;
-  --border-radius-xl: 16px;
-  --border-width: 1px;
+  /* 信息色 - 蓝色系 */
+  --color-info-50: #eff6ff;
+  --color-info-100: #dbeafe;
+  --color-info-200: #bfdbfe;
+  --color-info-300: #93c5fd;
+  --color-info-400: #60a5fa;
+  --color-info-500: #3b82f6;
+  --color-info-600: #2563eb;
+  --color-info-700: #1d4ed8;
+  --color-info-800: #1e40af;
+  --color-info-900: #1e3a8a;
 
-  --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  /* 中性色 - 晨雾灰 */
+  --color-gray-50: #f7fafc;
+  --color-gray-100: #edf2f7;
+  --color-gray-200: #e2e8f0;
+  --color-gray-300: #d3dce6;
+  --color-gray-400: #afc9da;
+  --color-gray-500: #718096;
+  --color-gray-600: #4a5568;
+  --color-gray-700: #2d3748;
+  --color-gray-800: #1a202c;
+  --color-gray-900: #171923;
+
+  /* ========== 间距系统 ========== */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
+  --spacing-3xl: 4rem;
+
+  /* ========== 圆角系统 ========== */
+  --radius-none: 0;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --radius-full: 9999px;
+
+  /* ========== 阴影系统 ========== */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
   --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+
+  /* ========== 语义化变量映射 ========== */
+  --primary-color: var(--color-primary-400);
+  --primary-dark: var(--color-primary-600);
+  --secondary-color: var(--color-primary-500);
+  --success-color: var(--color-success-600);
+  --success-light: var(--color-success-50);
+  --warning-color: var(--color-warning-400);
+  --warning-light: var(--color-warning-50);
+  --danger-color: var(--color-danger-600);
+  --danger-light: var(--color-danger-50);
+  --info-color: var(--color-info-500);
+  --info-light: var(--color-info-50);
+
+  --bg-main: var(--color-gray-50);
+  --bg-card: #ffffff;
+  --bg-header: var(--color-gray-100);
+  --bg-input: var(--color-gray-200);
+  --bg-hover: var(--color-gray-300);
+  --bg-button-group: var(--color-gray-300);
+  --bg-overlay: rgba(0, 0, 0, 0.5);
+  --bg-gradient: linear-gradient(135deg, #cbd5e0 0%, #f0f4f8 100%);
+
+  --text-primary: var(--color-gray-800);
+  --text-secondary: var(--color-gray-600);
+  --text-muted: var(--color-gray-500);
+  --text-white: #ffffff;
+
+  --btn-primary-text: var(--color-gray-800);
+  --btn-success-text: #ffffff;
+  --btn-danger-text: #ffffff;
+
+  --border-color: var(--color-gray-300);
+  --border-radius: var(--radius-md);
+  --border-radius-sm: var(--radius-sm);
+  --border-radius-lg: var(--radius-lg);
+  --border-radius-xl: var(--radius-xl);
+  --border-width: 1px;
+
+  --shadow-card: var(--shadow-md);
+  --shadow-hover: var(--shadow-lg);
   --danger-shadow: 0 2px 8px rgba(229, 57, 53, 0.3);
-  --primary-color-shadow: rgba(203, 213, 224, 0.3);
-  --primary-color-bg-light: rgba(203, 213, 224, 0.15);
-  --primary-color-border: rgba(203, 213, 224, 0.4);
 
-  --bg-mask: rgba(255, 255, 255, 0.3);
-  --shadow-inset: inset 0 2px 4px rgba(0, 0, 0, 0.1);
-  --shimmer-gradient: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-  --shimmer-gradient-light: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-  --text-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
-  --pulse-glow-start: 0 0 15px rgba(175, 201, 217, 0.5);
-  --pulse-glow-end: 0 0 25px rgba(175, 201, 217, 0.8);
-
-  --scrollbar-track-bg: #E2E8F0;
-  --scrollbar-thumb-bg: #94A3B8;
-  --scrollbar-thumb-hover-bg: #64748B;
-
-  --btn-success: #4CAF50;
-  --btn-primary: #CBD5E0;
-  --btn-warning: #FFB74D;
-  --btn-danger: #E53935;
-  --btn-info: #2196F3;
-  --btn-secondary: #94A3B8;
+  --scrollbar-track-bg: var(--color-gray-200);
+  --scrollbar-thumb-bg: var(--color-primary-400);
+  --scrollbar-thumb-hover-bg: var(--color-primary-600);
 
   --font-weight-normal: 400;
   --font-weight-medium: 500;

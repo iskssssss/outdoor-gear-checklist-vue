@@ -7,76 +7,121 @@
       </div>
     </div>
 
-    <!-- 进度条 -->
-    <div class="progress-section">
-      <div class="progress-bar-container">
-        <div class="progress-bar" :style="{ width: completionRate + '%' }">
-          <span class="progress-text" v-if="completionRate > 10">{{ equipmentStore.completedItems }} / {{
-            equipmentStore.totalItems }}</span>
-        </div>
+    <!-- 图表区域 -->
+    <div class="charts-section">
+      <!-- 完成率环形图 -->
+      <div class="chart-container completion-chart">
+        <h4>完成进度</h4>
+        <BaseChart
+          type="pie"
+          :data="completionData"
+          height="200px"
+          @click="handleChartClick"
+        />
       </div>
-      <div class="progress-info">
-        <span class="info-item info-completed">
-          <span class="info-icon">✅</span>
-          <span class="info-label">已准备</span>
-          <span class="info-count">{{ equipmentStore.completedItems }}</span>
-        </span>
-        <span class="info-item info-pending">
-          <span class="info-icon">⏳</span>
-          <span class="info-label">待准备</span>
-          <span class="info-count">{{ equipmentStore.remainingItems }}</span>
-        </span>
+
+      <!-- 分类分布饼图 -->
+      <div class="chart-container distribution-chart" v-if="categoryDistributionData.length > 0">
+        <h4>分类分布</h4>
+        <BaseChart
+          type="pie"
+          :data="categoryDistributionData"
+          height="200px"
+          @click="handleChartClick"
+        />
       </div>
     </div>
 
     <!-- 统计网格 -->
     <div class="stats-grid">
-      <div class="stat-item stat-categories">
-        <div class="stat-icon">📦</div>
-        <div class="stat-content">
-          <div class="stat-number">{{ equipmentStore.totalCategories }}</div>
-          <div class="stat-label">装备分类</div>
-        </div>
+      <BaseStatCard
+        icon="📦"
+        :number="equipmentStore.totalCategories"
+        label="装备分类"
+        clickable
+      />
+
+      <BaseStatCard
+        icon="🎒"
+        :number="equipmentStore.totalItems"
+        label="装备总数"
+        clickable
+      />
+
+      <BaseStatCard
+        icon="⚖️"
+        :number="equipmentStore.totalWeight"
+        label="总重量"
+        :extra="averageWeight > 0 ? `平均 ${averageWeight}kg/件` : undefined"
+        clickable
+      />
+
+      <BaseStatCard
+        icon="💰"
+        :number="formatPrice(equipmentStore.totalPrice)"
+        label="总价格"
+        :extra="averagePrice > 0 ? `平均 ¥${averagePrice}/件` : undefined"
+        clickable
+      />
+    </div>
+
+    <!-- 详细分析图表 -->
+    <div class="analysis-charts" v-if="showAnalysisCharts">
+      <!-- 重量分布柱状图 -->
+      <div class="chart-container analysis-chart" v-if="weightDistributionData.categories.length > 0">
+        <h4>重量分布</h4>
+        <BaseChart
+          type="bar"
+          :data="weightDistributionData"
+          height="250px"
+          @click="handleChartClick"
+        />
       </div>
 
-      <div class="stat-item stat-items">
-        <div class="stat-icon">🎒</div>
-        <div class="stat-content">
-          <div class="stat-number">{{ equipmentStore.totalItems }}</div>
-          <div class="stat-label">装备总数</div>
-        </div>
+      <!-- 价格分布柱状图 -->
+      <div class="chart-container analysis-chart" v-if="priceDistributionData.categories.length > 0">
+        <h4>价格分布</h4>
+        <BaseChart
+          type="bar"
+          :data="priceDistributionData"
+          height="250px"
+          @click="handleChartClick"
+        />
       </div>
+    </div>
 
-      <div class="stat-item stat-weight">
-        <div class="stat-icon">⚖️</div>
-        <div class="stat-content">
-          <div class="stat-number">{{ equipmentStore.totalWeight }}</div>
-          <div class="stat-label">总重量</div>
-          <div class="stat-extra" v-if="averageWeight > 0">
-            平均 {{ averageWeight }}kg/件
-          </div>
-        </div>
-      </div>
-
-      <div class="stat-item stat-price">
-        <div class="stat-icon">💰</div>
-        <div class="stat-content">
-          <div class="stat-number">{{ formatPrice(equipmentStore.totalPrice) }}</div>
-          <div class="stat-label">总价格</div>
-          <div class="stat-extra" v-if="averagePrice > 0">
-            平均 ¥{{ averagePrice }}/件
-          </div>
-        </div>
-      </div>
+    <!-- 切换按钮 -->
+    <div class="chart-controls">
+      <BaseButton 
+        @click="toggleAnalysisCharts"
+        variant="outline"
+        size="sm"
+        :icon="showAnalysisCharts ? '📊' : '📈'"
+      >
+        {{ showAnalysisCharts ? '隐藏详细分析' : '显示详细分析' }}
+      </BaseButton>
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { useEquipmentStore } from '../../stores/equipment'
+import { computed, ref } from 'vue'
+import { useEquipmentStore } from '@/stores/equipment.ts'
+import { BaseStatCard, BaseButton } from '@/components/common'
+import { BaseChart } from '@/components/charts'
+import { useEquipmentChartData } from '@/composables/useChartData'
+import { toast } from '@/utils/toast'
 
 const equipmentStore = useEquipmentStore()
+const showAnalysisCharts = ref(false)
+
+// 使用图表数据
+const {
+  completionData,
+  categoryDistributionData,
+  weightDistributionData,
+  priceDistributionData
+} = useEquipmentChartData()
 
 /**
  * 完成率百分比
@@ -120,6 +165,35 @@ function formatPrice(priceString) {
   // 添加千位分隔符
   const formatted = num.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')
   return '¥' + formatted
+}
+
+/**
+ * 切换详细分析图表显示
+ */
+function toggleAnalysisCharts() {
+  showAnalysisCharts.value = !showAnalysisCharts.value
+}
+
+/**
+ * 处理图表点击事件
+ */
+function handleChartClick(params) {
+  if (params.componentType === 'series') {
+    const chartType = params.seriesType
+    const dataName = params.name
+    const dataValue = params.value
+    
+    let message = ''
+    if (chartType === 'pie') {
+      message = `点击了 ${dataName}：${dataValue}`
+    } else if (chartType === 'bar') {
+      message = `点击了 ${dataName}：${dataValue}`
+    }
+    
+    if (message) {
+      toast.info(message)
+    }
+  }
 }
 </script>
 
@@ -310,92 +384,87 @@ function formatPrice(priceString) {
   }
 }
 
+// 图表区域样式
+.charts-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.chart-container {
+  background: var(--bg-main);
+  border: var(--border-width-sm) solid var(--border-color-light);
+  border-radius: var(--border-radius-lg);
+  padding: 16px;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--border-color);
+  }
+  
+  h4 {
+    margin: 0 0 12px 0;
+    color: var(--text-primary);
+    font-size: 1rem;
+    font-weight: 600;
+    text-align: center;
+  }
+}
+
+.completion-chart {
+  // 完成率图表特殊样式
+  border-color: var(--accent-primary);
+  
+  &:hover {
+    border-color: var(--accent-primary);
+    box-shadow: 0 4px 12px rgba(var(--accent-primary-rgb, 59, 130, 246), 0.15);
+  }
+}
+
+.distribution-chart {
+  // 分布图表特殊样式
+  border-color: var(--accent-success);
+  
+  &:hover {
+    border-color: var(--accent-success);
+    box-shadow: 0 4px 12px rgba(var(--accent-success-rgb, 16, 185, 129), 0.15);
+  }
+}
+
+// 详细分析图表
+.analysis-charts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.analysis-chart {
+  border-color: var(--accent-info);
+  
+  &:hover {
+    border-color: var(--accent-info);
+    box-shadow: 0 4px 12px rgba(var(--accent-info-rgb, 6, 182, 212), 0.15);
+  }
+}
+
+// 图表控制按钮
+.chart-controls {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+}
+
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 16px;
 }
 
-.stat-item {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 18px;
-  border-radius: var(--border-radius-lg);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  background: var(--bg-input);
-  border: var(--border-width) solid transparent;
-  position: relative;
-  overflow: hidden;
-  box-shadow: var(--shadow-xs, 0 1px 2px rgba(0, 0, 0, 0.05));
-  
-  // 确保内容在交互效果之上
-  > * {
-    position: relative;
-    z-index: 1;
-  }
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: var(--shimmer-gradient-light, linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent));
-    transition: left 0.5s;
-    z-index: 0;
-  }
-
-  &:hover {
-    transform: translateY(-3px);
-    box-shadow: var(--shadow-md);
-    background: var(--bg-hover, var(--bg-input));
-    border-color: var(--border-color);
-
-    &::before {
-      left: 100%;
-    }
-  }
-}
-
-.stat-icon {
-  font-size: 2rem;
-  flex-shrink: 0;
-  transition: transform 0.3s ease;
-  
-  .stat-item:hover & {
-    transform: scale(1.1);
-  }
-}
-
-.stat-content {
-  flex: 1;
-  text-align: left;
-}
-
-.stat-number {
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin-bottom: 4px;
-  color: var(--text-primary);
-  line-height: 1.2;
-}
-
-.stat-label {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-  font-weight: 500;
-  opacity: 0.85;
-}
-
-.stat-extra {
-  font-size: 0.7rem;
-  color: var(--text-secondary);
-  margin-top: 4px;
-  opacity: 0.7;
-  font-weight: 400;
-}
+// BaseStatCard 已接管统计卡片样式
 
 // 标题呼吸动画
 .stats-header h3 {
@@ -449,67 +518,29 @@ function formatPrice(priceString) {
     font-size: 0.9rem;
   }
 
-  .progress-bar-container {
-    height: 30px;
+  // 移动端图表布局
+  .charts-section {
+    grid-template-columns: 1fr;
+    gap: 16px;
   }
 
-  .progress-text {
-    font-size: 0.85rem;
-  }
-  
-  .progress-info {
-    gap: 8px;
+  .chart-container {
+    padding: 12px;
+    
+    h4 {
+      font-size: 0.9rem;
+      margin-bottom: 8px;
+    }
   }
 
-  .info-item {
-    padding: 6px 12px;
-    gap: 6px;
-  }
-  
-  .info-icon {
-    font-size: 1rem;
-  }
-  
-  .info-label {
-    font-size: 0.75rem;
-  }
-  
-  .info-count {
-    font-size: 0.9rem;
-    padding-left: 4px;
+  .analysis-charts {
+    grid-template-columns: 1fr;
+    gap: 16px;
   }
 
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;
-  }
-
-  .stat-item {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: 12px;
-    padding: 16px;
-  }
-
-  .stat-content {
-    text-align: center;
-  }
-
-  .stat-icon {
-    font-size: 1.8rem;
-  }
-
-  .stat-number {
-    font-size: 1.3rem;
-  }
-
-  .stat-label {
-    font-size: 0.8rem;
-  }
-
-  .stat-extra {
-    font-size: 0.7rem;
   }
 }
 </style>

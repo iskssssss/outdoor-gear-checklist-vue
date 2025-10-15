@@ -10,10 +10,12 @@
   },
   "dependencies": {
     "@vueuse/core": "^13.9.0",
+    "echarts": "^6.0.0",
     "html2canvas": "^1.4.1",
     "pinia": "^2.1.7",
     "uuid": "^13.0.0",
     "vue": "^3.5.22",
+    "vue-echarts": "^8.0.1",
     "vue-router": "^4.5.1"
   },
   "devDependencies": {

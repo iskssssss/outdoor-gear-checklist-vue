@@ -5,74 +5,177 @@
 @use './_mixins' as *;
 
 body.theme-paper {
-  /* ===== CSS 变量定义 ===== */
-  // 原 #d59f2a
-  --primary-color: #c5912e;
-  // 原 #b88a26
-  --primary-dark: #a47822;
-  --primary-light: #c1c0bd;
-  --secondary-color: #897b66;
-  // 原 #5a914c
-  --success-color: #4a7f3c;
-  --success-light: #f0fff4;
-  --success-text: #374427;
-  --warning-color: #d97706;
-  --warning-light: #fffbeb;
-  --warning-text: #746a15;
-  --danger-color: #b91c1c;
-  --danger-light: #fef2f2;
-  --danger-text: #7f2722;
-  --info-color: #2563eb;
-  --info-light: #eff6ff;
-  --muted-color: #868e96;
+  /* ========== 色彩系统 - 纸张手绘色系 ========== */
+  /* 主色调 - 暖黄色系 */
+  --color-primary-50: #fefce8;
+  --color-primary-100: #fef9c3;
+  --color-primary-200: #fef08a;
+  --color-primary-300: #fde047;
+  --color-primary-400: #facc15;
+  --color-primary-500: #eab308;  /* 基准色 */
+  --color-primary-600: #ca8a04;
+  --color-primary-700: #a16207;
+  --color-primary-800: #854d0e;
+  --color-primary-900: #713f12;
 
+  /* 成功色 - 橄榄绿系 */
+  --color-success-50: #f7fee7;
+  --color-success-100: #ecfccb;
+  --color-success-200: #d9f99d;
+  --color-success-300: #bef264;
+  --color-success-400: #a3e635;
+  --color-success-500: #84cc16;  /* 基准色 */
+  --color-success-600: #65a30d;
+  --color-success-700: #4d7c0f;
+  --color-success-800: #3f6212;
+  --color-success-900: #365314;
+
+  /* 警告色 - 橙色系 */
+  --color-warning-50: #fff7ed;
+  --color-warning-100: #ffedd5;
+  --color-warning-200: #fed7aa;
+  --color-warning-300: #fdba74;
+  --color-warning-400: #fb923c;
+  --color-warning-500: #f97316;  /* 基准色 */
+  --color-warning-600: #ea580c;
+  --color-warning-700: #c2410c;
+  --color-warning-800: #9a3412;
+  --color-warning-900: #7c2d12;
+
+  /* 危险色 - 棕红色系 */
+  --color-danger-50: #fef2f2;
+  --color-danger-100: #fee2e2;
+  --color-danger-200: #fecaca;
+  --color-danger-300: #fca5a5;
+  --color-danger-400: #f87171;
+  --color-danger-500: #ef4444;  /* 基准色 */
+  --color-danger-600: #dc2626;
+  --color-danger-700: #b91c1c;
+  --color-danger-800: #991b1b;
+  --color-danger-900: #7f1d1d;
+
+  /* 信息色 - 天蓝色系 */
+  --color-info-50: #eff6ff;
+  --color-info-100: #dbeafe;
+  --color-info-200: #bfdbfe;
+  --color-info-300: #93c5fd;
+  --color-info-400: #60a5fa;
+  --color-info-500: #3b82f6;  /* 基准色 */
+  --color-info-600: #2563eb;
+  --color-info-700: #1d4ed8;
+  --color-info-800: #1e40af;
+  --color-info-900: #1e3a8a;
+
+  /* 中性色 - 纸张暖灰 */
+  --color-gray-50: #fafaf9;
+  --color-gray-100: #f5f5f4;
+  --color-gray-200: #e7e5e4;
+  --color-gray-300: #d6d3d1;
+  --color-gray-400: #a8a29e;
+  --color-gray-500: #78716c;
+  --color-gray-600: #57534e;
+  --color-gray-700: #44403c;
+  --color-gray-800: #292524;
+  --color-gray-900: #1c1917;
+
+  /* ========== 间距系统 ========== */
+  --spacing-xs: 0.25rem;   /* 4px */
+  --spacing-sm: 0.5rem;    /* 8px */
+  --spacing-md: 1rem;      /* 16px */
+  --spacing-lg: 1.5rem;    /* 24px */
+  --spacing-xl: 2rem;      /* 32px */
+  --spacing-2xl: 3rem;     /* 48px */
+  --spacing-3xl: 4rem;     /* 64px */
+
+  /* ========== 圆角系统 - 手绘不规则 ========== */
+  --radius-none: 0;
+  --radius-sm: 0.125rem;   /* 2px */
+  --radius-md: 0.25rem;    /* 4px */
+  --radius-lg: 0.5rem;     /* 8px */
+  --radius-xl: 0.75rem;    /* 12px */
+  --radius-2xl: 1rem;      /* 16px */
+  --radius-full: 9999px;
+
+  /* ========== 阴影系统 - 纸张阴影 ========== */
+  --shadow-sm: 2px 2px 0 rgba(0, 0, 0, 0.08);
+  --shadow-md: 4px 4px 0 rgba(0, 0, 0, 0.1);
+  --shadow-lg: 6px 6px 0 rgba(0, 0, 0, 0.12);
+  --shadow-xl: 8px 8px 0 rgba(0, 0, 0, 0.15);
+  --shadow-2xl: 10px 10px 0 rgba(0, 0, 0, 0.18);
+  --shadow-inner: inset 2px 2px 0 rgba(0, 0, 0, 0.05);
+
+  /* ========== 语义化变量映射 ========== */
+  /* 主色调 */
+  --primary-color: var(--color-primary-600);
+  --primary-dark: var(--color-primary-700);
+  --primary-light: var(--color-primary-400);
+
+  /* 功能色 */
+  --success-color: var(--color-success-700);
+  --success-light: var(--color-success-50);
+  --success-text: var(--color-success-900);
+  --warning-color: var(--color-warning-600);
+  --warning-light: var(--color-warning-50);
+  --warning-text: var(--color-warning-900);
+  --danger-color: var(--color-danger-700);
+  --danger-light: var(--color-danger-50);
+  --danger-text: var(--color-danger-900);
+  --info-color: var(--color-info-600);
+  --info-light: var(--color-info-50);
+
+  /* 中性色 */
+  --secondary-color: var(--color-gray-600);
+
+  /* 背景色 */
   --bg-main: #f3eee8;
   --bg-card: #fffef9;
   --bg-header: #fffef9;
   --bg-input: #fffef9;
   --bg-hover: #f9f4ec;
   --bg-button-group: #f9f4ec;
-  --bg-gradient: none;
   --bg-overlay: rgba(243, 238, 232, 0.7);
+  --bg-gradient: none;
 
-  --text-primary: #3d352a;
-  --text-secondary: #5a5a5a;
-  --text-muted: #767676;
+  /* 文本色 - 符合WCAG AA对比度标准 */
+  --text-primary: var(--color-gray-800);     /* 对比度 > 7:1 */
+  --text-secondary: var(--color-gray-600);   /* 对比度 > 4.5:1 */
+  --text-muted: var(--color-gray-500);       /* 对比度 > 3:1 */
   --text-white: #ffffff;
 
+  /* 按钮文本色 */
   --btn-primary-text: #ffffff;
   --btn-success-text: #ffffff;
   --btn-danger-text: #ffffff;
 
+  /* 边框 */
   --border-color: #41403e;
   --border-light: #d4c4b0;
-  --border-radius: 4px;
-  --border-radius-sm: 2px;
-  --border-radius-lg: 8px;
-  --border-radius-xl: 12px;
+  --border-radius: var(--radius-md);
+  --border-radius-sm: var(--radius-sm);
+  --border-radius-lg: var(--radius-lg);
+  --border-radius-xl: var(--radius-xl);
   --border-width: 2px;
 
-  --shadow-card: 4px 4px 0 rgba(0, 0, 0, 0.1);
-  --shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  /* 阴影别名 */
+  --shadow-card: var(--shadow-md);
+  --shadow-hover: var(--shadow-lg);
   --danger-shadow: 0 2px 8px rgba(185, 28, 28, 0.3);
-  --primary-color-shadow: rgba(197, 145, 46, 0.2);
 
+  /* 其他 */
   --scrollbar-track-bg: #e9e4dd;
   --scrollbar-thumb-bg: #a09381;
   --scrollbar-thumb-hover-bg: #7a7062;
+
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 600;
 
   --font-family-base: 'Neucha', cursive, sans-serif;
   --font-family-heading: 'Patrick Hand', cursive, sans-serif;
 
   /* ===== 差异化样式 - 仅手绘主题特有 ===== */
-
   font-family: var(--font-family-base);
   color: var(--text-primary);
-  // 防止不规则边框和阴影导致的水平溢出
   overflow-x: hidden;
 
   &, * {

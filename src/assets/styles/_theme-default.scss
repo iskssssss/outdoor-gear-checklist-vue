@@ -1,88 +1,166 @@
 /**
  * 默认主题 - 现代简洁风格
- * 只定义差异化样式，通用样式在 _base.scss 中
+ * 遵循CSS主题优化规范 - 完整设计token系统
  */
 
 :root,
 body.theme-default {
-  /* ===== CSS 变量定义 ===== */
-  // 原 #5a67d8
-  --primary-color: #5a67d8;
-  // 原 #4c51bf
-  --primary-dark: #434190;
-  --secondary-color: #a0aec0;
-  // 原 #48bb78
-  --success-color: #38a169;
-  --success-light: #f0fff4;
-  // 原 #ecc94b
-  --warning-color: #d69e2e;
-  --warning-light: #fffff0;
-  // 原 #f56565
-  --danger-color: #c53030;
-  --danger-light: #fff5f5;
-  // 原 #4299e1
-  --info-color: #3182ce;
-  --info-light: #ebf8ff;
+  /* ========== 色彩系统 ========== */
+  /* 主色调 - 蓝紫色系 */
+  --color-primary-50: #f5f7ff;
+  --color-primary-100: #e9ecff;
+  --color-primary-200: #d4d9ff;
+  --color-primary-300: #b8bfff;
+  --color-primary-400: #8891ff;
+  --color-primary-500: #667eea;  /* 基准色 */
+  --color-primary-600: #5a67d8;
+  --color-primary-700: #4c51bf;
+  --color-primary-800: #434190;
+  --color-primary-900: #3a3770;
 
-  --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --bg-main: #f7fafc;
-  --bg-card: #ffffff;
-  --bg-header: #ffffff;
-  --bg-input: #edf2f7;
-  --bg-hover: #e2e8f0;
-  --bg-button-group: #e2e8f0;
-  --bg-overlay: rgba(0, 0, 0, 0.5);
+  /* 成功色 - 绿色系 */
+  --color-success-50: #f0fff4;
+  --color-success-100: #c6f6d5;
+  --color-success-200: #9ae6b4;
+  --color-success-300: #68d391;
+  --color-success-400: #48bb78;
+  --color-success-500: #38a169;  /* 基准色 */
+  --color-success-600: #2f855a;
+  --color-success-700: #276749;
+  --color-success-800: #22543d;
+  --color-success-900: #1c4532;
 
-  // 原 #2d3748
-  --text-primary: #1a202c;
-  // 原 #718096
-  --text-secondary: #4a5568;
-  // 原 #888
-  --text-muted: #6c757d;
-  --text-white: #ffffff;
+  /* 警告色 - 黄色系 */
+  --color-warning-50: #fffff0;
+  --color-warning-100: #fefcbf;
+  --color-warning-200: #faf089;
+  --color-warning-300: #f6e05e;
+  --color-warning-400: #ecc94b;
+  --color-warning-500: #d69e2e;  /* 基准色 */
+  --color-warning-600: #b7791f;
+  --color-warning-700: #975a16;
+  --color-warning-800: #744210;
+  --color-warning-900: #5f370e;
 
-  --btn-primary-text: #ffffff;
-  --btn-success-text: #ffffff;
-  --btn-danger-text: #ffffff;
+  /* 危险色 - 红色系 */
+  --color-danger-50: #fff5f5;
+  --color-danger-100: #fed7d7;
+  --color-danger-200: #feb2b2;
+  --color-danger-300: #fc8181;
+  --color-danger-400: #f56565;
+  --color-danger-500: #e53e3e;  /* 基准色 */
+  --color-danger-600: #c53030;
+  --color-danger-700: #9b2c2c;
+  --color-danger-800: #822727;
+  --color-danger-900: #63171b;
 
-  --border-color: #e2e8f0;
-  --border-radius: 8px;
-  --border-radius-sm: 6px;
-  --border-radius-lg: 12px;
-  --border-radius-xl: 16px;
-  --border-width: 1px;
+  /* 信息色 - 蓝色系 */
+  --color-info-50: #ebf8ff;
+  --color-info-100: #bee3f8;
+  --color-info-200: #90cdf4;
+  --color-info-300: #63b3ed;
+  --color-info-400: #4299e1;
+  --color-info-500: #3182ce;  /* 基准色 */
+  --color-info-600: #2b6cb0;
+  --color-info-700: #2c5282;
+  --color-info-800: #2a4365;
+  --color-info-900: #1a365d;
 
-  --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  /* 中性色 - 灰色系 */
+  --color-gray-50: #f7fafc;
+  --color-gray-100: #edf2f7;
+  --color-gray-200: #e2e8f0;
+  --color-gray-300: #cbd5e0;
+  --color-gray-400: #a0aec0;
+  --color-gray-500: #718096;
+  --color-gray-600: #4a5568;
+  --color-gray-700: #2d3748;
+  --color-gray-800: #1a202c;
+  --color-gray-900: #171923;
+
+  /* ========== 间距系统 ========== */
+  --spacing-xs: 0.25rem;   /* 4px */
+  --spacing-sm: 0.5rem;    /* 8px */
+  --spacing-md: 1rem;      /* 16px */
+  --spacing-lg: 1.5rem;    /* 24px */
+  --spacing-xl: 2rem;      /* 32px */
+  --spacing-2xl: 3rem;     /* 48px */
+  --spacing-3xl: 4rem;     /* 64px */
+
+  /* ========== 圆角系统 ========== */
+  --radius-none: 0;
+  --radius-sm: 0.25rem;    /* 4px */
+  --radius-md: 0.5rem;     /* 8px */
+  --radius-lg: 0.75rem;    /* 12px */
+  --radius-xl: 1rem;       /* 16px */
+  --radius-2xl: 1.5rem;    /* 24px */
+  --radius-full: 9999px;
+
+  /* ========== 阴影系统 ========== */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
   --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  --danger-shadow: 0 2px 8px rgba(229, 62, 62, 0.3);
-  --primary-color-shadow: rgba(76, 81, 191, 0.2);
-  --primary-color-bg-light: rgba(76, 81, 191, 0.1);
-  --primary-color-border: rgba(76, 81, 191, 0.3);
+  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
 
-  --bg-mask: rgba(255, 255, 255, 0.3);
+  /* ========== 语义化变量映射 ========== */
+  /* 主色调 */
+  --primary-color: var(--color-primary-500);
+  --primary-dark: var(--color-primary-700);
+  --primary-light: var(--color-primary-300);
 
-  --shadow-inset: inset 0 2px 4px rgba(0, 0, 0, 0.1);
-  --shimmer-gradient: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-  --shimmer-gradient-light: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-  --text-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
+  /* 功能色 */
+  --success-color: var(--color-success-500);
+  --success-light: var(--color-success-50);
+  --warning-color: var(--color-warning-500);
+  --warning-light: var(--color-warning-50);
+  --danger-color: var(--color-danger-600);
+  --danger-light: var(--color-danger-50);
+  --info-color: var(--color-info-500);
+  --info-light: var(--color-info-50);
 
-  --pulse-glow-start: 0 0 15px rgba(0, 217, 255, 0.5);
-  --pulse-glow-end: 0 0 25px rgba(0, 217, 255, 0.8);
+  /* 中性色 */
+  --secondary-color: var(--color-gray-400);
 
-  --scrollbar-track-bg: #f1f1f1;
-  --scrollbar-thumb-bg: #adadad;
-  --scrollbar-thumb-hover-bg: #8c8c8c;
+  /* 背景色 */
+  --bg-main: var(--color-gray-50);
+  --bg-card: #ffffff;
+  --bg-header: #ffffff;
+  --bg-input: var(--color-gray-100);
+  --bg-hover: var(--color-gray-200);
+  --bg-button-group: var(--color-gray-200);
+  --bg-overlay: rgba(0, 0, 0, 0.5);
+  --bg-gradient: linear-gradient(135deg, var(--color-primary-500) 0%, #764ba2 100%);
 
-  --btn-success: #28a745;
-  --btn-primary: #667eea;
-  --btn-warning: #ffc107;
-  --btn-danger: #dc3545;
-  --btn-info: #17a2b8;
-  --btn-secondary: #6c757d;
+  /* 文本色 - 符合WCAG AA对比度标准 */
+  --text-primary: var(--color-gray-800);     /* 对比度 > 7:1 */
+  --text-secondary: var(--color-gray-600);   /* 对比度 > 4.5:1 */
+  --text-muted: var(--color-gray-500);       /* 对比度 > 3:1 */
+  --text-white: #ffffff;
+
+  /* 按钮文本色 */
+  --btn-primary-text: #ffffff;
+  --btn-success-text: #ffffff;
+  --btn-danger-text: #ffffff;
+
+  /* 边框 */
+  --border-color: var(--color-gray-200);
+  --border-radius: var(--radius-md);
+  --border-radius-sm: var(--radius-sm);
+  --border-radius-lg: var(--radius-lg);
+  --border-radius-xl: var(--radius-xl);
+  --border-width: 1px;
+
+  /* 阴影别名 */
+  --shadow-card: var(--shadow-md);
+  --shadow-hover: var(--shadow-lg);
+  --danger-shadow: 0 2px 8px rgba(197, 48, 48, 0.3);
+
+  /* 其他 */
+  --scrollbar-track-bg: var(--color-gray-100);
+  --scrollbar-thumb-bg: var(--color-gray-400);
+  --scrollbar-thumb-hover-bg: var(--color-gray-500);
 
   --font-weight-normal: 400;
   --font-weight-medium: 500;

@@ -287,7 +287,7 @@ outdoor-gear-checklist/
 
 本项目遵循 [Conventional Commits](https://www.conventionalcommits.org/) 规范。
 
-详细的提交信息格式和最佳实践请参考：[COMMIT_CONVENTION.md](COMMIT_CONVENTION.md)
+详细的提交信息格式和最佳实践请参考：[**项目提交规范**](https://github.com/iskssssss/outdoor-gear-checklist-docs/blob/main/standards/COMMIT_CONVENTION.md)
 
 **提交类型**：
 - `feat:` 新功能
@@ -309,23 +309,21 @@ outdoor-gear-checklist/
 
 ## 📚 文档
 
-| 文档 | 说明 |
-|------|------|
-| [使用指南](docs/USAGE.md) | 详细的功能说明和操作指南 |
-| [贡献指南](docs/CONTRIBUTING.md) | 如何参与项目贡献 |
-| [开发指南](docs/DEVELOPMENT.md) | 开发环境配置和开发流程 |
-| [架构文档](docs/ARCHITECTURE.md) | 项目架构和技术选型 |
-| [部署指南](docs/DEPLOYMENT.md) | 部署到各种平台的方法 |
-| [版本发布](docs/RELEASE.md) | 版本发布流程和规范 |
-| [提交规范](docs/COMMIT_CONVENTION.md) | Git 提交信息规范 |
-| [项目路线图](docs/ROADMAP.md) | 功能规划和发展方向 |
-| [常见问题](docs/FAQ.md) | 常见问题解答 |
-| [安全政策](docs/SECURITY.md) | 安全问题报告流程 |
-| [行为准则](docs/CODE_OF_CONDUCT.md) | 社区行为规范 |
+| 文档                               | 说明                                     |
+| ---------------------------------- | ---------------------------------------- |
+| [使用指南](./docs/guides/USAGE.md)     | 详细的功能说明和操作指南                 |
+| [架构文档](./docs/architecture/ARCHITECTURE.md) | 项目架构和技术选型                     |
+| [主题指南](./docs/guides/THEME_USAGE_GUIDE.md) | 主题系统设计与使用                     |
+| [组件指南](./docs/guides/BASE_COMPONENTS_GUIDE.md) | 基础 UI 组件使用文档                   |
+| [贡献指南](https://github.com/iskssssss/outdoor-gear-checklist-docs/blob/main/standards/CONTRIBUTING.md) | 如何参与项目贡献                         |
+| [行为准则](https://github.com/iskssssss/outdoor-gear-checklist-docs/blob/main/standards/CODE_OF_CONDUCT.md) | 社区行为规范                           |
+| [安全政策](https://github.com/iskssssss/outdoor-gear-checklist-docs/blob/main/standards/SECURITY.md) | 安全问题报告流程                         |
+| [版本发布](https://github.com/iskssssss/outdoor-gear-checklist-docs/blob/main/standards/RELEASE.md) | 版本发布流程和规范                     |
+| [项目路线图](./docs/ROADMAP.md)          | 功能规划和发展方向                     |
 
 ## 📝 更新日志
 
-详细的更新历史请参见 [CHANGELOG.md](docs/CHANGELOG.md)。
+详细的更新历史请参见 [**项目更新日志**](https://github.com/iskssssss/outdoor-gear-checklist-docs/blob/main/CHANGELOG.md)。
 
 ## 📄 许可证
 

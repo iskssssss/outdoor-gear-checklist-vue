@@ -2,7 +2,7 @@
   <BaseModal ref="modalRef" title="🔀 分类排序" title-tag="h2" width="500px" max-height="80vh"
     :close-on-overlay-click="false" :show-footer="true" @close="handleClose">
     <template #default>
-      <p class="hint-text">拖动卡片可以调整分类顺序</p>
+      <BaseAlert type="info" size="sm" message="拖动卡片可以调整分类顺序" />
 
       <div class="sort-list">
         <div v-for="(category, index) in sortedCategories" :key="category.id" class="sort-item" draggable="true"
@@ -17,16 +17,15 @@
     </template>
 
     <template #footer>
-      <button class="btn btn-secondary" @click="debouncedClose">取消</button>
-      <button class="btn btn-primary" @click="debouncedSaveSort">保存顺序</button>
+      <BaseButtonGroup :buttons="sortActionButtons" justify="end" />
     </template>
   </BaseModal>
 </template>
 
 <script setup>
 import { ref, defineExpose } from 'vue'
-import { useEquipmentStore } from '../../stores/equipment'
-import BaseModal from '../common/BaseModal.vue'
+import { useEquipmentStore } from '@/stores/equipment.ts'
+import { BaseModal, BaseButton, BaseAlert, BaseButtonGroup } from '@/components/common'
 import { useDebounceFn } from '@vueuse/core';
 
 const equipmentStore = useEquipmentStore()
@@ -106,6 +105,26 @@ function saveOrder() {
 
 const debouncedSaveSort = useDebounceFn(saveOrder, 300);
 const debouncedClose = useDebounceFn(close, 300);
+
+// ==================== 数据驱动的按钮组配置 ====================
+
+// 排序操作按钮组（定义在 debounced 函数之后）
+const sortActionButtons = [
+  {
+    value: 'cancel',
+    label: '取消',
+    variant: 'secondary',
+    handler: debouncedClose
+  },
+  {
+    value: 'save',
+    label: '保存顺序',
+    variant: 'primary',
+    handler: debouncedSaveSort
+  }
+]
+
+// ==================== 数据驱动配置结束 ====================
 
 // 暴露方法给父组件
 defineExpose({
@@ -190,34 +209,7 @@ defineExpose({
   justify-content: center;
 }
 
-.btn {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.btn-primary {
-  background: var(--primary-color);
-  color: var(--btn-primary-text, white);
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
-  }
-}
-
-.btn-secondary {
-  background: var(--bg-input);
-  color: var(--text-primary);
-
-  &:hover {
-    background: var(--bg-hover);
-  }
-}
+// BaseButton 已接管所有按钮样式
 
 /* 响应式设计 */
 @media (max-width: 768px) {
