@@ -14,15 +14,28 @@
 
 ## 🎨 组件列表
 
+### Others 其他组件 ⭐
+| 组件 | 文件 | 用途 |
+|------|------|------|
+| **BackToTopButton** | `others/BackToTopButton.vue` | 返回顶部按钮 |
+| **BaseDivider** | `others/BaseDivider.vue` | 分隔线 ⭐ |
+
+---
+
 ### Form 表单组件
 | 组件 | 文件 | 用途 |
 |------|------|------|
 | **BaseButton** | `form/BaseButton.vue` | 统一按钮样式 |
+| **BaseButtonGroup** | `form/BaseButtonGroup.vue` | 按钮组 ⭐ |
 | **BaseInput** | `form/BaseInput.vue` | 统一输入框样式 |
 | **BaseSelect** | `form/BaseSelect.vue` | 统一下拉框样式 |
 | **BaseTextarea** | `form/BaseTextarea.vue` | 统一文本域样式 |
 | **BaseCheckbox** | `form/BaseCheckbox.vue` | 统一复选框样式 ⭐ |
 | **BaseRadio** | `form/BaseRadio.vue` | 统一单选框样式 ⭐ |
+| **BaseSwitch** | `form/BaseSwitch.vue` | 开关组件 ⭐ |
+| **BaseForm** | `form/BaseForm.vue` | 表单容器 ⭐ |
+| **BaseFormField** | `form/BaseFormField.vue` | 表单项包装器 ⭐ |
+| **InputSelect** | `form/InputSelect.vue` | 输入选择器（已弃用） |
 
 ### Data 数据展示组件
 | 组件 | 文件 | 用途 |
@@ -30,6 +43,8 @@
 | **BaseCard** | `data/BaseCard.vue` | 统一卡片容器 |
 | **BaseTable** | `data/BaseTable.vue` | 统一表格样式 |
 | **BaseBadge** | `data/BaseBadge.vue` | 统一标签徽章 |
+| **BaseStatCard** | `data/BaseStatCard.vue` | 统计卡片 ⭐ |
+| **MarkdownViewer** | `data/MarkdownViewer.vue` | Markdown 渲染器 ⭐ |
 
 ### Feedback 反馈组件
 | 组件 | 文件 | 用途 |
@@ -38,6 +53,9 @@
 | **BaseConfirm** | `feedback/BaseConfirm.vue` | 统一确认对话框 |
 | **BaseEmpty** | `feedback/BaseEmpty.vue` | 统一空状态提示 ⭐ |
 | **BaseLoading** | `feedback/BaseLoading.vue` | 统一加载状态 ⭐ |
+| **BaseLoadingOverlay** | `feedback/BaseLoadingOverlay.vue` | 加载遮罩层 ⭐ |
+| **BaseAlert** | `feedback/BaseAlert.vue` | 警告提示 ⭐ |
+| **ToastNotification** | `feedback/ToastNotification.vue` | Toast 通知 ⭐ |
 
 ### Navigation 导航组件 ⭐
 | 组件 | 文件 | 用途 |
@@ -45,6 +63,9 @@
 | **BaseTabs** | `navigation/BaseTabs.vue` | 统一标签页切换 ⭐ |
 | **BaseDropdown** | `navigation/BaseDropdown.vue` | 统一下拉菜单 ⭐ |
 | **BaseDropdownItem** | `navigation/BaseDropdownItem.vue` | 下拉菜单项 ⭐ |
+| **BaseDropdownSubmenu** | `navigation/BaseDropdownSubmenu.vue` | 下拉子菜单 ⭐ |
+| **BaseMenuDropdown** | `navigation/BaseMenuDropdown.vue` | 菜单下拉组件 ⭐ |
+| **BaseButtonDropdown** | `navigation/BaseButtonDropdown.vue` | 按钮下拉组件 ⭐ |
 
 ---
 
@@ -1004,8 +1025,10 @@ import BaseInput from '@/components/common/BaseInput.vue'
 | `<input type="text">` | `BaseInput` | ✅ 已创建 |
 | `<input type="checkbox">` | `BaseCheckbox` | ✅ 已创建 ⭐ |
 | `<input type="radio">` | `BaseRadio` | ✅ 已创建 ⭐ |
+| `<input type="switch">` | `BaseSwitch` | ✅ 已创建 ⭐ |
 | `<select>` | `BaseSelect` | ✅ 已创建 |
 | `<textarea>` | `BaseTextarea` | ✅ 已创建 |
+| `<form>` | `BaseForm` | ✅ 已创建 ⭐ |
 | `<table>` | `BaseTable` | ✅ 已创建 |
 | `<div class="card">` | `BaseCard` | ✅ 已创建 |
 | `<span class="badge">` | `BaseBadge` | ✅ 已创建 |
@@ -1014,6 +1037,8 @@ import BaseInput from '@/components/common/BaseInput.vue'
 | `.empty-state` | `BaseEmpty` | ✅ 已创建 ⭐ |
 | `.loading-spinner` | `BaseLoading` | ✅ 已创建 ⭐ |
 | `<hr>` | `BaseDivider` | ✅ 已创建 ⭐ |
+| `.toast` | `ToastNotification` | ✅ 已创建 ⭐ |
+| `.alert` | `BaseAlert` | ✅ 已创建 ⭐ |
 
 ---
 
@@ -1023,12 +1048,19 @@ import BaseInput from '@/components/common/BaseInput.vue'
 
 - [x] BaseCheckbox - 复选框 ✅
 - [x] BaseRadio - 单选框 ✅
+- [x] BaseSwitch - 开关 ✅
 - [x] BaseTabs - 标签页 ✅
 - [x] BaseDropdown - 下拉菜单 ✅
 - [x] BaseEmpty - 空状态 ✅
 - [x] BaseLoading - 加载状态 ✅
 - [x] BaseDivider - 分隔线 ✅
-- [ ] BaseSwitch - 开关
+- [x] BaseAlert - 警告提示 ✅
+- [x] ToastNotification - Toast 通知 ✅
+- [x] BaseButtonGroup - 按钮组 ✅
+- [x] BaseForm - 表单容器 ✅
+- [x] BaseFormField - 表单项包装器 ✅
+- [x] BaseStatCard - 统计卡片 ✅
+- [x] MarkdownViewer - Markdown 渲染器 ✅
 - [ ] BaseTooltip - 提示框
 - [ ] BasePagination - 分页器
 - [ ] BaseProgress - 进度条
