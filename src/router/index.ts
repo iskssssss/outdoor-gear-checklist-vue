@@ -2,12 +2,18 @@ import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router'
 import HomePage from '../components/views/HomePage.vue'
 import DocPage from '../components/views/DocPage.vue'
 import ChangelogPage from '../components/views/ChangelogPage.vue'
+import TransportPage from '../components/views/TransportPage.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
     name: 'Home',
     component: HomePage
+  },
+  {
+    path: '/transport',
+    name: 'Transport',
+    component: TransportPage
   },
   {
     path: '/doc',

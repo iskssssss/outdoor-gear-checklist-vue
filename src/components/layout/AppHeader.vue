@@ -12,6 +12,11 @@
             🗂️ 装备管理
           </router-link>
 
+          <!-- 交通规划 -->
+          <router-link to="/transport" class="nav-link">
+            🚗 交通规划
+          </router-link>
+
           <!-- 使用指南 -->
           <router-link to="/doc" class="nav-link">
             📚 使用指南

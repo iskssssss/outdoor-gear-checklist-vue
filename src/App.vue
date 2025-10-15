@@ -171,7 +171,7 @@ function handleGlobalScroll(event) {
 document.addEventListener('visibilitychange', () => {
   if (!document.hidden) {
     console.log('👀 页面重新获得焦点，检查数据同步...')
-    equipmentStore.syncData()
+    // equipmentStore.syncData() // 暂时注释掉，因为该方法不存在
   }
 })
 

@@ -72,7 +72,10 @@ interface LocalStorageKeys {
   equipmentChecklist: string;
   customRecommendationOptions: string;
   operationLogs: string;
-  lastRecommendations: string; // Add this key if it's used in localStorage
+  lastRecommendations: string;
+  transportRoutes: string;
+  transportBudgets: string;
+  transportReminders: string;
 }
 
 /**
@@ -85,7 +88,10 @@ export const localStorageKeys: LocalStorageKeys = {
   equipmentChecklist: 'outdoorChecklist',
   customRecommendationOptions: 'outdoorCustomRecommendationOptions',
   operationLogs: 'outdoorOperationLogs',
-  lastRecommendations: 'outdoorLastRecommendations' // Add this key if it's used in localStorage
+  lastRecommendations: 'outdoorLastRecommendations',
+  transportRoutes: 'outdoorTransportRoutes',
+  transportBudgets: 'outdoorTransportBudgets',
+  transportReminders: 'outdoorTransportReminders'
 };
 
 interface Option {
