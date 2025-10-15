@@ -10,8 +10,6 @@
 docs/
 ├── guides/            # 使用指南
 ├── architecture/      # 架构文档
-├── development/       # 开发文档
-├── community/         # 社区规范
 ├── CHANGELOG.md       # 更新日志
 ├── RELEASE.md         # 版本发布流程
 ├── ROADMAP.md         # 项目路线图
@@ -44,28 +42,6 @@ docs/
 
 ---
 
-## 💻 开发文档 (development/)
-
-开发环境配置和开发流程文档。
-
-| 文档 | 说明 |
-|------|------|
-| [DEVELOPMENT.md](development/DEVELOPMENT.md) | 开发环境配置和开发流程 |
-| [DEPLOYMENT.md](development/DEPLOYMENT.md) | 部署到各种平台的方法 |
-| [COMMIT_CONVENTION.md](development/COMMIT_CONVENTION.md) | Git 提交信息规范 |
-
----
-
-## 👥 社区规范 (community/)
-
-社区参与和行为规范文档。
-
-| 文档 | 说明 |
-|------|------|
-| [CONTRIBUTING.md](community/CONTRIBUTING.md) | 如何参与项目贡献 |
-| [CODE_OF_CONDUCT.md](community/CODE_OF_CONDUCT.md) | 社区行为准则 |
-| [SECURITY.md](community/SECURITY.md) | 安全问题报告流程 |
-
 ---
 
 ## 📋 项目管理
@@ -92,13 +68,13 @@ docs/
 → 查看 [基础组件指南](guides/BASE_COMPONENTS_GUIDE.md)
 
 #### 💡 参与项目贡献
-→ 查看 [贡献指南](community/CONTRIBUTING.md)
+→ 查看项目根目录的 README.md
 
 #### 🛠️ 搭建开发环境
-→ 查看 [开发指南](development/DEVELOPMENT.md)
+→ 查看项目根目录的 README.md
 
 #### 🚀 部署到生产环境
-→ 查看 [部署指南](development/DEPLOYMENT.md)
+→ 查看项目根目录的 README.md
 
 #### 🏗️ 了解项目架构
 → 查看 [架构文档](architecture/ARCHITECTURE.md)
@@ -107,7 +83,7 @@ docs/
 → 查看 [常见问题](guides/FAQ.md)
 
 #### 🐛 报告安全问题
-→ 查看 [安全政策](community/SECURITY.md)
+→ 提交 GitHub Issue
 
 #### 📅 了解版本计划
 → 查看 [项目路线图](ROADMAP.md)
@@ -122,7 +98,7 @@ docs/
 2. 提交 Pull Request 改进文档
 3. 遵循 [Markdown 规范](https://www.markdownguide.org/)
 
-详细的贡献流程请参考 [贡献指南](community/CONTRIBUTING.md)。
+详细的贡献流程请参考项目根目录的 README.md。
 
 ---
 
