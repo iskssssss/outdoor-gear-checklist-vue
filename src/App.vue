@@ -39,6 +39,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted, provide } from 'vue';
+import { useRouter } from 'vue-router';
 import { useEventListener, useMagicKeys } from '@vueuse/core';
 import AppHeader from './components/layout/AppHeader.vue';
 import AppFooter from './components/layout/AppFooter.vue';
@@ -85,6 +86,9 @@ const modelConfigModalRef = ref(null)
 const operationLogModalRef = ref(null)
 const changelogModalRef = ref(null)
 const themeSelectorModalRef = ref(null)
+
+// 路由
+const router = useRouter()
 
 // 版本检测
 const { checkVersion, currentVersion, previousVersion, confirmUpdate, remindLater } = useVersionChecker()
@@ -196,6 +200,19 @@ function showThemeSelector() {
   themeSelectorModalRef.value?.show()
 }
 
+// 清除使用指南和更新日志缓存
+function clearGuideAndChangelogCache() {
+  // 清除使用指南缓存
+  localStorage.removeItem('outdoor-gear-doc-cache')
+  localStorage.removeItem('outdoor-gear-doc-cache-time')
+  
+  // 清除更新日志缓存
+  localStorage.removeItem('outdoor-gear-changelog-cache')
+  localStorage.removeItem('outdoor-gear-changelog-cache-time')
+  
+  console.log('🧹 已清除使用指南和更新日志缓存，下次访问将获取最新内容')
+}
+
 // 显示版本更新对话框
 function showVersionUpdateDialog() {
   confirmModalRef.value?.show({
@@ -205,10 +222,13 @@ function showVersionUpdateDialog() {
     cancelText: '稍后查看',
     onConfirm: () => {
       confirmUpdate()
-      showChangelog()
+      clearGuideAndChangelogCache()
+      // 跳转到更新日志页面
+      router.push('/changelog')
     },
     onCancel: () => {
       remindLater()
+      clearGuideAndChangelogCache()
     }
   })
 }

@@ -16,7 +16,7 @@
           <button class="btn confirm-btn" :class="{ 'danger': showDangerWarning }" @click="debouncedConfirm">
             {{ confirmButtonText }}
           </button>
-          <button class="btn cancel-btn" @click="debouncedCancel">取消</button>
+          <button class="btn cancel-btn" @click="debouncedCancel">{{ cancelButtonText }}</button>
         </div>
       </div>
     </div>
@@ -36,30 +36,67 @@ const isVisible = ref(false);
 const title = ref('确认')
 const message = ref('')
 const confirmButtonText = ref('确定')
+const cancelButtonText = ref('取消')
 const showDangerWarning = ref(false)
 
+// 回调函数
+let onConfirmCallback = null
+let onCancelCallback = null
 let resolvePromise = null
 
 function show(options) {
   title.value = options.title || '确认'
   message.value = options.message || ''
-  confirmButtonText.value = options.confirmButtonText || '确定'
+  confirmButtonText.value = options.confirmText || options.confirmButtonText || '确定'
+  cancelButtonText.value = options.cancelText || '取消'
   showDangerWarning.value = options.showDangerWarning || false
+  
+  // 保存回调函数
+  onConfirmCallback = options.onConfirm || null
+  onCancelCallback = options.onCancel || null
 
   isVisible.value = true
-  return new Promise(resolve => {
-    resolvePromise = resolve
-  })
+  
+  // 如果传入了回调函数，使用回调方式；否则使用 Promise 方式
+  if (onConfirmCallback || onCancelCallback) {
+    return null
+  } else {
+    return new Promise(resolve => {
+      resolvePromise = resolve
+    })
+  }
 }
 
 function confirm() {
   isVisible.value = false
-  resolvePromise(true)
+  
+  // 优先调用回调函数
+  if (onConfirmCallback) {
+    onConfirmCallback()
+  } else if (resolvePromise) {
+    resolvePromise(true)
+  }
+  
+  // 清理回调函数
+  onConfirmCallback = null
+  onCancelCallback = null
+  resolvePromise = null
 }
 
 function cancel() {
   isVisible.value = false
-  resolvePromise(false)
+  
+  // 优先调用回调函数
+  if (onCancelCallback) {
+    onCancelCallback()
+  } else if (resolvePromise) {
+    resolvePromise(false)
+  }
+  
+  // 清理回调函数
+  onCancelCallback = null
+  onConfirmCallback = null
+  resolvePromise = null
 }
 
 function handleClickOutside() {

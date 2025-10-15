@@ -98,6 +98,15 @@ export function useVersionChecker() {
   function checkVersion(): boolean {
     currentVersion.value = getCurrentVersion();
     const storedInfo = getStoredVersion();
+    const dismissedVersion = localStorage.getItem(VERSION_DISMISSED_KEY);
+
+    console.log('🔍 版本检查详情:', {
+      currentVersion: currentVersion.value,
+      storedVersion: storedInfo?.version || '无',
+      dismissedVersion: dismissedVersion || '无',
+      isNewer: storedInfo ? isNewerVersion(currentVersion.value, storedInfo.version) : false,
+      isDismissed: isVersionDismissed(currentVersion.value)
+    });
 
     if (storedInfo) {
       previousVersion.value = storedInfo.version;
@@ -114,15 +123,22 @@ export function useVersionChecker() {
             `🎉 检测到版本更新: ${storedInfo.version} → ${currentVersion.value}`
           );
           return true;
+        } else {
+          // 版本已被忽略，但仍需要更新存储的版本信息
+          console.log(`⏭️ 版本 ${currentVersion.value} 已被忽略，跳过提示`);
+          saveVersion(currentVersion.value);
         }
+      } else {
+        // 版本相同或当前版本不是更新版本，更新存储信息
+        console.log(`📝 版本相同或非更新版本，更新存储信息`);
+        saveVersion(currentVersion.value);
       }
     } else {
       // 首次访问，保存当前版本
       console.log(`📦 首次访问，当前版本: ${currentVersion.value}`);
+      saveVersion(currentVersion.value);
     }
 
-    // 更新存储的版本
-    saveVersion(currentVersion.value);
     return false;
   }
 
@@ -133,6 +149,7 @@ export function useVersionChecker() {
     saveVersion(currentVersion.value);
     clearDismissed();
     isNewVersion.value = false;
+    console.log(`✅ 用户已确认版本更新: ${currentVersion.value}`);
   }
 
   /**
@@ -141,6 +158,7 @@ export function useVersionChecker() {
   function remindLater(): void {
     dismissVersion(currentVersion.value);
     isNewVersion.value = false;
+    console.log(`⏭️ 用户选择稍后查看版本更新: ${currentVersion.value}`);
   }
 
   return {
