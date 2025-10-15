@@ -26,13 +26,14 @@
       <aside v-if="showToc && tableOfContents.length > 0" class="markdown-toc">
         <div class="toc-header">
           <h3>📑 目录</h3>
-          <button v-if="showRefreshButton" class="refresh-btn" @click="$emit('refresh')"
+          <BaseButton v-if="showRefreshButton" variant="text" size="sm" @click="$emit('refresh')"
             :disabled="loading || cooldownTime > 0"
-            :title="loading ? '加载中...' : cooldownTime > 0 ? `请等待 ${cooldownTime} 秒后再刷新` : '刷新内容'">
+            :title="loading ? '加载中...' : cooldownTime > 0 ? `请等待 ${cooldownTime} 秒后再刷新` : '刷新内容'"
+            class="refresh-btn">
             <span :class="{ 'spinning': loading }">
               {{ cooldownTime > 0 ? cooldownTime : '🔄' }}
             </span>
-          </button>
+          </BaseButton>
         </div>
         <nav class="toc-nav">
           <ul class="toc-list">
@@ -52,7 +53,8 @@
 <script setup>
 import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
 // 1. 导入 eventBus
-import { eventBus } from '../../../utils/eventBus';
+import { eventBus } from '@/utils/eventBus.js';
+import { BaseButton } from '@/components/common';
 
 const props = defineProps({
   content: {
@@ -582,27 +584,8 @@ defineExpose({
   }
 }
 
+// BaseButton 已接管刷新按钮样式
 .refresh-btn {
-  padding: var(--spacing-xs) var(--spacing-sm);  /* 小按钮紧凑内边距 */
-  background: transparent;
-  color: var(--text-secondary);
-  border: var(--border-width) solid var(--border-color);
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  font-size: 0.9rem;
-  transition: all 0.3s ease;
-
-  &:hover:not(:disabled) {
-    background: var(--bg-hover);
-    color: var(--primary-color);
-    border-color: var(--primary-color);
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
   .spinning {
     display: inline-block;
     animation: spin 1s linear infinite;

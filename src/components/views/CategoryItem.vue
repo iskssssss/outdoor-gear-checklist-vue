@@ -80,7 +80,7 @@
 
 <script setup>
 import { ref, computed, nextTick, watch, inject } from 'vue'
-import { useEquipmentStore } from '../../stores/equipment'
+import { useEquipmentStore } from '@/stores/equipment.js'
 import EquipmentItem from './EquipmentItem.vue'
 import { useDebounceFn } from '@vueuse/core'
 import { BaseButton, BaseButtonDropdown, BaseDropdownItem } from '@/components/common'

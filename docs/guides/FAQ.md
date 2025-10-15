@@ -178,8 +178,8 @@ A: 尝试：
 
 A:
 ```bash
-git clone https://github.com/iskssssss/hiking-checklist-vue.git
-cd hiking-checklist-vue
+git clone https://github.com/iskssssss/outdoor-gear-checklist.git
+cd outdoor-gear-checklist
 npm install
 npm run dev
 ```

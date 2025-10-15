@@ -106,7 +106,7 @@
 
 <script setup>
 import { computed, ref } from 'vue'
-import { useEquipmentStore } from '../../stores/equipment'
+import { useEquipmentStore } from '@/stores/equipment.js'
 import { BaseStatCard, BaseButton } from '@/components/common'
 import { BaseChart } from '@/components/charts'
 import { useEquipmentChartData } from '@/composables/useChartData'

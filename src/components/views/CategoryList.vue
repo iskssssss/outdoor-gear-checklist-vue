@@ -141,8 +141,8 @@
 
 <script setup>
 import { ref, computed, nextTick, watch, onMounted, onUnmounted, inject } from 'vue'
-import { useEquipmentStore } from '../../stores/equipment'
-import { useOperationLogStore } from '../../stores/operationLog'
+import { useEquipmentStore } from '@/stores/equipment.js'
+import { useOperationLogStore } from '@/stores/operationLog.js'
 // 引入
 import CategoryItem from './CategoryItem.vue'
 import WaterfallLayout from '../layout/WaterfallLayout.vue'
@@ -152,7 +152,7 @@ import ExportPreview from './ExportPreview.vue'
 import ImportCartModal from '../modals/ImportCartModal.vue'
 import CategoryTableView from './CategoryTableView.vue'
 import html2canvas from 'html2canvas'
-import { imageExportConfig } from '../../config/appConfig'
+import { imageExportConfig } from '@/config/appConfig.js'
 import { useDebounceFn } from '@vueuse/core'
 
 // 定义事件
@@ -744,34 +744,7 @@ const debouncedToggleGroupByStatus = useDebounceFn(toggleGroupByStatus, 300)
     flex-wrap: wrap;
   }
 
-  .btn {
-    transition: all 0.3s ease;
-    font-size: 0.9rem;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-
-    &:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-md);
-    }
-  }
-
-  .btn-icon,
-  .btn-text {
-    display: inline-block;
-  }
-
-  // 智能推荐按钮样式
-  :deep(.btn-recommendation) {
-    // BaseButton 的额外样式
-    position: relative;
-
-    .btn-icon {
-      font-size: 1.1rem;
-      line-height: 1;
-    }
-  }
+  // BaseButton 已接管所有按钮样式
 
   // 通用下拉菜单容器
   .action-dropdown,
@@ -809,44 +782,7 @@ const debouncedToggleGroupByStatus = useDebounceFn(toggleGroupByStatus, 300)
     }
   }
 
-  // 撤销按钮样式
-  :deep(.btn-undo) {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    position: relative;
-
-    &:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      background: var(--text-muted);
-      border-color: var(--text-muted);
-      box-shadow: none;
-      filter: none;
-    }
-
-    .undo-icon {
-      font-size: 1.1rem;
-      line-height: 1;
-    }
-
-    .undo-text {
-      font-weight: 600;
-    }
-
-    .undo-count {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 18px;
-      height: 18px;
-      padding: 0 5px;
-      background: var(--bg-mask);
-      border-radius: 9px;
-      font-size: 0.7rem;
-      font-weight: 700;
-    }
-  }
+  // BaseButton 已接管撤销按钮样式
 }
 
 // 下拉菜单样式
@@ -1042,22 +978,7 @@ const debouncedToggleGroupByStatus = useDebounceFn(toggleGroupByStatus, 300)
   box-shadow: var(--shadow-md);
 }
 
-.category-input {
-  width: 100%;
-  padding: 12px 16px;
-  border: var(--border-width) solid var(--border-color);
-  border-radius: var(--border-radius);
-  font-size: 1rem;
-  background: var(--bg-input);
-  color: var(--text-primary);
-  transition: all 0.3s ease;
-}
-
-.category-input:focus {
-  outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px var(--primary-color-shadow);
-}
+// BaseInput 已接管所有输入框样式
 
 .input-actions {
   display: flex;
@@ -1065,51 +986,7 @@ const debouncedToggleGroupByStatus = useDebounceFn(toggleGroupByStatus, 300)
   justify-content: center;
 }
 
-.btn {
-  padding: 10px 24px;
-  border: none;
-  border-radius: var(--border-radius);
-  font-size: 0.95rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.btn-sm {
-  padding: 8px 16px;
-  font-size: 0.9rem;
-}
-
-.btn-primary {
-  background: var(--primary-color);
-  color: var(--btn-primary-text);
-
-  &:hover {
-    background: var(--primary-dark);
-  }
-
-  &:active {
-    transform: translateY(-2px) scale(0.95);
-  }
-}
-
-.btn-secondary {
-  background: var(--text-muted);
-  color: var(--text-white);
-
-  &:hover {
-    background: var(--text-secondary);
-  }
-}
-
-.btn {
-  transition: all 0.2s ease;
-}
-
-.btn:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-}
+// BaseButton 已接管所有按钮样式
 
 /* 响应式布局 */
 @media (max-width: 1200px) {
@@ -1171,38 +1048,7 @@ const debouncedToggleGroupByStatus = useDebounceFn(toggleGroupByStatus, 300)
       justify-content: center;
     }
 
-    .btn-recommendation {
-      padding: 6px 12px;
-      font-size: 0.85rem;
-
-      .btn-icon {
-        font-size: 1rem;
-      }
-
-      .btn-text {
-        font-size: 0.85rem;
-      }
-    }
-
-    .btn-undo {
-      padding: 6px 12px;
-      font-size: 0.85rem;
-
-      .undo-icon {
-        font-size: 1rem;
-      }
-
-      .undo-text {
-        font-size: 0.85rem;
-      }
-
-      .undo-count {
-        min-width: 16px;
-        height: 16px;
-        padding: 0 4px;
-        font-size: 0.65rem;
-      }
-    }
+    // BaseButton 已接管所有按钮样式
   }
 
   .action-menu,
@@ -1235,22 +1081,7 @@ const debouncedToggleGroupByStatus = useDebounceFn(toggleGroupByStatus, 300)
   }
 }
 
-.category-input {
-  width: 100%;
-  padding: 12px 16px;
-  border: var(--border-width) solid var(--border-color);
-  border-radius: var(--border-radius);
-  font-size: 1rem;
-  background: var(--bg-input);
-  color: var(--text-primary);
-  transition: all 0.3s ease;
-}
-
-.category-input:focus {
-  outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px var(--primary-color-shadow);
-}
+// BaseInput 已接管所有输入框样式
 
 .input-actions {
   display: flex;
@@ -1258,51 +1089,7 @@ const debouncedToggleGroupByStatus = useDebounceFn(toggleGroupByStatus, 300)
   justify-content: center;
 }
 
-.btn {
-  padding: 10px 24px;
-  border: none;
-  border-radius: var(--border-radius);
-  font-size: 0.95rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.btn-sm {
-  padding: 8px 16px;
-  font-size: 0.9rem;
-}
-
-.btn-primary {
-  background: var(--primary-color);
-  color: var(--btn-primary-text);
-
-  &:hover {
-    background: var(--primary-dark);
-  }
-
-  &:active {
-    transform: translateY(-2px) scale(0.95);
-  }
-}
-
-.btn-secondary {
-  background: var(--text-muted);
-  color: var(--text-white);
-
-  &:hover {
-    background: var(--text-secondary);
-  }
-}
-
-.btn {
-  transition: all 0.2s ease;
-}
-
-.btn:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-}
+// BaseButton 已接管所有按钮样式
 
 /* 响应式布局 */
 @media (max-width: 1200px) {
@@ -1326,38 +1113,7 @@ const debouncedToggleGroupByStatus = useDebounceFn(toggleGroupByStatus, 300)
       justify-content: center;
     }
 
-    .btn-recommendation {
-      padding: 6px 12px;
-      font-size: 0.85rem;
-
-      .btn-icon {
-        font-size: 1rem;
-      }
-
-      .btn-text {
-        font-size: 0.85rem;
-      }
-    }
-
-    .btn-undo {
-      padding: 6px 12px;
-      font-size: 0.85rem;
-
-      .undo-icon {
-        font-size: 1rem;
-      }
-
-      .undo-text {
-        font-size: 0.85rem;
-      }
-
-      .undo-count {
-        min-width: 16px;
-        height: 16px;
-        padding: 0 4px;
-        font-size: 0.65rem;
-      }
-    }
+    // BaseButton 已接管所有按钮样式
   }
 
   .action-menu,
