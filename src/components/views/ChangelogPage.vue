@@ -39,7 +39,7 @@ defineEmits(['close'])
 const router = useRouter()
 
 // GitHub仓库配置
-const GITHUB_REPO = 'iskssssss/outdoor-gear-checklist'
+const GITHUB_REPO = 'iskssssss/outdoor-gear-checklist-vue'
 const GITHUB_BRANCH = 'main'
 const GITHUB_DOC_PATH = 'docs/CHANGELOG.md'
 

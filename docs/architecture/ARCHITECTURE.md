@@ -25,6 +25,8 @@
 | Vite | 5.x | 构建工具 |
 | Pinia | 2.x | 状态管理 |
 | Vue Router | 4.x | 路由管理 |
+| ECharts | 6.x | 数据可视化图表库 |
+| vue-echarts | 8.x | ECharts Vue 组件封装 |
 
 ### UI 与样式
 
@@ -40,6 +42,7 @@
 |------|------|
 | @vueuse/core | Vue Composition API 工具集 |
 | uuid | 唯一标识符生成 |
+| html2canvas | 页面截图导出 |
 
 ### 开发工具
 
