@@ -122,8 +122,16 @@ const baseConfig = computed(() => ({
     show: true,
     top: props.showTitle ? 'bottom' : 'top',
     textStyle: {
-      color: chartColors.value.text
-    }
+      color: chartColors.value.text,
+      fontSize: 12
+    },
+    // 当分类过多时，使用滚动图例
+    type: 'scroll',
+    orient: 'horizontal',
+    left: 'center',
+    itemGap: 10,
+    itemWidth: 14,
+    itemHeight: 14
   } : { show: false },
   tooltip: {
     trigger: 'item',
@@ -155,11 +163,23 @@ const chartOption = computed(() => {
   
   switch (props.type) {
     case 'pie':
+      // 根据数据项数量调整标签显示策略
+      const dataLength = props.data?.length || 0
+      const shouldShowLabels = dataLength <= 6 // 超过6个分类时不显示标签，避免重叠
+      
+      // 根据数据量调整饼图大小
+      const getRadius = () => {
+        if (dataLength <= 3) return ['45%', '75%']
+        if (dataLength <= 6) return ['40%', '70%']
+        if (dataLength <= 10) return ['35%', '65%']
+        return ['30%', '60%']
+      }
+      
       return {
         ...config,
         series: [{
           type: 'pie',
-          radius: ['40%', '70%'],
+          radius: getRadius(),
           center: ['50%', '50%'],
           data: props.data,
           emphasis: {
@@ -170,17 +190,28 @@ const chartOption = computed(() => {
             }
           },
           itemStyle: {
-            borderRadius: 8,
+            borderRadius: dataLength <= 6 ? 8 : 4, // 分类多时减少圆角
             borderColor: chartColors.value.bg,
             borderWidth: 2
           },
           label: {
-            show: true,
-            formatter: '{b}: {c}'
+            show: shouldShowLabels,
+            formatter: '{b}: {c}',
+            fontSize: dataLength <= 4 ? 12 : 10, // 根据分类数量调整字体大小
+            fontWeight: 'normal',
+            color: chartColors.value.text
           },
           labelLine: {
-            show: true
-          }
+            show: shouldShowLabels,
+            length: dataLength <= 4 ? 15 : 12,
+            length2: dataLength <= 4 ? 10 : 8,
+            smooth: true,
+            lineStyle: {
+              color: chartColors.value.border
+            }
+          },
+          // 当分类过多时，启用图例显示
+          legendHoverLink: true
         }]
       }
       

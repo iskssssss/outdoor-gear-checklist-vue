@@ -26,7 +26,7 @@
         <BaseChart
           type="pie"
           :data="categoryDistributionData"
-          height="200px"
+          :height="categoryChartHeight"
           @click="handleChartClick"
         />
       </div>
@@ -147,6 +147,31 @@ const averagePrice = computed(() => {
   if (equipmentStore.totalItems === 0) return 0
   const totalPrice = parseFloat(equipmentStore.totalPrice.replace('人民币', ''))
   return (totalPrice / equipmentStore.totalItems).toFixed(2)
+})
+
+/**
+ * 分类分布饼图高度（根据分类数量动态调整）
+ */
+const categoryChartHeight = computed(() => {
+  const categoryCount = categoryDistributionData.value.length
+  
+  // 基础高度
+  let baseHeight = 200
+  
+  // 根据分类数量调整高度
+  if (categoryCount <= 3) {
+    baseHeight = 200
+  } else if (categoryCount <= 5) {
+    baseHeight = 250
+  } else if (categoryCount <= 8) {
+    baseHeight = 300
+  } else if (categoryCount <= 12) {
+    baseHeight = 350
+  } else {
+    baseHeight = 400
+  }
+  
+  return `${baseHeight}px`
 })
 
 /**
@@ -390,6 +415,16 @@ function handleChartClick(params) {
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 20px;
   margin-bottom: 24px;
+  
+  // 响应式设计
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  @media (max-width: 480px) {
+    gap: 12px;
+  }
 }
 
 .chart-container {
@@ -398,6 +433,7 @@ function handleChartClick(params) {
   border-radius: var(--border-radius-lg);
   padding: 16px;
   transition: all 0.3s ease;
+  min-height: 200px; // 确保最小高度
   
   &:hover {
     transform: translateY(-2px);
@@ -411,6 +447,22 @@ function handleChartClick(params) {
     font-size: 1rem;
     font-weight: 600;
     text-align: center;
+  }
+  
+  // 响应式设计
+  @media (max-width: 768px) {
+    padding: 12px;
+    min-height: 180px;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 8px;
+    min-height: 160px;
+    
+    h4 {
+      font-size: 0.9rem;
+      margin-bottom: 8px;
+    }
   }
 }
 
