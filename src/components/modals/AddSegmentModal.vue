@@ -401,6 +401,55 @@ const handleClose = () => {
   emit('close')
 }
 
+/**
+ * 重置表单数据到初始状态
+ */
+const resetFormData = () => {
+  // 重置表单数据
+  formData.transportType = '' as TransportType
+  formData.departure = {
+    name: '',
+    address: '',
+    coordinates: undefined
+  }
+  formData.arrival = {
+    name: '',
+    address: '',
+    coordinates: undefined
+  }
+  formData.departureTime = ''
+  formData.arrivalTime = ''
+  formData.duration = 0
+  formData.distance = undefined as number | undefined
+  formData.cost = {
+    baseCost: 0,
+    totalCost: 0,
+    currency: 'CNY',
+    otherCosts: [] as Array<{
+      name: string
+      amount: number
+      description?: string
+    }>
+  }
+  formData.notes = ''
+  
+  // 重置其他状态
+  isSubmitting.value = false
+  showExtraCosts.value = false
+  
+  // 重置错误信息
+  Object.keys(errors).forEach(key => {
+    errors[key as keyof typeof errors] = ''
+  })
+}
+
+// 监听模态框显示状态，每次打开时重置表单
+watch(isVisible, (newVisible) => {
+  if (newVisible) {
+    resetFormData()
+  }
+})
+
 // 监听变化
 watch(() => formData.duration, calculateArrivalTime)
 watch(() => formData.departureTime, calculateArrivalTime)
