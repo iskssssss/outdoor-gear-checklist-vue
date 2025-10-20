@@ -399,6 +399,57 @@ const handleClose = () => {
   emit('close')
 }
 
+/**
+ * 重置表单数据到初始状态
+ */
+const resetFormData = () => {
+  // 重置基本信息
+  formData.name = ''
+  formData.description = ''
+  formData.tags = []
+  
+  // 重置行程段数据
+  formData.segments = [{
+    transportType: TransportType.PLANE,
+    departure: {
+      name: '',
+      address: '',
+      coordinates: undefined as { lat: number; lng: number } | undefined
+    },
+    arrival: {
+      name: '',
+      address: '',
+      coordinates: undefined as { lat: number; lng: number } | undefined
+    },
+    departureTime: '',
+    arrivalTime: '',
+    duration: 0,
+    distance: undefined as number | undefined,
+    cost: {
+      baseCost: 0,
+      totalCost: 0,
+      currency: 'CNY'
+    },
+    notes: ''
+  }]
+  
+  // 重置其他状态
+  newTag.value = ''
+  isSubmitting.value = false
+  
+  // 重置错误信息
+  Object.keys(errors).forEach(key => {
+    errors[key as keyof typeof errors] = ''
+  })
+}
+
+// 监听模态框显示状态，每次打开时重置表单
+watch(isVisible, (newVisible) => {
+  if (newVisible) {
+    resetFormData()
+  }
+})
+
 // 监听时长变化，自动计算到达时间
 watch(() => formData.segments[0].duration, calculateArrivalTime)
 watch(() => formData.segments[0].departureTime, calculateArrivalTime)

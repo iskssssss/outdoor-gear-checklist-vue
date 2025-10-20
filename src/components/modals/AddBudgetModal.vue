@@ -106,7 +106,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, watch } from 'vue'
 import { TransportType } from '@/types/transport'
 import { 
   BaseModal, 
@@ -265,6 +265,36 @@ const handleClose = () => {
   isVisible.value = false
   emit('close')
 }
+
+/**
+ * 重置表单数据到初始状态
+ */
+const resetFormData = () => {
+  // 重置表单数据
+  formData.name = ''
+  formData.totalBudget = 0
+  formData.currency = 'CNY'
+  formData.categories = [
+    { type: TransportType.PLANE, budget: 0, used: 0 },
+    { type: TransportType.HIGH_SPEED_RAIL, budget: 0, used: 0 },
+    { type: TransportType.TRAIN, budget: 0, used: 0 }
+  ]
+  
+  // 重置其他状态
+  isSubmitting.value = false
+  
+  // 重置错误信息
+  Object.keys(errors).forEach(key => {
+    errors[key as keyof typeof errors] = ''
+  })
+}
+
+// 监听模态框显示状态，每次打开时重置表单
+watch(isVisible, (newVisible) => {
+  if (newVisible) {
+    resetFormData()
+  }
+})
 </script>
 
 <style scoped lang="scss">
